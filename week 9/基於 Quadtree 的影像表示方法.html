@@ -1,0 +1,647 @@
+<html><head>
+<title>基於 Quadtree 的影像表示方法</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="%E5%9F%BA%E6%96%BC%20Quadtree%20%E7%9A%84%E5%BD%B1%E5%83%8F%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95_files/cyan_diffuse.html">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體">1062 Quiz#2 基於 Quadtree 的影像表示方法</font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="%E5%9F%BA%E6%96%BC%20Quadtree%20%E7%9A%84%E5%BD%B1%E5%83%8F%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95_files/rainbow.gif"> </font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <th width="700" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><p><font face="微軟正黑體"><b><font size="+1" color="#666699">C++ 實習測試: 基於 
+          Quadtree 的影像表示方法 - ImageQT 類別</font></b></font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><font face="微軟正黑體">時間: <strong>180</strong>分鐘 (<strong>107/04/23 星期一</strong> 
+        <strong><font size="+1" color="#FF0000">18:00</font></strong> ~ <strong><font size="+1" color="#FF0000">21:00</font></strong> 
+        上傳時間截止)</font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <th align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="7999" bgcolor="#DDEEBB"> 
+        <p><font face="微軟正黑體">在這個測試裡, 我們把正課期中考的 
+          ImageBM 類別和 ImageQT 類別製作出來， 並且進一步設計其它的功能， 你需要在編譯器的協助下克服所有的語法問題。可以看書， 
+          可以看講義， 可以 google， 可以線上查參考資料， 不過拜託不要跟同學討論， 不要線上跟別人求救， 只要你沒有放棄， 說不定自己今天就有一些體會， 
+          突破自己的盲點， <font color="#FF0000">不要憑白放棄一次嘗試的機會， 不要繳交別人寫好的 code</font>， 
+          對於題目的描述有疑問覺得有模稜兩可的請一定要直接提問， 不過應該不會問為什麼有紅色蚯蚓線? 為什麼編譯不成功? 為什麼會程式會當掉? ... 
+          經過了這麼一段時間的練習， 這樣的問題你可以保留給自己， 你一定可以找到解答的。</font></p>
+        <p align="center"><img src="%E5%9F%BA%E6%96%BC%20Quadtree%20%E7%9A%84%E5%BD%B1%E5%83%8F%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95_files/fig1.gif" width="478" height="186"></p>
+        <p><font face="微軟正黑體">上圖右的 Quadtree (四元樹， 四叉樹， Q-tree) 是一個在影像處理、電腦圖學、線上遊戲、以及地理資訊系統裡面用途很廣的工具。在影像處理的應用裡， 
+          Quadtree 可以依照影像各部份資訊量的多寡來調整影像的表示方法，整個區域一片空白或是顏色相同時就可以用一個點來代表整個區域，基本表示方法是將影像分成四個象限，每一部份又可以再分為四個部份…，如果在一個象限中所有像素 
+          (pixel) 的顏色都一樣，就可以用單一節點來代表整個區域，我們只考慮 32x32 個像素的黑白圖片，上圖右一個根節點下面的整個 Quadtree 
+          代表一張影像，四個子節點分別代表這張影像的四個象限，子節點的順序和象限的對應關係如上左圖所示，樹狀架構下方的字串是這個 Quadtree 
+          範例的 preorder 記錄方法(先寫父節點再寫子節點)，其中 p 代表父節點，e 代表全白色的子節點，f 代表全黑色的子節點。以下我們設計兩個類別， 
+          ImageQT 類別以 Quadtree 表示影像 ，ImageBM 類別則以點陣圖表示影像 。</font></p>
+        <p><font face="微軟正黑體">這兩個類別的基本功能條列如下:</font></p>
+        <ol>
+          <li><font face="微軟正黑體">ImageBM 類別用標準函式庫的 vector 容器類別設計存放整數的<font color="#FF0000">二維</font>陣列 
+            m_bits (可以容納 32 x 32 個 0 或 1 的整數資料)， 類別裡面請定義一個整數常數 size， 數值為 32<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageBM 類別的物件可以由類似 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/bunny32x32.txt">bunny32x32.txt</a> 
+            或是 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/otter32x32.txt">otter32x32.txt</a> 的檔案串流中建構出來<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageBM 類別有一個可以正確運作但是<font color="#FF0000">不必要</font>的拷貝建構元<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageQT 類別的物件可以架構出一個 Quadtree， 類別圖如下<br>
+            <img src="%E5%9F%BA%E6%96%BC%20Quadtree%20%E7%9A%84%E5%BD%B1%E5%83%8F%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95_files/fig2.gif" width="159" height="89"><br>
+            這個類別裡主要只有兩個資料成員， 其中 m_bit 是一個整數記錄顏色 (1:黑色, 0:白色, -1:代表的影像區域中像素有的是黑色有的是白色)，m_quads[4] 
+            是指向四個子樹的指標陣列，每一個元素是 ImageQT* 型態，如果是一個葉節點的話, 四個指標都是 NULL<br>
+            <br>
+            </font></li>
+          <li> <font face="微軟正黑體">ImageQT 類別的物件可以由 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/bunny32x32qt.txt">bunny32x32qt.txt</a> 
+            或是 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/otter32x32qt.txt">otter32x32qt.txt</a> 的檔案串流中建構出來<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageQT 類別有一個界面 bool equals(ImageQT &amp;rhs) 
+            const 可以比對兩個 ImageQT 類別物件是否具有完全相同架構的 Quadtree<br>
+            </font><br>
+          </li>
+          <li><font face="微軟正黑體">ImageQT 類別有一個零個或是一個引數的建構元 ImageQT(int bw=-1)，將 
+            m_bit 初始化為傳入的整數 bw，將指標m_quads[4] 初始化為 0，因為有參數預設值所以可以作為預設建構元來使用</font><br>
+            <br>
+          </li>
+          <li><font face="微軟正黑體">ImageQT 類別有一個解構元 (destructor) 函式可以刪除以該物件為根節點的整個子樹<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageQT 類別有一個拷貝建構元 (copy constructor) 函式<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageQT 類別有一個設定運算子 (assignment operator) 函式 ImageQT&amp; 
+            operator=(const ImageQT&amp;)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageBM 類別有一個型態轉換的建構元，能夠由 ImageQT 類別的物件建構出 ImageBM 
+            類別的物件， 因為 ImageQT類別的資料成員 ImageQT::m_bit 以及 ImageQT::m_quads 存放私有的影像資料，不該讓 
+            ImageBM 類別的成員函式讀取，所以要倒過來思考，當我們需要轉換成點陣圖影像時，可以把空的陣列 ImageBM::m_bits 
+            傳給 ImageQT 類別的成員函式，讓它幫忙填寫影像的內容，例如製作一個 ImageQT::fillBitmap() 界面，這個界面還需要指定影像的左上角座標以及影像的邊長，使用的方法像是 
+            src.fillBitmap(m_bits, 0, 0, size)，後面這三個參數主要是為了遞迴的函式呼叫設計的 (咦，會不會有私有的成員 
+            ImageBM::m_bits 被 ImageQT 類別直接存取的問題啊? 你覺得呢?)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageBM 類別有一個 void writeBM(ostream&amp;) 界面，可以在螢幕或是檔案中輸出如下圖的32x32點陣資料 
+            (黑色請輸出 '*' 字元，白色請輸出空白字元)，請運用上題的型態轉換建構元，替 ImageQT 類別也設計一個 void writeBM(ostream&amp;) 
+            界面<br>
+            <img src="%E5%9F%BA%E6%96%BC%20Quadtree%20%E7%9A%84%E5%BD%B1%E5%83%8F%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95_files/fig3.gif" width="354" height="309"><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageBM 類別有一個 int countBlackPixels() 的界面，可以計算點陣圖影像中有幾個黑色的像素<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">ImageQT 類別也有一個 int countBlackPixels() 的界面，可以計算 
+            Quadtree 影像中有幾個黑色的像素 <br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">下圖中兩張 ImageQT 
+類別的影像可以定義一個「相加」的運算，兩張影像中相同位置的像素如果有一個是黑色或是兩個都是黑色的話，相加的結果就是黑色，在黑白的影像上面其實也就
+是像素對像素的邏輯 
+            OR 運算，請替 ImageQT 類別撰寫一個 void add(const ImageQT&amp;) 
+界面來完成這個動作，函式會修改接受訊息的物件，請注意原本的四個子樹有可能因為相加而得到四個全黑或是全白的子樹，此時需要把四個子樹都刪除掉來簡化這
+個 
+            Quadtree </font> </li>
+        </ol>
+        <p align="center"><img src="%E5%9F%BA%E6%96%BC%20Quadtree%20%E7%9A%84%E5%BD%B1%E5%83%8F%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95_files/fig4.gif" width="518" height="262"></p>
+        <p>以下是部份的程式碼，因為單元測試中幾乎都是空的，所以目前是可以在 VC2010 中編譯執行的<font face="微軟正黑體">，請製作專案並且測試編譯。缺少的功能有用</font><font face="微軟正黑體" color="#FF0000">紅色的註解</font><font face="微軟正黑體">標記出來，請參考下一步驟說明完成相關的設計</font></p>
+        <pre><font face="微軟正黑體">
+
+// <strong><font size="+2" color="#FF0000">main.cpp</font></strong>
+
+
+#include "ImageBM.h"
+#include "ImageQT.h"
+
+int main()
+{
+    ImageBM::unitTest();
+    ImageQT::unitTest();
+    return 0;
+}
+
+
+// <strong><font size="+2" color="#FF0000">ImageBM.h</font></strong>
+
+
+#pragma once
+
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+#include "ImageQT.h"
+using namespace std;
+
+class ImageBM
+{
+public:
+    static const int size = 32;
+    ImageBM();
+    ImageBM(istream&amp; is);
+    virtual ~ImageBM();
+    ImageBM(const ImageBM&amp; src);
+    void writeBM(ostream&amp; os) const;
+    int countBlackPixels() const;
+    bool equals(const ImageBM&amp; rhs) const;
+    static void unitTest();
+private:
+    <font size="+1" color="#FF3300"><strong>vector&lt;vector&lt;int&gt; &gt;</strong></font> m_bits;
+};
+
+
+// <strong><font size="+2" color="#FF0000">ImageBM.cpp</font></strong>
+
+
+#include "ImageBM.h"
+#include &lt;fstream&gt;
+#include &lt;cassert&gt;
+using namespace std;
+
+ImageBM::ImageBM()
+    : m_bits(size, vector&lt;int&gt;<int>(size, 0))
+{
+}
+
+
+ImageBM::ImageBM(istream&amp; is)
+    : m_bits(size, vector&lt;int&gt;())
+{
+    int i, j;
+    for (i=0; i&lt;size; i++)
+        for (j=0; j&lt;size; j++)
+        {
+<font color="#FF0000">            // 由 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/bunny32x32.txt">bunny32x32.txt</a> 或是 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/otter32x32.txt">otter32x32.txt</a> 的檔案串流中
+            // 建構</font><font color="#FF0000"> ImageBM 類別的物件</font>
+        }
+}
+
+
+ImageBM::~ImageBM()
+{
+}
+
+
+ImageBM::ImageBM(const ImageBM &amp;src)
+    : m_bits(src.m_bits)
+{
+}
+
+
+void ImageBM::writeBM(ostream&amp; os) const
+{
+<font color="#FF0000">    // 在螢幕或是檔案中輸出如32x32點陣資料 
+    //        (黑色請輸出 '*' 字元，白色請輸出空白字元)</font>
+}
+
+
+int ImageBM::countBlackPixels() const
+{
+    int count=0;
+   <font color="#FF0000">// 計算點陣圖影像中有幾個黑色的像素</font>
+    return count;
+}
+
+
+bool ImageBM::equals(const ImageBM&amp; rhs) const
+{
+    int i, j;
+    for (i=0; i&lt;size; i++)
+        for (j=0; j&lt;size; j++)
+            if (m_bits[i][j] != rhs.m_bits[i][j])
+                return false;
+    return true;
+}
+
+
+void ImageBM::unitTest()
+{
+<font color="#FF0000">   // 請建構串流物件，開啟檔案 bunny32x32.txt
+   // 請定義 ImageBM 物件 bunny，由上面的串流中建構
+   // 請以 assert 驗證此物件中有 318 個黑色像素
+   // bunny.writeBM(cout);
+
+  // 請運用 bool equals(const ImageBM &amp;) const 
+  // 設計測試拷貝建構元正確性的方法
+  // 請設計測試沒有 dangling reference 的程式
+
+   // 請建構串流物件，開啟檔案 otter32x32qt.txt
+   // 請定義 ImageQT 物件 otterQT，由上面的串流中建構
+   //  assert(158==otterQT.countBlackPixels());
+   // 請由 otterQT 物件轉換出 ImageBM 型態的物件 otterBM2
+
+<font face="微軟正黑體">   // 請建構串流物件，開啟檔案 otter32x32.txt
+   // 請定義 ImageBM 物件 otterBM，由上面的串流中建構
+   //  assert(158==otterBM.countBlackPixels());
+   // 請運用 ImageQT 類別的設定運算子，以及由 ImageBM 轉換 ImageQT 的
+  //  型態轉換建構元，由 otterBM 物件做出 ImageQT 型態的物件 otterQT2
+
+</font>   // 請驗證 otterBM2 和 otterBM 相等
+   // 請驗證 otterQT2 和 otterQT 相等
+
+   // 請透過 ImageBM::writeQT() 在螢幕上輸出 otterBM2 的 prefix quadtree</font>
+}<font size="+2" color="#FF0000">
+
+
+// <strong>ImageQT.h</strong></font>
+
+
+#pragma once
+
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+class ImageBM;
+using namespace std;
+
+class ImageQT
+{
+public:
+    ImageQT(int bw=-1);
+    ImageQT(istream &amp;is);
+    virtual ~ImageQT();
+    void writeQT(ostream&amp; os) const;
+    bool equals(const ImageQT &amp;rhs) const;
+    static void unitTest();
+private:
+    int m_bit;
+    ImageQT *m_quads[4];
+};
+
+
+// <font size="+2" color="#FF0000"><strong>ImageQT.cpp</strong></font>
+
+
+#include "ImageQT.h"
+#include "ImageBM.h"
+#include &lt;fstream&gt;
+#include &lt;sstream&gt;
+#include &lt;string&gt;
+#include &lt;cassert&gt;
+#include &lt;cstdlib&gt; // rand()
+using namespace std;
+
+
+ImageQT::ImageQT(int bw)
+    : m_bit(bw)
+{
+    for (int i=0; i&lt;4; i++) 
+        m_quads[i] = 0;
+}
+
+
+ImageQT::ImageQT(istream &amp;is)
+{
+    int i;
+    char c;
+    is &gt;&gt; c;
+    switch(c)
+    {
+    case 'p':
+        m_bit = -1;
+        for (i=0; i&lt;4; i++)
+            m_quads[i] = new ImageQT(is);
+        break;
+    case 'f':
+        m_bit = 1; // black
+        for (i=0; i&lt;4; i++)
+            m_quads[i] = 0;
+        break;
+    case 'e':
+        m_bit = 0; // white
+        for (i=0; i&lt;4; i++)
+            m_quads[i] = 0;
+    }
+}
+
+
+ImageQT::~ImageQT()
+{
+    for (int i=0; i&lt;4; i++) 
+        delete m_quads[i];
+}
+
+
+void ImageQT::writeQT(ostream&amp; os) const
+{
+    if (m_bit&gt;=0)
+        os &lt;&lt; (m_bit==1 ? 'f' : 'e');
+    else
+    {
+        os &lt;&lt; 'p';
+        for (int i=0; i&lt;4; i++)
+            m_quads[i]-&gt;writeQT(os);
+    }
+}
+
+
+bool ImageQT::equals(const ImageQT &amp;rhs) const
+{
+    if ((m_bit&gt;=0)||(rhs.m_bit&gt;=0))
+        return m_bit == rhs.m_bit;
+    else // ((m_bit==-1)&amp;&amp;(rhs.m_bit==-1))
+    {
+        for (int i=0; i&lt;4; i++)
+            if (!m_quads[i]-&gt;equals(*rhs.m_quads[i]))
+                return false;
+        return true;
+    }
+}
+
+
+void ImageQT::unitTest()
+{
+<font color="#FF0000">    // 請建構串流物件，開啟檔案 bunny32x32qt.txt
+    // 請定義 ImageQT 物件 bunny，由上面的串流中建構
+   // 請以 assert 驗證此物件中有 318 個黑色像素
+   // bunny.writeBM(cout);
+
+   // 請運用提供的 writeQT 界面寫出串流檔, 
+   // 關閉串流檔案以後再重新建立第二個輸入檔案串流
+   // 由串流中讀回 ImageQT 物件,
+   // <font face="微軟正黑體">請以 assert 及 <font color="#FF0000">bool equals(const ImageQT&amp;) const</font> 界面驗證重建物件的正確性</font>
+
+  // 請運用 bool equals(const ImageQT&amp;) const 
+  // 設計測試拷貝建構元以及設定運算子正確性的方法
+  // 請設計測試沒有 dangling reference 的程式</font>
+
+    istringstream iss1("ppepffpffpffeepffeepffpffeepffee"
+                                      "pfefe"
+                                      "pfpfpfeefpfeeffpfpfeefpfeefff"
+                                      "ppefeeepeeefe"
+                                      "ppepeffepefffpeeff"
+                                      "e"
+                                      "ppffefpffeeppffefpfffepefffpfeffpfeef"
+                                      "e"
+                                      "ppeeefepefeee");
+    ImageQT blocks(iss1);
+<font color="#FF0000">    // 請以 assert 驗證此物件中有 276 個黑色像素
+    // assert(blocks.checkCompact());
+    // blocks.writeBM(cout);</font>
+
+<font color="#FF0000">    // bunny.add(blocks);
+    // assert(bunny.checkCompact());
+    // bunny.writeBM(cout);</font>
+
+    istringstream iss3("pppppfeeeeeeeeeeeeeee");
+    ImageQT singlePixel(iss3);
+<font color="#FF0000">    // assert(singlePixel.checkCompact());
+    // assert(singlePixel.countBlackPixels()==1);</font>
+
+    ImageQT zero(0);
+    assert(zero.m_bit==0);
+    for (int i=0; i&lt;4; i++)
+        assert(zero.m_quads[i]==0);
+}</int></font></pre></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="1635" bgcolor="#FFFFCC">
+<p><font face="微軟正黑體"><strong>請根據下列步驟說明配合上面給你的程式碼完成這個測試</strong>:<br>
+          </font> </p>
+        <ol>
+          <li><font face="微軟正黑體">在 Visual Studio 中產生 C++ 的空專案，把上面的程式碼放到適當的檔案裡，下載測試用的資料檔案 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/bunny32x32.txt">bunny32x32.txt</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/bunny32x32qt.txt">bunny32x32qt.txt</a>, 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/otter32x32.txt">otter32x32.txt</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/otter32x32qt.txt">otter32x32qt.txt</a>，請確定可以編譯，可以執行</font> 
+            (目前 unitTest() 裡面沒有多少東西，所以應該不會有錯誤) <br>
+            <br>
+          </li>
+          <li><font face="微軟正黑體">請下載 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/memory_leak.h">memory_leak.h</a> 
+            以及 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test2/memory_leak.cpp">memory_leak.cpp</a>，在正確的地方加入檢測記憶體遺漏的機制，並且檢查上面的程式是否有記憶體的遺漏 
+            (注意專案屬性的設定) <br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">上面程式中 </font><font face="微軟正黑體">ImageBM 類別的資料成員已經運用 
+            vector 類別設計好了，請完成 <br>
+            <br>
+            <font color="#FF0000"><strong>a)</strong></font> 請運用 vector&lt;int&gt;::push_back() 
+            函式完成 ImageBM 類別由串流中建構物件的建構元 <font color="#FF0000"><strong>ImageBM::ImageBM(istream&amp; 
+            is)</strong></font><br>
+            <br>
+            <font color="#FF0000"><strong>b)</strong></font> ImageBM 類別輸出到串流的成員函式 
+            <font color="#FF0000"><strong>void writeBM(ostream&amp; os) const</strong></font><br>
+            <br>
+            <strong><font color="#FF0000">c)</font></strong> 計算點陣圖影像中有幾個黑色像素的成員函式 
+            <font color="#FF0000"><strong>int countBlackPixels() const</strong></font><br>
+            <br>
+            <font color="#FF0000"><strong>d)</strong></font> 並且在單元測試函式 <font color="#FF0000"><strong>void 
+            ImageBM::unitTest()</strong></font> 中測試下列功能<br>
+            <br>
+            __<font color="#FF0000"><strong>i.</strong></font> 由 bunny32x32.txt 
+            中建構 ImageBM 物件<br>
+            <br>
+            __<font color="#FF0000"><strong>ii.</strong></font> 以 assert 驗證其中有 
+            318 個黑色像素<br>
+            <br>
+            __<font color="#FF0000"><strong>iii.</strong></font> 把上面建構的 ImageBM 
+            物件裡的影像列印在螢幕上<br>
+            <br>
+            __<font color="#FF0000"><strong>iv.</strong></font> </font><font face="微軟正黑體">請設計<strong><font color="#FF0000">測試 
+            ImageBM 類別的拷貝建構元</font></strong>的程式，請運用提供的 bool equals(const ImageBM 
+            &amp;rhs) const 函式驗證拷貝的內容是正確的，請設計單元測試來確認不會有 dangling reference<br>
+            </font><br>
+          </li>
+          <li> <font face="微軟正黑體">上面程式中 ImageQT 類別的資料成員 m_bit, m_quads ，建構元 ImageQT(int 
+            bw=-1), ImageQT(istream&amp;is)， 解構元 ~ImageQT()，輸出 prefix Quadtree 
+            到串流的成員函式 void writeQT(ostream&amp; os) const，檢查兩個 ImageQT 物件是不是具有完全相同內容的界面函式 
+            bool ImageQT::equals(const ImageQT &amp;rhs) const 已經設計好，請完成 <br>
+            <br>
+            <strong><font color="#FF0000">a)</font></strong> 計算點陣圖影像中有幾個黑色像素的成員函式<font color="#FF0000"> 
+            <strong>int countBlackPixels(int level) const</strong></font>，請注意這是一個有參數的遞迴函式，level 
+            為 0 時代表這是 Quadtree 最上層的節點，如果是黑色的就代表 32x32=1024 個黑色的像素，為了讓界面更好使用，請使用預設參數將 
+            level 的預設值設定為 0<br>
+            <br>
+            <strong><font color="#FF0000">b)</font></strong> ImageQT 類別的「拷貝建構元 
+            (copy constructor) 」函式<font color="#FF0000"><strong> ImageQT(const 
+            ImageQT&amp; src)</strong></font><br>
+            <br>
+            <strong><font color="#FF0000">c)</font></strong> ImageQT 類別的「設定運算子 
+            (assignment operator) 」函式 <font color="#FF0000"><strong>ImageQT&amp; 
+            operator=(const ImageQT&amp; rhs)</strong></font><br>
+            <br>
+            <strong><font color="#FF0000">d)</font></strong> 並且在單元測試函式 <strong><font color="#FF0000">void 
+            ImageQT::unitTest()</font></strong> 中測試下列功能<br>
+            <br>
+            __<strong><font color="#FF0000">i.</font></strong> 請以 assert 敘述確認「預設建構元」的動作是正確的<br>
+            <br>
+            __<strong><font color="#FF0000">ii.</font></strong> 由 bunny32x32qt.txt 
+            中建構 ImageQT 物件<br>
+            <br>
+            __<strong><font color="#FF0000">iii.</font></strong> 以 assert 驗證 ii 
+            中 ImageQT 物件有 318 個黑色像素<br>
+            <br>
+            __<strong><font color="#FF0000">iv.</font></strong> 請以 assert 敘述確認「拷貝建構元」的動作是正確的，而且不會發生 
+            dangling reference<br>
+            <br>
+            __<strong><font color="#FF0000">v.</font></strong> 請以 assert 敘述確認「設定運算子」的動作是正確的，而且不會發生 
+            dangling reference<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請替 ImageQT 類別撰寫一個<font color="#FF0000"><strong> 
+            void add(const ImageQT&amp;)</strong></font> 界面來完成兩個黑白影像像素對像素 OR 的動作，函式會修改接受訊息的物件 
+            (請注意原本的四個子樹有可能因為相加而得到四個全黑或是全白的子樹，此時需要把四個子樹都刪除掉來簡化這個 Quadtree, 讓這個 
+            ImageQT 物件變成一個葉節點)<br>
+            <br>
+            請替 ImageQT 類別撰寫一個檢查 ImageQT 物件所表達的 quadTree 是不是最簡的成員函式<font color="#FF0000"> 
+            <strong>bool checkCompact() const</strong></font>，如果一個 ImageQT 物件的四個子樹都是相同顏色的葉節點，這四個子樹是多餘的，請回傳 
+            false<br>
+            <br>
+            單元測試函式 <strong><font color="#FF0000">void ImageQT::unitTest()</font></strong> 
+            中有一段由字串串流初始化 blocks 物件的程式碼，請測試將 bunny 和 blocks 兩個 ImageQT 的影像物件 add 
+            起來，並且在螢幕上列印出來，assert 一下結果的黑色像素數目是否為 502<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 型態轉換<br>
+            <br>
+            ImageBM 類別有一個型態轉換的建構元，能夠由 ImageQT 類別的物件建構出 ImageBM 類別的物件， 因為 ImageQT類別的資料成員 
+            ImageQT::m_bit 以及 ImageQT::m_quads 存放私有的影像資料，不該讓 ImageBM 類別的成員函式讀取，所以要倒過來思考，當我們需要轉換成點陣圖影像時，可以把空的二維 
+            vector 物件 ImageBM::m_bits 傳給 ImageQT 類別的成員函式，讓它幫忙填寫影像的內容，例如製作一個 ImageQT::fillBitmap() 
+            界面，這個界面還需要指定影像的左上角座標以及影像的邊長，使用的方法像是 src.fillBitmap(m_bits, 0, 0, size)，後面這三個參數主要是為了遞迴的函式呼叫設計的 
+            <br>
+            <br>
+            <font color="#FF0000"><strong>a)</strong></font> 如上述請替 ImageQT 類別設計 
+            <font color="#FF0000"><strong>void fillBM(vector&lt;vector&lt;int&gt; 
+            &gt; &amp;bits, int row, int col, int size) const</strong></font> 
+            界面<br>
+            <br>
+            <font color="#FF0000"><strong>b)</strong></font> 請完成 ImageBM 類別的「型態轉換建構元」 
+            <font color="#FF0000"><strong>ImageBM::ImageBM(const ImageQT&amp; 
+            src)</strong></font> ，由 ImageQT 型態的物件轉換為 ImageBM 型態的物件，請注意需要把 m_bits 
+            設定好為 以 vector 實作的 32x32 的二維整數陣列，才能運用上面的 ImageQT::fillBM 界面要求 src 物件將影像內容填入<br>
+            <br>
+            <strong><font color="#FF0000">c)</font></strong> 有了上述型態轉換建構元以後，請完成 
+            ImageQT 類別的 <font color="#FF0000"><strong>void writeBM(ostream&amp; 
+            os) const</strong></font> 界面，可以在輸出串流中運用 void ImageBM::writeBM(ostream&amp; 
+            os) const 界面輸出影像的點陣圖<br>
+            <br>
+            <strong><font color="#FF0000">d)</font></strong> 請設計由 ImageBM 類別物件轉換為 
+            ImageQT 類別物件的「型態轉換建構元」<font color="#FF0000"><strong>ImageQT(const 
+            ImageBM&amp; src)</strong></font><br>
+            <br>
+            基本作法是：如果發現 ImageBM 的影像不是全白或是全黑，需要將影像切為四部份，個別建立 ImageQT 物件再串起來<br>
+            <br>
+            但是會遇見兩個問題 <br>
+            <br>
+            __<font color="#FF0000"><strong>i.</strong></font> ImageQT 類別看不到 ImageBM 
+            物件 src 的私有資料成員內容，因此可以在 ImageBM 類別設計一個輔助的界面函式<font color="#FF0000"> 
+            <strong>ImageQT* ImageBM::toImageQT(int row, int col, int size) const</strong></font>，當影像邊長 
+            size 為 1 時或是全黑全白時，根據其顏色建立一個 ImageQT 物件並且回傳<br>
+            <br>
+            __<font color="#FF0000"><strong>ii.</strong></font> 當 size&gt;1 而且有黑有白時：因為 
+            ImageBM::toImageQT 函式沒有辦法存取 ImageQT 物件中子樹的指標，所以沒有辦法自己建立 Quadtree，如果我們擴充一下 
+            ImageQT 的型態轉換建構元界面成為 <font color="#FF0000"><strong>ImageQT(const ImageBM&amp; 
+            src</strong><font face="微軟正黑體"><strong>, int size=32</strong></font><strong>, 
+            int row=0, int col=0)</strong></font>，這個時候 ImageBM::toImageQT 函式就可以檢查四個象限裡的影像，有黑有白的時候可以呼叫 
+            ImageQT::ImageQT(const ImageBM&amp; src, int size, int row, int col) 
+            分別把四個象限的影像轉為 ImageQT 物件表示的 Quadtree，size, row, col 這三個參數可以設定預設值，使得這個建構元仍然是一個由 
+            ImageBM 到 ImageQT 的「型態轉換建構元」， 這兩個函式合作起來遞迴地建立 ImageBM 型態的 src 物件對應的 
+            ImageQT 物件<br>
+            <br>
+            <font color="#FF0000"><strong>e) </strong></font> 請運用上面的型態轉換建構元，替 
+            ImageBM 類別增加 void writeQT(ostream&amp; os) const 界面<br>
+            <br>
+            <font color="#FF0000"><strong>f)</strong></font> 請在單元測試函式 <strong><font color="#FF0000">void 
+            ImageBM::unitTest()</font></strong> 及 <strong><font color="#FF0000">void 
+            ImageQT::unitTest()</font></strong> 中測試下列功能<br>
+            <br>
+            __<font color="#FF0000"><strong>i.</strong></font> ImageBM::unitTest 
+            中請由 otter32x32.txt 串流中建構一個 ImageBM 的物件 otterBM，請由 otter32x32qt.txt 
+            串流中建構一個 ImageQT 的物件 otterQT，用上面的轉換建構元由 otterQT 轉換出 ImageBM 型態的物件 otterBM2，由 
+            otterBM 轉換出 ImageQT 型態的物件 otterQT2，</font><font face="微軟正黑體">以 assert 
+            分別驗證兩個新的物件是正確的，以 ImageBM::writeQT 輸出 prefix quadtree 到螢幕串流<br>
+            <br>
+            __<font color="#FF0000"><strong>ii.</strong></font> 以 ImageQT::writeBM 
+            輸出到螢幕串流，測試界面的正確性 </font></li>
+        </ol> 
+      </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><p><font face="微軟正黑體">考試時間: <strong>180</strong>分鐘 
+          (<strong><font size="+1" color="#FF0000">18:00</font></strong> ~ <strong><font size="+1" color="#FF0000">21:00</font></strong><font color="#000000"> 
+          上傳時間截止)</font></font></p>
+        <font face="微軟正黑體">將所完成的 project (只需保留 .cpp， .h， .sln 以及 .vcxproj 檔案即可; 
+        <font color="#FF0000">刪除掉 .suo， .sdf， .filters， .users， debug\ 資料匣， 以及 
+        ipch\ 資料匣下的所有內容</font>) 以 zip/rar/7zip 程式將<font color="#FF0000">整個資料匣</font>壓縮起來， 
+        在「考試作業」繳交區選擇 <strong><font color="#FF0000">2018-04-23 2A考試二</font></strong> 
+        或是 <strong><font color="#FF0000">2018-04-23 2B考試二 </font></strong><a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a> 
+        </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td height="63" bgcolor="#FFFFCC"> <p><font face="微軟正黑體"><strong>後續</strong>:</font></p>
+        <p><font face="微軟正黑體">前半學期最主要練習的是在 Bottom-up 程式設計中<u>最基礎</u>、也<u>最重要</u>的 
+          <strong><font color="#FF0000">類別封裝</font></strong>， 也許你心裡不斷地懷疑著: 不是說基礎嗎? 
+          為什麼這麼複雜? 基礎和簡單不太一樣， 不要小看基礎， 萬丈高樓平地起， 就在這個基礎打下去的時候， 就已經預測得到它最後的高度了， 隨隨便便的基礎其實也就是常常需要打掉重練的原因， 
+          沒有堅實的基礎， 真的不要去碰觸穩定的商用程式， 不要說製作， 連改都盡量不要去改它， 會出事的， 像是自己會走的機器人、自駕車、無人機、飛機上的自動駕駛、衛星上的控制系統、武器系統、...至於手機程式嘛...當掉的話重新開機也</font><font face="微軟正黑體">就算了。也許你急著看到絢麗的界面， 
+          想說都什麼時代了， 應該兩三行 code 就可以得到所有想要的功能， 應該都有現成的模組組合一下就好了， 如果真的是這樣， 你可以， 別人也可以， 
+          大家都可以， 應該機器自己也可以吧， 咦!! 那你為什麼要來資訊系那麼辛苦做什麼?</font></p>
+        <p><font face="微軟正黑體">接下去你還可以擴充一下 ImageBM 轉換為 ImageQT 的功能，允許黑色或是白色超過一定比例時將整塊影像以單一顏色取代，如此就產生有損失的影像編碼了，或是近一步擴充為灰階或是彩色的影像，編碼時容許適當的誤差， 
+          此外也需要練習物件之間越來越多的合作。</font></p></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+</font>
+<center>
+  <p><font face="微軟正黑體"><img src="%E5%9F%BA%E6%96%BC%20Quadtree%20%E7%9A%84%E5%BD%B1%E5%83%8F%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95_files/rainbow.gif"> </font>
+</p></center>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="%E5%9F%BA%E6%96%BC%20Quadtree%20%E7%9A%84%E5%BD%B1%E5%83%8F%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon Apr 30 2018 13:14:39 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 04/20/2017 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+
+</body></html>

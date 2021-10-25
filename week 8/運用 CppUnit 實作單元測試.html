@@ -1,0 +1,558 @@
+<html><head>
+<title>
+運用 CppUnit 實作單元測試
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2013 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="%E9%81%8B%E7%94%A8%20CppUnit%20%E5%AF%A6%E4%BD%9C%E5%96%AE%E5%85%83%E6%B8%AC%E8%A9%A6_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> 運用 CppUnit 實作單元測試 </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="%E9%81%8B%E7%94%A8%20CppUnit%20%E5%AF%A6%E4%BD%9C%E5%96%AE%E5%85%83%E6%B8%AC%E8%A9%A6_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 1. 安裝配合 Visual Studio 2010 的 <strong>CppUnit 
+        <br>
+        </strong><br>
+        2. 了解類別 Test, TestCase, TestCaller&lt;Fixture&gt;, TestFixture, TestComposite, 
+        TestSuite, 與 TestRunner 的運作架構 <br>
+        <br>
+        3. 運用 CPPUnit 的 macros 設計 TestFixture 及 TestSuite </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"> <p><font face="微軟正黑體"><b>安裝</b><br>
+          </font></p>
+        <p><font face="微軟正黑體"> 請下載 <a href="http://squall.cs.ntou.edu.tw/cpp/tools/cppunit-1.12.1.VS2010.zip">cppunit-1.12.1.VS2010.zip</a>, 
+          這個版本是配合 Visual Studio 2010 Professional 使用的, 解壓縮之後, 到 cppunit-1.12.1\src\ 
+          資料匣裡面點選專案檔 CppUnitLibraries.sln, Visual Studio 2010 會開啟它</font></p>
+        <ol>
+          <li><font face="微軟正黑體">以右鍵選取 <strong>cppunit</strong> 專案, 選擇「建置」, 會在 
+            cppunit-1.12.1\lib\ 資料匣裡面產生 <strong>cppunit.lib</strong><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">以右鍵選取 <strong>Testrunner</strong> 專案, 選擇「建置」, 
+            會在 cppunit-1.12.1\lib\ 資料匣裡面產生 <strong>TestRunner.lib</strong> 及 <strong>TestRunner.dll</strong><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">以右鍵選取 <strong>cppunit_dll </strong>專案, 選擇「建置」, 
+            會在 cppunit-1.12.1\lib\ 資料匣裡面產生 <strong>cppunit_dll.lib</strong> 及 
+            <strong>cppunit_dll.dll</strong><br>
+            </font> 
+        </li></ol>
+        <font face="微軟正黑體"> 下面的動作是在 win7 64bit 系統上做的, 如果你是使用其他的系統, 要找到對應的資料匣<br>
+        </font> <ol start="4">
+          <li><font face="微軟正黑體">請將 cppunit-1.12.1\include\ 資料匣中的整個 cppunit 子資料匣拷貝到 
+            C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\ 中<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請將 cppunit-1.12.1\lib\ 裡面 cppunit.lib, TestRunner.lib, 
+            還有 cppunit_dll.lib 三個檔案拷貝到 C:\Program Files (x86)\Microsoft Visual 
+            Studio 10.0\VC\lib\ 資料匣中<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請將 cppunit-1.12.1\lib\ 裡面 TestRunner.dll 以及 cppunit_dll.dll 
+            兩個檔案拷貝到 C:\Windows\System32\ 中</font></li>
+        </ol>
+        <p><font face="微軟正黑體">CppUnit 在 SourceForge 上的網址為 <a href="http://sourceforge.net/projects/cppunit/">http://sourceforge.net/projects/cppunit/</a></font></p>
+        <p><font face="微軟正黑體">CppUnit 的參考資料請見 <a href="http://cppunit.sourceforge.net/doc/cvs/index.html">http://cppunit.sourceforge.net/doc/cvs/index.html</a>, 
+          其中 </font></p>
+        <ol>
+          <li><font face="微軟正黑體"><a href="http://cppunit.sourceforge.net/doc/cvs/modules.html">Modules</a> 
+            的部份是運用 CppUnit 時最主要的說明<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://cppunit.sourceforge.net/doc/cvs/hierarchy.html">Class 
+            Hierarchy</a> 的部份是主要的類別架構與個別類別的介面</font></li>
+        </ol></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"> <p><font face="微軟正黑體"><b>使用的基本概念</b><br>
+          </font></p>
+        <ol>
+          <li><font face="微軟正黑體">當你需要針對你的應用程式的整體功能, 或是個別類別實現的功能, 撰寫測試程式碼時, 一般不外乎設定一些變數或是物件的初始值, 
+            透過應用程式系統的功能來改變變數的內容或是物件的狀態, 然後比對確認變數內容或是物件狀態是否合乎要求<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">每一個測試是一個函式, 測試類似功能的函式可以整合在一起放在同一個類別裡面, 這些測試常常也可以共用環境的初始化程序<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">最後把所有的測試表示成一個樹狀的架構, 運用<a href="https://en.wikipedia.org/wiki/Interpreter_pattern"> 
+            Interpreter 設計模式</a>來執行所有的測試</font></li>
+        </ol>
+        <p><font face="微軟正黑體">CppUnit 裡面我們會使用到的幾個類別組合包括:</font></p>
+        <ol>
+          <li><font face="微軟正黑體">Test-TestLeaf-TestComposite 是一組 <a href="https://en.wikipedia.org/wiki/Composite_pattern">Composite 
+            設計模式</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">Test-TestCase-TestCaller&lt;Fixture&gt; 實作每一個類別一個測試的機制<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">TestFixture 是定義 setUp(), tearDown() 機制的抽象介面<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">TestSuite 是實際生成樹狀架構的容器類別</font></li>
+        </ol>
+        <p><font face="微軟正黑體">整個設計的解釋請參考 <a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/BasicDesignOfCppUnit.pdf">BasicDesignOfCppUnit.pdf</a> 
+          (<a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/CPP30-1-BasicDesignOfCppUnit_4up.pdf">4up</a>) </font></p>
+        <p></p>
+        <p><font face="微軟正黑體"><strong>CppUnit 文件</strong></font></p>
+        <ol>
+          <li><font face="微軟正黑體"><a href="http://cppunit.sourceforge.net/doc/cvs/index.html">sourceforge 
+            首頁</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://cppunit.sourceforge.net/doc/cvs/hierarchy.html">類別階層</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://cppunit.sourceforge.net/doc/cvs/modules.html">用法參考</a></font></li>
+        </ol>
+        <p></p>
+        <p><font face="微軟正黑體"><strong>CppUnit 介紹文章</strong></font></p>
+        <ol>
+          <li><font face="微軟正黑體">Cookbook, <a href="http://cppunit.sourceforge.net/doc/1.8.0/cppunit_cookbook.html">http://cppunit.sourceforge.net/doc/1.8.0/cppunit_cookbook.html</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">Money example, <a href="http://cppunit.sourceforge.net/doc/cvs/money_example.html">http://cppunit.sourceforge.net/doc/cvs/money_example.html<br>
+            </a><br>
+            上面這兩個範例是在 source code 的 doc 裡面提供的<br>
+            <br>
+            </font></li>
+          <li> <font face="微軟正黑體"><a href="http://www.comp.nus.edu.sg/%7Ecs3214s/tools/cppunitVC.html">http://www.comp.nus.edu.sg/~cs3214s/tools/cppunitVC.html</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://darkblack01.blogspot.tw/2014/10/cgame-programing-game-6-ch17.html">http://darkblack01.blogspot.tw/2014/10/cgame-programing-game-6-ch17.html</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://www.ibm.com/developerworks/cn/linux/l-cppunit/">http://www.ibm.com/developerworks/cn/linux/l-cppunit/</a><br>
+            <br>
+            在 Eclipse/CDT 中使用 CppUnit 請參考<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://pl.csie.ntut.edu.tw/%7Ectchen/pdf/CPPUnit%20on%20Eclipse.pdf">http://pl.csie.ntut.edu.tw/~ctchen/pdf/CPPUnit%20on%20Eclipse.pdf</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://pl.csie.ntut.edu.tw/%7Ectchen/pdf/JUnitOnEclipse.pdf">http://pl.csie.ntut.edu.tw/~ctchen/pdf/JUnitOnEclipse.pdf</a></font></li>
+        </ol></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td><font face="微軟正黑體"><strong>Visual Studio 專案的屬性設定</strong> </font> <ol>
+          <li><font face="微軟正黑體"> '專案 &gt; lab34 屬性頁 &gt; 組態屬性 - C/C++ &gt; 程式碼產生 
+            &gt; 執行階段程式庫 &gt; <br>
+            多執行緒偵錯 DLL/MDd' <br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> '專案 &gt; lab34 屬性頁 &gt; 組態屬性 - 連結器 &gt; 輸入'. 
+            <br>
+            Put 'cppunit.lib' in the '其他相依性' 或運用 #pragma comment(lib,"CppUnit.lib")<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> '專案 &gt; lab34 屬性頁 &gt; 組態屬性 - 建置事件 &gt; 建置後事件'. 
+            <br>
+            Put '"$(TargetPath)"' in '命令列'<br>
+            Put 'Unit Tests...' in '描述' <br>
+            </font></li>
+        </ol>
+        <p><font face="微軟正黑體"><strong>命令列編譯</strong></font></p>
+        <p><font face="微軟正黑體">cl /EHsc /MDd /ZI testComplex.cpp Complex.cpp ComplexSingleUnitTest.cpp 
+          ComplexMultiUnitTests.cpp cppunit.lib</font></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><p><font face="微軟正黑體"><strong>設計單一測試的類別</strong> </font></p>
+        <font face="微軟正黑體">如果你的專案很單純, 你只需要設計唯一的一個測試, 你可以設計一個類別, 繼承 CppUnit::<font color="#FF0000"><strong>TestCase</strong></font> 
+        類別, 將測試程式碼寫在 runTest() 成員函式中 
+        <pre>
+----------- <strong>ComplexSingleUnitTest.h</strong> -----------
+
+#include &lt;cppunit/TestCase.h&gt;
+
+class <strong>ComplexSingleUnitTest</strong> : public <strong><font color="#0000FF">CppUnit::TestCase</font></strong> 
+{
+public:
+    void <strong><font color="#0000FF">runTest</font></strong>(); // implement one single test
+};
+
+
+----------- <strong>ComplexSingleUnitTest.cpp</strong> -----------
+
+void ComplexSingleUnitTest::<strong><font color="#0000FF">runTest</font></strong>()
+{
+    Complex x1,x2,x3,x4;
+    x1.setValue(7, 3);
+    x2.setValue(2, 5);
+    x3.setValue(1, 1);
+    x4.setValue(6, -1);
+
+    x1.subtract(x2);
+    x1.add(x3);
+    <a href="http://cppunit.sourceforge.net/doc/cvs/group___assertions.html#ga0">CPPUNIT_ASSERT</a>(x1.equal(x4,1e-10));
+    <a href="http://cppunit.sourceforge.net/doc/cvs/group___assertions.html#ga5">CPPUNIT_ASSERT_DOUBLES_EQUAL</a>(x1.magnitude(), x4.magnitude(), 1e-10);
+}</pre>
+        </font> <font face="微軟正黑體"><a href="http://cppunit.sourceforge.net/doc/cvs/group___assertions.html">CPPUNIT 
+        中多了許多種可以使用的 assertion &nbsp;巨集</a></font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><p><font face="微軟正黑體"><strong>設計整合多個測試的類別 </strong></font></p>
+        <p><font face="微軟正黑體">設計一個類別, 繼承 CppUnit::<font color="#FF0000"><strong>TestFixture</strong></font> 
+          類別, 將每一個測試寫成類別的成員函式, 例如下面的 testSetValue(), testAdd() ..., 這些測試所需要的共同環境放在虛擬函式 
+          setUp() / tearDown(), 每一個測試都是獨立的, 在測試的時候, 每一個測試之前會都執行 setUp(), 結束之後都執行 
+          tearDown(), 例如:</font></p>
+        <p><font face="微軟正黑體">setUp();<br>
+          testSetValue();<br>
+          tearDown();<br>
+          <br>
+          setUp();<br>
+          testAdd();<br>
+          tearDown();<br>
+          <br>
+          ...<br>
+          <br>
+          這些測試你可以手動一個一個整合成 TestSuite, 也可以運用 CPPUNIT_TEST_SUITE, CPPUNIT_TEST, 
+          CPPUNIT_TEST_SUITE_END 這一組巨集很快地整合成 TestSuite<br>
+          <br>
+          再運用 CPPUNIT_TEST_SUITE_REGISTRATION() 和 <br>
+          CppUnit::TestFactoryRegistry::getRegistry().makeTest() 就可以迅速得到所有登錄過的 
+          TestSuite <br>
+          </font></p>
+        <p><font face="微軟正黑體">如果你設計了很多個這種 TestFixture 衍生的類別, 你還是可以運用 CPPUNIT_TEST_SUITE_REGISTRATION() 
+          巨集登錄個別的測試, 然後用 makeTest 一次得到所有有登錄的 TestSuite</font></p>
+        <pre><font face="微軟正黑體">
+----------- <strong>ComplexMultiUnitTests.h</strong> -----------
+
+
+#include &lt;cppunit/extensions/HelperMacros.h&gt;
+<br>class <strong>ComplexMultiUnitTests</strong> : public <strong><font color="#0000FF">CppUnit::TestFixture</font></strong> 
+{
+    <strong>CPPUNIT_TEST_SUITE</strong>(<font color="#FF0000"><strong>ComplexMultiUnitTests</strong></font>);
+    CPPUNIT_TEST(testSetValue);
+    CPPUNIT_TEST(testAdd);
+    CPPUNIT_TEST(testSubtract);
+    CPPUNIT_TEST(testMultiply);
+    CPPUNIT_TEST(testDivide);
+    <strong>CPPUNIT_TEST_SUITE_END</strong>();
+public:
+    ComplexMultiUnitTests(void);
+    virtual ~ComplexMultiUnitTests(void);
+  
+    void setUp();    // will be executed before each test
+    void tearDown(); // will be executed after each test
+  
+    void testSetValue();
+    void testAdd();
+    void testSubtract();
+    void testMultiply();
+    void testDivide();
+private:
+    Complex *x1, *x2, *x3;
+};
+	
+
+----------- <strong>ComplexMultiUnitTests.cpp</strong> -----------
+
+#include "ComplexMultiUnitTests.h"
+#include &lt;cppunit/config/SourcePrefix.h&gt;
+
+<strong>CPPUNIT_TEST_SUITE_REGISTRATION</strong>(<strong><font color="#FF0000">ComplexMultiUnitTests</font></strong>);
+
+ComplexMultiUnitTests::ComplexMultiUnitTests(void)
+{
+}
+
+
+ComplexMultiUnitTests::~ComplexMultiUnitTests(void)
+{
+}
+
+void ComplexMultiUnitTests::setUp()
+{
+    x1 = new Complex;
+    x1-&gt;setValue(7, 3);
+    x2 = new Complex;
+    x2-&gt;setValue(2, 5);
+    x3 = new Complex;
+    x3-&gt;setValue(5, -2);
+}
+
+void ComplexMultiUnitTests::tearDown()
+{
+    delete x1;
+    delete x2;
+    delete x3;
+}
+
+void ComplexMultiUnitTests::testSetValue()
+{
+    Complex x4;
+    x4.setValue(3, 7);
+    CPPUNIT_ASSERT(!(x1-&gt;equal(*x3, 1e-10)));
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(x1-&gt;magnitude(), x4.magnitude(), 1e-10);
+}
+
+void ComplexMultiUnitTests::testSubtract()
+{
+    x1-&gt;subtract(*x2);
+    CPPUNIT_ASSERT(x1-&gt;equal(*x3,1e-10));
+}
+
+void ComplexMultiUnitTests::testAdd()
+{
+    ...
+}
+
+void ComplexMultiUnitTests::testMultiply()
+{
+    ...
+}
+
+void ComplexMultiUnitTests::testDivide()
+{
+    CPPUNIT_ASSERT(x1-&gt;divide(*x2));
+    Complex x4;
+    x4.setValue(1,-1);
+    CPPUNIT_ASSERT(x1-&gt;equal(x4,1e-10));
+    x2-&gt;setValue(0, 0);
+    CPPUNIT_ASSERT(!x1-&gt;divide(*x2));
+}</font></pre></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580" bgcolor="#FFFFCC"><font face="微軟正黑體"><strong>在 main 函式中運用 
+        TextUi::TestRunner 文字介面(或是 MfcUi::MfcTestRunner 或是 QtUi::TestRunner 圖形視窗介面)來執行測試並且顯示測試的結果</strong>。測試程式碼的執行一般來說和正常的邏輯是不一樣的,通常需要寫獨立的 
+        main() 函式, 當然一個專案裡不能夠有兩個 main() 函式,所以我們會在同一個方案中另外開啟第二個專案來放這些單元測試程式碼 
+        <pre>----------- <strong>testComplex.cpp</strong> -----------
+
+#include &lt;cppunit/CompilerOutputter.h&gt;
+#include &lt;cppunit/extensions/<strong>TestFactoryRegistry.h</strong>&gt;
+#include &lt;cppunit/ui/text/TestRunner.h&gt;
+
+#include "ComplexSingleUnitTest.h"
+
+int main()
+{
+    CppUnit::Test *suite1 = <strong>CppUnit::TestFactoryRegistry::getRegistry().makeTest();</strong>
+    CppUnit::TestSuite *suite2 = new CppUnit::TestSuite();
+    suite2-&gt;addTest(new<strong> ComplexSingleUnitTes</strong>t);
+    suite2-&gt;addTest(suite1);
+
+    <font color="#FF0000">CppUnit::TextUi::TestRunner</font> runner;
+    runner.addTest(suite2);
+    bool wasSuccessful = runner.run();
+    return wasSuccessful?0:1;
+}</pre>
+        請注意用來整合這些測試的 TestSuite 物件 suite2 <strong><font color="#FF0000">不可以是堆疊上的區域物件</font></strong>, 
+        需要是 heap 上配置的, 否則結束時會有記憶體刪除的錯誤</font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td bgcolor="#DDEEBB"><p><font face="微軟正黑體">請完成步驟四中整合多個測試 Complex 類別的單元測試, 
+          助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, 
+          .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 壓縮起來, 選擇 <strong>Lab3-4</strong> 
+          <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a></font></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th align="center">&nbsp;</th>
+      <td bgcolor="#FFFFCC"><p><font face="微軟正黑體"><strong>其它範例</strong></font></p>
+        <p><font face="微軟正黑體">1. <a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/BubbleSort.rar">BubbleSort</a></font></p>
+        <p><font face="微軟正黑體">2. <a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/1040222%20StudentUnitTest.zip">Student</a></font></p>
+        <p><font face="微軟正黑體">3. PostfixExpressionInterpreter, <a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/PostfixExpressionInterpreter.pdf">pdf</a>, 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/PostfixExpressionInterpreter_CppUnit01.7z">v1</a>,<a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/PostfixExpressionInterpreter_CppUnit02.7z"> 
+          v2</a></font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th align="center">&nbsp;</th>
+      <td><p><font face="微軟正黑體"><strong>步驟五補充說明</strong></font></p>
+        <pre><font face="微軟正黑體">// 1. a single TestCase directly run in a runner
+int main()
+{
+    CppUnit::TextUi::TestRunner runner;
+    runner.addTest(new ComplexSingleUnitTest("SingleUnitTest"));
+    bool wasSuccessful = runner.run();
+    return wasSuccessful ? 0 : 1;
+}
+
+// 2. two TestCases in a TestSuite
+int main()
+{
+    CppUnit::TestSuite *suite = new CppUnit::TestSuite();
+    suite-&gt;addTest(new ComplexSingleUnitTest("SingleUnitTest"));
+    suite-&gt;addTest(new ComplexSingleUnitTest("SingleUnitTest copy 2"));
+    CppUnit::TextUi::TestRunner runner;
+    runner.addTest(suite);
+    bool wasSuccessful = runner.run();
+    return wasSuccessful ? 0 : 1;
+}
+
+// 3. a single TestFixture created with helper macro
+int main()
+{
+    CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
+    CppUnit::TextUi::TestRunner runner;
+    runner.addTest(suite);
+    bool wasSuccessful = runner.run();
+    return wasSuccessful ? 0 : 1;
+}
+
+// 4. a single TestFixture with manual construction of TestSuite
+int main()
+{
+    CppUnit::TestSuite *suite1 = new CppUnit::TestSuite();
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("sub", &amp;ComplexMultiUnitTest::testSubtract));
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("mul", &amp;ComplexMultiUnitTest::testMultiply));
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("div", &amp;ComplexMultiUnitTest::testDivide));
+    CppUnit::TestSuite *suite2 = new CppUnit::TestSuite("Test 3");
+    suite2-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("add", &amp;ComplexMultiUnitTest::testAdd));
+    suite2-&gt;addTest(suite1);
+    CppUnit::TextUi::TestRunner runner;
+    runner.addTest(suite2);
+    bool wasSuccessful = runner.run(); 
+    return wasSuccessful ? 0 : 1;
+}
+
+// 5. combining a TestFixture and a single TestCase with manually constructed TestSuite
+int main()
+{
+    CppUnit::TestSuite *suite1 = new CppUnit::TestSuite();
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("sub", &amp;ComplexMultiUnitTest::testSubtract));
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("mul", &amp;ComplexMultiUnitTest::testMultiply));
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("div", &amp;ComplexMultiUnitTest::testDivide));
+    CppUnit::TestSuite *suite2 = new CppUnit::TestSuite("Test 3");
+    suite2-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("add", &amp;ComplexMultiUnitTest::testAdd));
+    suite2-&gt;addTest(new ComplexSingleUnitTest("SingleUnitTest"));
+    suite2-&gt;addTest(new ComplexSingleUnitTest("SingleUnitTest copy 2"));
+    suite2-&gt;addTest(suite1);
+    CppUnit::TextUi::TestRunner runner;
+    runner.addTest(suite2);
+    bool wasSuccessful = runner.run(); 
+    return wasSuccessful ? 0 : 1;
+}
+
+// 6. combining a TestFixture and two TestCases manually and two TestFixtures with helper macro
+
+<font color="#0000FF">---- Complex2ndMultiUnitTests.h ----</font>
+
+class Complex2ndMultiUnitTests : public CppUnit::TestFixture 
+{
+    CPPUNIT_TEST_SUITE(<font color="#FF0000">Complex2ndMultiUnitTests</font>);
+    CPPUNIT_TEST(testSetValue);
+    CPPUNIT_TEST(testAdd);
+    CPPUNIT_TEST(testSubtract);
+    CPPUNIT_TEST(testMultiply);
+    CPPUNIT_TEST(testDivide);
+    CPPUNIT_TEST_SUITE_END();
+    ...
+};
+
+<font color="#0000FF">---- Complex2ndMultiUnitTests.cpp ----</font>
+
+#include "Complex2ndMultiUnitTests.h"
+#include &lt;cppunit/config/SourcePrefix.h&gt;
+
+CPPUNIT_TEST_SUITE_REGISTRATION(<font color="#FF0000">Complex2ndMultiUnitTests</font>);
+...
+
+int main()
+{
+    CppUnit::Test *suite0 = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
+    // 5 tests from ComplexMultiUnitTests and 5 tests from Complex2ndMultiUnitTests
+    CppUnit::TestSuite *suite1 = new CppUnit::TestSuite();
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("sub", &amp;ComplexMultiUnitTests::testSubtract));
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("mul", &amp;ComplexMultiUnitTests::testMultiply));
+    suite1-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("div", &amp;ComplexMultiUnitTests::testDivide));
+    CppUnit::TestSuite *suite2 = new CppUnit::TestSuite("Test 3");
+    suite2-&gt;addTest(new CppUnit::TestCaller<complexmultiunittest>("add", &amp;ComplexMultiUnitTests::testAdd));
+    suite2-&gt;addTest(new ComplexSingleUnitTest("SingleUnitTest"));
+    suite2-&gt;addTest(new ComplexSingleUnitTest("SingleUnitTest copy 2"));
+    suite2-&gt;addTest(suite0);
+    suite2-&gt;addTest(suite1);
+    CppUnit::TextUi::TestRunner runner;
+    runner.addTest(suite2); // 16 tests in total
+    bool wasSuccessful = runner.run(); 
+    return wasSuccessful ? 0 : 1;
+}</complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></complexmultiunittest></font></pre></td>
+    </tr>
+  </tbody></table>
+  <p><a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/UsingGoogleTest.html"><font face="微軟正黑體">運用 
+    Google C++ Testing Framework (Google Test) 範例與說明</font></a></p>
+  <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/91spring/CppUnitUsage.html">vc6 
+    可以運作的 CppUnit</a></font></p>
+  <p>&nbsp;</p>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="%E9%81%8B%E7%94%A8%20CppUnit%20%E5%AF%A6%E4%BD%9C%E5%96%AE%E5%85%83%E6%B8%AC%E8%A9%A6_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="%E9%81%8B%E7%94%A8%20CppUnit%20%E5%AF%A6%E4%BD%9C%E5%96%AE%E5%85%83%E6%B8%AC%E8%A9%A6_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Tue Apr 17 2018 11:50:55 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 03/13/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+
+</body></html>

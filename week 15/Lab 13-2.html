@@ -1,0 +1,422 @@
+<html><head>
+<title>
+Lab 13-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2013-2_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 13-2: Template Method </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%2013-2_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 練習運用 <strong><font color="#0000FF">Template 
+        Method</font></strong> 這種<strong><font color="#0000FF">設計樣板</font></strong> 
+        (Design Pattern) 使得軟體設計人員可以適當地分工 (模組之間適當的分工) <br>
+        <br>
+        練習運用繼承架構來發揮<font color="#0000FF"><strong>多型</strong></font>的功能 (同時實現 <font color="#0000FF"><strong>OCP</strong></font>, 
+        Open-Closed Principle)</font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">簡介</font></th>
+      <td width="580"><font face="微軟正黑體"> 看起來語法簡單的<font color="#FF0000">繼承</font>， 
+        對於很多初學者其實都是夢靨， 根本不知道怎樣用才能發揮它的功能， 還常常會做出不適當的繼承 (Improper inheritance, 可以用 
+        <a href="http://www.objectmentor.com/resources/articles/lsp.pdf">Liskov 
+        Substitution Principle</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/lsp.pdf">local copy</a> 來檢驗) 
+        <p> 實際上繼承與多型可以使你的設計非常簡練， 有很好的擴充性， 過去二十多年來有許多經典的設計， 我們稱它們為 <a href="http://sourcemaking.com/design_patterns">設計樣板</a> 
+          (Design Pattern)， 熟悉這些東西以後， 你會有想像不到的軟體設計功力， 這裡我們先看一下這一個常用的 Template 
+          Method 設計樣板 
+        </p><p> 這個 Template Method 樣板其實也可以說是現在很多 Framework 設計概念的縮小版， 我們在前面 Mandelbrot 
+          實習裡操作過 MFC 的 Framework， 你看到我可以在不到一分鐘的時間裡就製作完一個標準的視窗程式介面， 擁有選單、工具列、狀態列、開關檔案、列印、預覽列印、繪圖與重繪等等功能， 
+          這些功能如果要你憑藉 Windows API 去完成的話， 個個都需要許多的程式碼， 但是 Framework 裡這些功能事先都幫你做好了， 
+          你只需要把你設計的功能寫在你新增的類別裡就可以迅速得到你想要的應用程式 (不需要更改任何 Framework 裡的程式碼)。 你發現你和 
+          Microsoft 熟悉視窗界面的工程師正在分工， 你負責你自己的程式部份， 他們負責視窗界面繁瑣的細節。 
+        </p></font><p><font face="微軟正黑體"> 在 Mandelbrot 那個範例裡， 我也把需要的繪圖和使用者介面的功能都先做好， 你只需要修改 Mandelbrot 類別， 實作它的幾個成員函式就夠了， 
+          你不用太過操心這些函式實際上是怎樣運用的。 我和你之間有適當的分工， 不過在那個實習裡， 分工的方法是<strong><font color="#FF0000">很危險的</font></strong>， 
+          我把 Mandelbrot 類別的程式檔案直接給你修改， 如果你改錯了， 甚至把我原先寫好、測試好的繪圖或是使用者介面功能改掉了， 你會說都是我寫的程式的錯...我還需要幫你偵錯... 
+          這是很痛苦的， 在分工的時候會導致兩個人的責任不清楚， 很容易互相懷疑指責... </font>
+        </p><p> <font face="微軟正黑體" color="red">所以現在有一個新的問題： 能不能不直接修改我寫好的 Mandelbrot 
+          類別， 甚至我根本不把 Mandelbrot.cpp 給你， 而達到同樣的功能呢?</font><font face="微軟正黑體"> 
+          答案就是<font color="blue"><strong>繼承</strong></font>和<font color="blue"><strong>多型</strong></font></font> 
+        </p><p><font face="微軟正黑體"> Template Method 基本上就是達到這樣的功能的一個設計樣板， 它的精神是 "<font color="blue"><strong>在父類別裡設計裡處理大綱和處理原則， 
+          在子類別裡提供具體內容</strong></font>"， 參考下圖， 在抽象父類別 <em>AbstractClass</em> 的 
+          templateMethod 成員函式中描述完整的<strong><font color="#FF0000">演算法</font></strong>， 
+          在子類別中不需要再敘述演算法則。 </font> 
+          </p><center>
+            <font face="微軟正黑體"><img src="Lab%2013-2_files/Lab13-2Fig1.gif"> </font>
+          </center>
+        <p><font face="微軟正黑體"> 請注意一個抽象類別 (<em>斜體字</em>) 沒有辦法用來建立物件個體， 那麼它究竟有什麼用呢? 
+          這個實習的「Template Method 樣板」讓你看到一個抽象類別可以決定方法的名稱 (method1, method2, method3)， 
+          可以決定這些方法的使用方法 (templateMethod)， 基本上可以決定每一個方法相對於 templateMethod 裡面描述的演算法的 
+          "<strong>責任</strong>"。 </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 請參考下面的這個類別定義 
+        <pre>    class DataGroup
+    {
+    public:
+        DataGroup(int numberOfNames, char *names[], 
+                  int sizeOfArray, 
+                  int numberOfData, double dataArray[]);
+        virtual ~DataGroup();
+        void serialize(bool bOutput=true);
+    <font color="#FF0000">private:</font>
+        <font color="#FF0000">virtual</font> void openStream(bool bOutput) <font color="#FF0000">= 0</font>;
+        <font color="#FF0000">virtual</font> void closeStream(bool bOutput) <font color="#FF0000">= 0</font>;
+        <font color="#FF0000">virtual</font> void writeByte(unsigned char data) <font color="#FF0000">= 0</font>;
+        char  **m_names;
+        int     m_numberOfNames;
+        double *m_dataArray;
+        int     m_dataArraySize;
+        int     m_numberOfData;
+    };
+    
+    DataGroup::DataGroup(int numberOfNames, char *names[], 
+                         int sizeOfArray, 
+                         int numberOfData, double dataArray[])
+        : m_numberOfNames(numberOfNames), 
+          m_dataArraySize(sizeOfArray), 
+          m_numberOfData(numberOfData)
+    {
+        int i, len;
+        m_names = new char*[numberOfNames];
+        for (i=0; i&lt;numberOfNames; i++)
+        {
+            len = strlen(names[i]);
+            m_names[i] = new char[len+1];
+            strcpy(m_names[i], names[i]);
+        }
+        m_dataArray = new double[m_dataArraySize];
+        for (i=0; i&lt;numberOfData; i++)
+            m_dataArray[i] = dataArray[i];
+    }
+    
+    DataGroup::~DataGroup()
+    {
+        int i;
+        for (i=0; i&lt;m_numberOfNames; i++)
+            delete[] m_names[i];
+        delete[] m_names;
+        delete[] m_dataArray;
+    }</pre>
+        上面這個 DataGroup 類別的資料成員設計看起來有一點點複雜， 相信設計這個類別的人才會最清楚哪一個指標所代表的資料結構有什麼樣的功能， 
+        其中 serialize() 界面代表要把這個類別的物件存到永續的 (persistent) 媒體上， 例如：磁碟檔案、資料庫、報表紙、磁帶、遠端資料伺服主機等等， 
+        和這些實際儲存資料的系統打交道有時是很麻煩的， 設計這個類別的開發人員主要專注於這些資料對於應用系統的支援， 也許並不清楚該如何把資料存放到實際儲存資料的系統上， 
+        他希望把這些事情留給熟悉這些功能的同事去設計， 但是他的同事又不希望了解這個類別內資料的設計細節， 當然這樣才能夠維持 DataGroup 
+        原始設計者以後更改資料設計的彈性， 該如何設計才能使兩個人完美地分工呢? 
+        </font><p><font face="微軟正黑體"> 在設計之前，請先開啟一個專案， 把上述的程式碼複製到 DataGroup.h 和 DataGroup.cpp 裡， 單獨編譯 DataGroup.cpp 
+          確定語法沒有錯誤。 </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 請看 DataGroup 類別的 serialize() 函式設計： 
+        <pre>    void DataGroup::serialize(bool bOutput)
+    {
+        int i, j, len;
+        unsigned char *ptr;
+
+        openStream(bOutput);
+        if (bOutput) // output
+        {
+            ptr = (unsigned char *) &amp;m_numberOfNames;
+            for (i=0; i&lt;sizeof(int); i++)
+                writeByte(ptr[i]);
+        
+            for (i=0; i&lt;m_numberOfNames; i++)
+            {
+                len = strlen(m_names[i]);
+                ptr = (unsigned char *) &amp;len;
+                for (j=0; j&lt;sizeof(int); j++)
+                    writeByte(ptr[j]);
+                for (j=0; j&lt;len; j++)
+                    writeByte(m_names[i][j]);
+            }
+        
+            ptr = (unsigned char *) &amp;m_numberOfData;
+            for (i=0; i&lt;sizeof(int); i++)
+                writeByte(ptr[i]);
+        
+            ptr = (unsigned char *) &amp;m_dataArraySize;
+            for (i=0; i&lt;sizeof(int); i++)
+                writeByte(ptr[i]);
+        
+            for (i=0; i&lt;m_numberOfData; i++)
+            {
+                ptr = (unsigned char *) &amp;m_dataArray[i];
+                for (j=0; j&lt;sizeof(double); j++)
+                    writeByte(ptr[j]);
+            }
+        }
+        else // input
+        {
+            freeMemory();
+            ptr = (unsigned char *) &amp;m_numberOfNames;
+            for (i=0; i&lt;sizeof(int); i++)
+                ptr[i] = readByte();
+            m_names = new char*[m_numberOfNames];
+            for (i=0; i&lt;m_numberOfNames; i++)
+            {
+                ptr = (unsigned char *) &amp;len;
+                for (j=0; j&lt;sizeof(int); j++)
+                    ptr[j] = readByte();
+                m_names[i] = new char[len+1];
+                for (j=0; j&lt;len; j++)
+                    m_names[i][j] = readByte();
+                m_names[i][len] = 0;
+            }
+            <strong><font size="+2" color="#FF0000">...</font></strong>
+        }
+    
+        closeStream(bOutput);
+    }</pre>
+        這個函式裏面大部分功能都和 DataGroup 自己的資料結構的細節有關， 因此理應由撰寫 DataGroup 的程式設計者來寫， 但是你看到他在實際輸出時運用一個<font color="red">還沒有定義的函式</font> 
+        writeByte(unsigned char) 來實作， 同時在初始化輸出裝置時運用 openStream(bool) 來實作， 在關閉輸出裝置時運用 
+        closeStream(bool) 來實作。 這裡就是<font color="blue">運用多型的機制</font>： 實際上執行到的 openStream(), 
+        closeStream(), writeByte() 函式是在衍生類別裡才會定義的， 我們在上課時說過多型在運作時需要透過多型指標或是多型參考來運作， 
+        <font color="blue">this</font> 指標就是這裡的多型指標。 
+        <p> 請完成 serialize() 函式裡面由資料儲存媒介輸入資料的程式 (<font color="#FF0000"><strong>紅色 
+          ...</strong></font> 的地方)， 你需要在類別定義裡定義一個<font color="#0000FF"><strong>純粹虛擬函式 
+          unsigned char readByte()=0</strong></font>， 藉由呼叫這個函式來完成輸入的功能，<font color="#0000FF"><strong> 
+          openStream() </strong></font>和<font color="#0000FF"><strong> closeStream() 
+          </strong></font>也是純粹虛擬函式，這兩個函式被呼叫到時應該會根據 bOutput 參數來開啟或是關閉輸出/輸入的串流，上面這三個函式的內容和輸出或是輸入串流的種類有關，不需要在 
+          DataGroup 類別裡面設計；上面 serialize() 函式裡面的輸入比輸出麻煩一點點， 你需要把物件裏面原先的記憶體刪除 (你可以把上面解構元裡的程式寫到一個輔助函式 
+          freeMemory() 中， 然後在解構元還有這個 serialize() 函式的輸入部份呼叫)， 另外你一定要依照建構元裡配置資料的方式配置記憶體。 
+        </p></font><p><font face="微軟正黑體">這個 DataGroup 類別就扮演「<font color="#FF0000"><strong>template method 樣板</strong></font>」裡的 
+          AbstractClass 的角色, DataGroup::serialize() 函式就扮演 AbstractClass::templateMethod() 
+          的角色, DataGroup::readByte(), DataGroup::writeByte(), DataGroup::opernStream(), 
+          DataGroup::closeStream() 就扮演 AbstractClass::method1(), AbstractClass::method2(), 
+          或是AbstractClass::method3() 的角色。 </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 接下來請看在主程式裡如何測試這個 DataGroup 類別的序列化<font color="#FF0000">輸出</font>功能 
+        <pre>    void main()
+    {
+        char *names[] = {"compressor", "o-ring"};
+        double darray[] = {1.1, 2.2, 3.3};
+
+        ScreenDataGroup scrobj(2, names, 5, 3, darray);
+        TextFileDataGroup tfobj(2, names, 5, 3, darray, "DataGroup.txt");
+        BinaryFileDataGroup bfobj(2, names, 5, 3, darray, "DataGroup.dat");
+        
+        scrobj.serialize();
+        
+        tfobj.serialize();
+        
+        bfobj.serialize();
+    }</pre>
+        由於 DataGroup 裡有純粹虛擬函式 (pure virtual function)， 所以沒有辦法直接產生物件， 當然因為沒有定義實際輸出的裝置， 
+        所以理所當然地沒有辦法運作， 所以上面有用到三個新的衍生類別 ScreenDataGroup, TextFileDataGroup, BinaryFileDataGroup，這三個類別分別把資料序列化 
+        (serialize) 到鍵盤螢幕、文字檔案、和二進位格式的檔案中， 接下來<font color="#0000FF"><strong>你就要負責設計這三個類別</strong></font>。 
+        <p> 請依照上面的範例製作好 main() 函式， 並且在函式最後面加入測試由儲存媒體<font color="#FF0000">讀入</font>物件的程式片段， 
+          例如： 
+        </p><pre>    TextFileDataGroup tfobj2("DataGroup.txt");
+    tfobj2.serialize(false);  // 由 DataGroup.txt 檔案中重建 tfobj2 物件
+    ...</pre>
+        因為 DataGroup.txt 是前面物件 tfobj 的輸出，所以重建回來的 tfobj2 應該 和前面的 tfobj 擁有一模一樣的資料 
+        (等一下會希望你加一個測試相等的成員, 運用 assert 確保運作的正確性) </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 接下來說明一下 ScreenDataGroup 這個類別裡負責在螢幕上輸出的功能設計 
+        <pre>    #include &lt;DataGroup.h&gt;
+
+    class ScreenDataGroup : public DataGroup
+    {
+    public:
+        ScreenDataGroup(int numberOfNames, char *names[], 
+                        int sizeOfArray, 
+                        int numberOfData, double dataArray[])
+            : DataGroup(numberOfNames, names, sizeOfArray, 
+                        numberOfData, dataArray) {}
+    private:
+        void openStream(bool bOutput);
+        void closeStream(bool bOutput);
+        void writeByte(unsigned char data);
+    };
+    
+    void ScreenDataGroup::openStream(bool)
+    {
+    }
+    
+    void ScreenDataGroup::closeStream(bool)
+    {
+    }
+    
+    void ScreenDataGroup::writeByte(unsigned char data)
+    {
+        static int nBytes=0;
+    
+        int lownibble = data &amp; 0x0F;
+        int highnibble = data &gt;&gt; 4;
+      
+        cout &lt;&lt; setw(1) &lt;&lt; hex &lt;&lt; highnibble;
+        cout &lt;&lt; setw(1) &lt;&lt; hex &lt;&lt; lownibble &lt;&lt; ' ';
+    
+        nBytes = ++nBytes % 16;
+        if (nBytes == 0)
+            cout &lt;&lt; endl;
+    }</pre>
+        </font> <p><font face="微軟正黑體"> 請新增加一個類別檔案 ScreenDataGroup.cpp 和 ScreenDataGroup.h, 
+          放進上述的程式碼， 你應該可以編譯同時測試一下螢幕輸出的功能了， <font color="red">用心體會一下運用繼承和多型來完成的程式設計分工機制!!</font></font> 
+        </p><p> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab13/DataGroup.exe">範例執行程式</a>， 這個程式執行後在螢幕上會顯示資料的 
+          16 進位內容， 還會產生兩個檔案：DataGroup.txt 裡是文字格式的 16 進位內容， DataGroup.dat 裡是二進位格式的資料內容 
+          </font>
+        </p><p><font face="微軟正黑體"> 接下來<font color="#0000FF"><strong>請嘗試撰寫鍵盤輸入</strong></font>的部份， 
+          也就是覆蓋 unsigned char readByte() 函式，並且撰寫 ScreenDataGroup() 的建構元和 DataGroup() 
+          的建構元，修改 serialize() 函式，根據 if (bOutput) // output 後面大括號裡輸出的順序，撰寫 else 
+          // input 後面大括號裡輸入的程式碼，把這一段程式中 writeByte 改成 readByte，適當的地方配置記憶體 </font>
+        </p><p><font face="微軟正黑體"> 一開始會以為測試這部份的程式碼的時候會很痛苦，因為你需要鍵入許多的 16 
+進位資料，不過測試的時候因為我們先輸出到螢幕上，所以你可以拷貝螢幕上出現的資料做為輸入來測試，另外這個函式的內容在下一步驟中也會用到，由檔案裡直
+接讀入這個物件的話就不用擔心鍵入許多的 
+          16 進位資料了。 </font>
+        </p><p><font face="微軟正黑體">這個實習裡你看到一個類別在製作的時候可以只定義 private 的操作界面!</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體"> 請完成文字檔案輸出入裝置的 TextFileDataGroup 類別， 
+        請注意在建構這個類別物件的時後， 建構元的參數比 DataGroup 物件建構時多一個字元陣列， 內容是序列化的檔案名稱， 你可以運用這個名稱去初始化輸出或是輸入檔案串流物件，你可以運用 
+        fstream 定義一個串流物件成員，如此可以根據 bOutput 決定到底是輸入的檔案串流還是輸出的檔案串流。 
+        <p> 另外由文字檔案輸入 DataGroup 物件時， TextFileDataGroup 物件建構時只需要給一個檔案名稱，這時可以有兩種設計方法，一種是直接在建構元裡面呼叫 
+          serialize(false) 會透過 openStream 初始化輸入串流物件， 並且完成整個序列化的動作；另外一種則是在建構元裡只是把檔案名稱記下來，由客戶端程式決定呼叫 
+          serialize(false) 的時機。 
+        </p><p> 有同學測試發現 VC2005 以後 setw(1) 似乎是輸出檔案串流 ofstream 不支援的方法， 你不能用，需要把它刪除， 
+          不過輸出的結果還是對的就是了... 
+        </p><p> 為了比對由串流建構起來的物件裡的資料是否和原來的物件一模一樣， 你可以在 DataGroup 類別裡增加一個 bool operator==(DataGroup 
+          &amp;) 的成員，例如： 
+        </p><pre>    bool DataGroup::operator==(DataGroup &amp;rhs)
+    {
+        int i;
+        
+        if ((m_numberOfNames != rhs.m_numberOfNames) ||
+            (m_dataArraySize != rhs.m_dataArraySize) ||
+            (m_numberOfData != rhs.m_numberOfData))
+           return false;
+        for (i=0; i&lt;m_numberOfNames; i++)
+            if (strcmp(m_names[i], rhs.m_names[i]) != 0)
+                return false;
+        for (i=0; i&lt;m_numberOfData; i++)
+            if (m_dataArray[i] != rhs.m_dataArray[i])
+                return false;
+        return true;
+    }</pre>
+        </font> <p><font face="微軟正黑體">請注意上面在比較 m_dataArray[i] 和 rhs.m_dataArray[i] 
+          時<strong>不需要</strong>有百分誤差範圍的概念, 只需要比較兩個 double 數字裡每一個位元都完全一樣!! (請注意我們序列化到螢幕上或是文字檔案裡時, 
+          我們並沒有把資料轉換成十進位, 如果轉為十進位就會有誤差了)</font></p>
+        <p><font face="微軟正黑體">然後在 main() 裡面用如下的方法測試 </font></p>
+        <pre><font face="微軟正黑體">
+    char *name[] = {"compressor", "o-ring"};
+    double darray[] = {1.1, 2.2, 3.3};
+    TextFileDataGroup tfobj(2, name, 5, 3, darray, "DataGroup.txt");
+    
+    tfobj.serialize();
+
+    TextFileDataGroup tfobj2("DataGroup.txt");
+
+    tfobj2.serialize(false);
+   
+    assert(tfobj2 == tfobj);</font></pre> </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 請完成二進位格式檔案輸出入裝置的 <strong>BinaryFileDataGroup 
+        類別</strong>， 在建構這個類別物件的時後建構元參數也是比 DataGroup 物件建構時多一個字元陣列， 內容是序列化的檔案名稱， 
+        其它設計部份和 TextFileDataGroup 類似， 但是 readByte() 和 writeByte() 函式裡需要運用 istream::read() 
+        和 ostream::write() 來實作。 </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 
+        資料匣下的所有內容) 壓縮起來, 選擇 Lab13-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式。 </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">後續</font></th>
+      <td width="580"> <p><font face="微軟正黑體">請一定要仔細思考這樣子架構下分工的好處， 在這個範例裡撰寫衍生類別的工程師完全不需要知道 
+          DataGroup 裡到底有什麼資料，到底是用什麼存放格式， 撰寫 DataGroup 類別的工程師也可以專注於 DataGroup 內部資料的設計， 
+          不要去煩惱怎樣儲存的細節問題， 尤其是當資料需要儲存到遠端的資料伺服主機上， 或是需要儲存到容錯的硬碟陣列中， 這些狀況下更是有必要分工合作， 
+          每個人負責一部份即可。 </font></p>
+        <p><font face="微軟正黑體"><strong><font size="+2" color="#FF0000">OCP, Open-Closed 
+          Principle</font></strong>: 這個例子中 DataGroup 抽象類別以及運用 DataGroup 類別的應用程式就滿足 
+          <font color="#FF0000"><strong>Open for extension, closed for modification</strong></font> 
+          的原則, 任何新擴充的功能只需要增加一個繼承 DataGroup 的類別就可以了, 完全不需要修改 DataGroup 以及基於 DataGroup 
+          界面設計的客戶端應用程式碼。 </font></p></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%2013-2_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%2013-2_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon Jun 04 2018 12:33:23 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 05/29/2008 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

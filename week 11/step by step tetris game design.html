@@ -1,0 +1,522 @@
+<html><head>
+<title>step by step tetris game design</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="step%20by%20step%20tetris%20game%20design_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體">1062 C++ 程式作業三： </font></h1>
+  <h1><font face="微軟正黑體"> 俄羅斯方塊 (Tetris) 遊戲初步</font></h1>
+  <h1><font face="微軟正黑體">繳交時間: <font color="#FF0000"><strong><font color="#000000">2A</font> 
+    107/05/17 星期四 21:00<br>
+    <font color="#000000"> 2B</font> 107/05/18 星期五 21:00 </strong></font></font></h1>
+  <h1>&nbsp;</h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="step%20by%20step%20tetris%20game%20design_files/rainbow.gif"> </font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td width="700" bgcolor="#DDEEBB"> <p><font face="微軟正黑體">課程過了半個學期, 你已經逐漸熟悉怎樣運用現有函式庫提供的類別來簡化你自己的設計, 
+          你也能夠了解到<strong><font color="#FF0000">封裝</font></strong>的意義, 逐步開始設計適當封裝的<strong><font color="#FF0000">類別</font></strong>, 
+          這個階段需要你逐步把你自己的應用程式分割成一個一個類別, 讓這些類別的物件互相<strong><font color="#FF0000">合作</font></strong>來完成整體程式的功能。</font></p>
+        <p><font face="微軟正黑體">你開始在練習設計多個類別時, 一定會發現各個類別的介面很難一次就就設計好, 通常一邊實作程式的功能, 
+          一邊替各個類別設計介面, 有的時候甚至修改先前實作好的介面, 你一定也會懷疑這樣反覆的過程真的是對的嗎? 沒錯, 真的就是這樣, 你在能夠把各個類別裡面的資料完全封裝起來之前, 
+          程式是會經過相當時間的調整的, 後續我們還會看到許多這樣的過程, 這也是為什麼這學期從一開始實習就介紹如何製作類別的單元測試碼, 目的就是為了在設計調整時能夠保證先前測試過的功能都有正確的表現。</font></p>
+        <p><font face="微軟正黑體">也許你覺得前半學期所寫的程式 (實習和作業) 都沒有視窗和圖形的介面, 實在不怎麼有趣, 接下來在<font color="#0000FF"><strong>作業四</strong></font>裡面替大家安排的是<strong><font color="#FF0000">俄羅斯方塊</font></strong>, 
+          雖然這個簡單的遊戲程式用 C 寫程序化的程式可以在兩三百列裡完成, 但是我們希望你練習用物件化的方式來思考與實作, 除了練習前面所教的東西之外, 
+          這樣子做也可以很快地和大部分的視窗使用者介面結合, 希望在這個作業裡你能夠藉由設計互動式的介面來找回一點點動力, 不要把沒有掌握好 C 
+          和 C++ 程式的設計方法歸咎為沒有提供有趣的介面。</font></p>
+        <p><font face="微軟正黑體" color="#0000FF"><strong>作業四</strong></font><font face="微軟正黑體">的目標是: 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris.utilwin32.gcc492.exe">文字界面 gcc492</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris.BGIm.vc2010dll.exe">WinBGI 
+          vc2010</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris.BGIm.gcc492.exe">WinBGI gcc492</a>, 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris_SFML.7z">SFML vc2010</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris_SDI_d.exe">MFC 
+          vc2010</a></font></p>
+        <p><font face="微軟正黑體"><strong><font color="#0000FF">作業三</font></strong>比較像是實習, 
+          是給作業四暖身用的, 希望你先練習一點點互動的介面</font></p>
+        <p><font face="微軟正黑體">經過了兩次作業的繳交以及期中考試, 實在令人擔心接下來作業四的情況, 所以在作業三裡, 請大家逐步接觸簡單的互動式介面, 
+          希望結束以後你能夠很順利地開始作業四的設計。</font></p>
+        <p><font face="微軟正黑體">這個作業裡希望漸進地完成下面的程式, 先執行一下範例程式:</font></p>
+        <ol star="0">
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test0.exe">清除螢幕程式</a></font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test1.exe">繪製邊界程式</a></font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test2.exe">熟悉文字介面螢幕座標程式</a></font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test3.exe">基本文字動畫練習程式</a></font></li>
+        </ol>
+        <p><font face="微軟正黑體">以上的範例程式會在下面步驟裡介紹, 基本上是簡單的 C 程式, 接下來的練習需要你<strong>設計類別</strong>來封裝一些看得到的物件, 
+          例如 遊戲盤面, 每一個下墜的物體, ...</font></p>
+        <ol start="4">
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test4.exe">一個由上端墜下的物件</a></font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test5.exe">碰到邊界隨機更改方向的物件</a></font></li>
+          <li><font face="微軟正黑體" color="#000000"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test6.exe">鍵盤介面 
+            &lt;Esc&gt;, p</a></font></li>
+          <li><font face="微軟正黑體"><strong><font size="+2" color="#000000"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test7.exe">入射角與反射角相等, 
+            不斷彈跳的物件</a></font></strong></font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test8.exe">更多鍵盤介面 ←, →, ↓, ↑, q, 
+            i, d</a></font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test9.exe">顯示 ascii art 數字 (顯示移動速度)</a></font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test10.exe">多個有碰撞彈跳的物件</a></font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test11.exe">上面 4, 5, 6, 7 的功能已經可以寫一個打磚塊的文字介面遊戲了</a></font></li>
+        </ol>
+        <p><font face="微軟正黑體">希望這些漸進的目標, 能夠讓你有比較好的基礎來進行作業四俄羅斯方塊作業的設計</font></p>
+        <p><font face="微軟正黑體"><strong><font color="#0000FF">這個作業裡</font></strong>請你完成上面的第 
+          <font size="+2"><strong>7</strong></font> 項</font></p>
+        <p><font face="微軟正黑體"><strong>你覺得這學期的實習和課程一直出現新的東西嗎? 一直出現沒有講過的東西嗎?</strong> 
+          在產品生命週期很短的電子、資通訊產業裡, 接觸一年半就已經算是老鳥了, 很難跟別人說你還在學 - 沒有準備過的東西都不太會。在學習軟體設計的過程當中, 
+          很多方法都會不斷地重複出現, 所以你接觸到新東西的時候的心態很重要, 很快地和過去學過相關的東西比較一下, 整理一下關鍵的差異在哪裡, 
+          用最短的時間掌握需求, 分析需求, 運用過去的經驗與手邊的工具達成需求, 是你必須不斷不斷練習去掌握的, 如果你是用應付考試的心態在學東西, 
+          可以用就好了, 考過的不會再考了... 那麼下一次出現的時候, 尤其是外表有一點點變化的時候, 你就會覺得又是全新的東西了, 又是完全不會了, 
+          這樣子的話你在合作團隊裡的價值就不會太高。</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="485" bgcolor="#FFFFCC"> <center>
+          <h3 align="left"><font face="微軟正黑體">首先介紹簡單的互動介面</font></h3>
+          <p align="left"><font face="微軟正黑體">到目前為止我們練習的都是文字介面, 先前我們用 cout 時, 命令列視窗 
+            (cmd) 裡的文字會自動往上捲動, 你的程式印出 24 列之後, 列印第 25 列時, 第一列就不見了, 第二列變成第一列, 第三列變成第二列, 
+            ...所有顯示的資料往上捲動, 螢幕上面同一時間最多只能顯示 24 列, 這個特性在設計遊戲的輸出時有點討厭, 因為很多遊戲的元素顯示的位置必須要固定下來, 
+            所以我們需要一些簡單的工具, 請下載 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/utilwin32.h">utilwin32.h</a> 以及 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/utilwin32.cpp">utilwin32.cpp</a></font></p>
+          <p align="left"><font face="微軟正黑體">這裡面運用微軟視窗系統的API設計了四個很簡單的工具：</font></p>
+          <p align="left"><font size="+1" face="微軟正黑體" color="#FF0000">void <strong>gotoxy</strong>(int 
+            x, int y); </font><font size="+1" face="微軟正黑體">// 移動文字模式的游標至 (x,y) 
+            的地方</font></p>
+          <p align="left"><font size="+1" face="微軟正黑體" color="#FF0000">void <strong>clrscr</strong>();</font><font size="+1" face="微軟正黑體"> 
+            // 清除顯示畫面</font></p>
+          <p align="left"><font size="+1" face="微軟正黑體" color="#FF0000">WORD <strong>setTextColor</strong>(WORD 
+            color);</font><font size="+1" face="微軟正黑體"> // 改變顯示文字的顏色</font></p>
+          <p align="left"><font face="微軟正黑體">// FOREGROUND_BLUE(0x01), FOREGROUND_GREEN(0x02)<br>
+            // FOREGROUND_RED(0x04), FOREGROUND_INTENSITY(0x08),<br>
+            // BACKGROUND_BLUE(0x10), BACKGROUND_GREEN(0x20)<br>
+            // BACKGROUND_RED(0x40), BACKGROUND_INTENSITY(0x80)</font></p>
+          <p align="left"><font size="+1" face="微軟正黑體" color="#FF0000">void <strong>delay</strong>(int 
+            milliSecond);</font><font size="+1" face="微軟正黑體"> // 讓程式休息指定長度的時間 
+            (單位是毫秒)</font></p>
+          <p align="left"><font face="微軟正黑體">另外我們還需要 conio.h 提供的兩個鍵盤輸入的工具</font></p>
+          <p align="left"><font size="+1" face="微軟正黑體" color="#FF0000">int <strong>getch</strong>(); 
+            </font><font size="+1" face="微軟正黑體">// 直接讀取鍵盤鍵入的單一字元, 不需要等候 &lt;enter&gt;</font></p>
+          <p align="left"><font size="+1" face="微軟正黑體" color="#FF0000">int <strong>kbhit</strong>();</font><font size="+1" face="微軟正黑體"> 
+            // 檢查是否有任何按鍵</font></p>
+          <p align="left"><font face="微軟正黑體">有了這六個工具, 我們就可以逐步完成上面範例程式的功能了</font></p>
+        </center></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><h3><font face="微軟正黑體">清除螢幕</font></h3>
+        <pre><font face="微軟正黑體">#include "utilwin32.h" // clrscr()
+#include &lt;stdlib.h&gt; // system()
+
+int main()
+{
+    <font color="#FF0000">clrscr();</font>
+    system("pause");
+}</font></pre> 
+        <p><font face="微軟正黑體">你的專案裡需要加入 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/utilwin32.h">utilwin32.h</a> 
+          和 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/utilwin32.cpp">utilwin32.cpp</a></font></p>
+        <p> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test0.exe">範例程式</a></font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#FFFFCC"><h3><font face="微軟正黑體">移動游標到螢幕上任意位置</font></h3>
+        <p><font face="微軟正黑體">運用 utilwin32 裡提供的 <strong>gotoxy(x,y)</strong> 我們可以將游標移動到座標 
+          (x, y) 的地方, 水平方向是 x 軸, 垂直方向是 y 軸, 座標 (x, y) 也就是下圖第 x 行, 第 y 列的地方, 然後再運用 
+          cout 的 insertion operator 來輸出文字到游標所在的位置</font></p>
+        <p><font face="微軟正黑體">如下圖, 螢幕上我們可以看成是 24x80 格, 游標就是那個閃動的直線、底線、或是方塊</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="step%20by%20step%20tetris%20game%20design_files/textmodeScreenCoordinates.gif" width="541" height="317"></font></p>
+        <p align="left"><font face="微軟正黑體">下列程式範例在第二行第三列, 座標 (2,3), 的地方畫一個字元 z</font></p>
+        <pre><font face="微軟正黑體">#include "utilwin32.h" // gotoxy()
+#include &lt;iostream&gt; // cout
+#include &lt;stdlib.h&gt; // system()
+using namespace std;
+
+int main()
+{
+    <font color="#FF0000">gotoxy(2,3);</font>
+    cout &lt;&lt; 'z';
+    system("pause");
+}</font></pre> 
+        <p><font face="微軟正黑體">要清除座標 (2,3) 的資料的話, 也是運用 gotoxy(2,3); 然後再輸出一個空白字元 
+          <br>
+          cout &lt;&lt; ' '; 就可以</font></p>
+        <p><font face="微軟正黑體">下面的函式可以繪製遊戲畫面的邊框, 其中 (orgX, orgY) 是遊戲畫面的左上角, (orgX+width-1, 
+          orgY+height-1) 是遊戲畫面的右下角, 邊框畫在這個區間的外緣</font></p>
+        <pre><font face="微軟正黑體">void drawBoundary(int orgX=10, orgY=5, width=25, height=16)
+{
+    int i;
+    gotoxy(orgX-1, orgY-1);
+    cout &lt;&lt; '+';
+    for (i=0; i&lt;width; i++)
+        cout &lt;&lt; '-';
+    cout &lt;&lt; '+';
+
+    for (i=0; i&lt;height; i++)
+    {
+        gotoxy(orgX-1, orgY+i); cout &lt;&lt; '|';
+        gotoxy(orgX+width, orgY+i); cout &lt;&lt; '|';
+    }
+
+    gotoxy(orgX-1, orgY+height);
+    cout &lt;&lt; '+';
+    for (i=0; i&lt;width; i++)
+        cout &lt;&lt; '-';
+    cout &lt;&lt; '+';
+    gotoxy(1,23); // 把游標移動到視窗中固定的地方, 
+}                 // 否則在畫面上會一直看到游標在不同地方閃啊閃的
+</font></pre>
+        <font face="微軟正黑體"> 範例程式 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test1.exe">1</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test2.exe">2</a></font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><h3><font face="微軟正黑體">簡易文字動畫</font></h3>
+        <p><font face="微軟正黑體">我們可以用簡單的文字動畫來模擬俄羅斯方塊這樣的遊戲, 最簡單的就是一個文字由畫面上方慢慢移到下方的程式, 
+          例如</font></p>
+        <pre><font face="微軟正黑體">    clrscr();
+    drawBoundary(orgX, orgY, width, height);
+
+    x=orgX+width/2;
+    gotoxy(x,orgY), cout &lt;&lt; "#";
+    for (y=orgY; y&lt;orgY+height-1; y++)
+    {
+        delay(300); // 每次移動之間間隔 0.3 秒 (300毫秒)
+        gotoxy(x,y), cout &lt;&lt; " "; // 移動到下一個座標前先清除原來的文字
+        gotoxy(x,y+1), cout &lt;&lt; "#";
+    }
+    gotoxy(1,23);
+    system("pause");</font></pre>
+        <font face="微軟正黑體"> 也就是每隔一小段時間 (300毫秒) 把原本位於位置 (x,y) 的字元清除, 在 (x, y+1) 
+        的地方再畫一個字元出來, 像這樣單個文字的動畫, 也可以考慮在下一個座標上先畫出字元, 稍微讓兩個點重疊出現, 然後再清除前一個座標上已經畫出的字元, 
+        例如下面的程式 
+        <pre>    clrscr();
+    drawBoundary(orgX, orgY, width, height);
+    x=orgX+width/2-1;
+    gotoxy(x,orgY), cout &lt;&lt; "*";
+    for (y=orgY; y&lt;orgY+height-1; y++)
+    {
+        delay(200);
+        gotoxy(x,y+1), cout &lt;&lt; "*";
+        delay(100);
+        gotoxy(x,y), cout &lt;&lt; " ";
+    }
+    gotoxy(1,23);
+    system("pause");</pre>
+        </font> <p> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test3.exe">範例程式</a> (畫面中左側的字元 
+          <strong>*</strong> 是有重疊出現的, 右側的字元 <strong>#</strong> 是先刪除舊點再畫新點的)</font></p>
+        <p><font face="微軟正黑體">請注意在這裡直接讓程式休息 200 毫秒, 這段時間裡什麼事情都不做, 如果你的程式要執行很多運算, 
+          這樣子不但浪費 CPU 時間, 也讓使用者覺得程式的反應有點頓頓的, 如果是那樣子的話, 你需要把時間縮短, 假如你希望休息 200 毫秒, 
+          可以用一個迴圈執行 10 次, 每次休息 20 毫秒, 每次休息回來的時候, 記得要處理一下需要處理的事情 (例如處理按間或是繪製螢幕...), 
+          這樣子總計會休息 200 毫秒, 但是分段來休息了</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#FFFFCC"><h3><font face="微軟正黑體">物件化方法設計的程式</font></h3>
+        <p><font face="微軟正黑體">在俄羅斯方塊的遊戲裡, 可以看到好多種物件, 如果你運用物件化的方法設計程式, 程式本身的<strong>擴充能力</strong>是比較好的, 
+          在不同的圖形化介面環境下<strong>移植</strong>是比較方便的, 接下來請運用這學期學到的語法, <font size="+1" color="#FF0000"><strong>設計幾個類別</strong></font>來完成指定的功能, 
+          我們需要畫出一個物件由遊戲畫面的頂端慢慢掉下, 希望設計三個類別 <strong><font size="+1" color="#FF0000">Point</font></strong><font size="+1">, 
+          <strong><font color="#FF0000">Rect</font></strong>, <strong><font color="#FF0000">Object</font></strong></font> 
+          如下:</font></p>
+        <p><font size="+1" face="微軟正黑體" color="#FF0000"><strong>Point</strong></font><font face="微軟正黑體"> 
+          類別代表遊戲畫面上任意一個點, 有 x 和 y 座標, 在程式裡可以代表一個物件的位置, 也可以代表一個物件的速度, 本來像這樣由兩個整數組合的資料, 
+          常常就用 struct 包起來就好了, 不過我們還是設計成類別, 我們希望設計一些專屬於這個類別的操作方法, 例如建構元, operator+(), 
+          測試一個點是否在一個矩形區域裡面等等, 請實作下列介面:</font></p>
+        <ol>
+          <li><font face="微軟正黑體"> Point(); // 預設建構元</font></li>
+          <li><font face="微軟正黑體"> Point(const int x, const int y); // 建構元</font></li>
+          <li><font face="微軟正黑體">Point operator+(const Point &amp;rhs) const; 
+            // 計算兩個點的向量和</font></li>
+          <li><font face="微軟正黑體"> bool isInside(const Rect &amp;rect) const; // 
+            判斷點是否在傳入的矩形區間內</font></li>
+        </ol>
+        <p><font face="微軟正黑體"><strong><font size="+1" color="#FF0000">Rect</font></strong> 
+          類別可以用來表示遊戲的盤面大小, 我們也希望它可以幫忙判別任何一個點是否在盤面中, 或是任何一個物件是不是在盤面中, 有沒有超出邊界, 
+          我們也希望這個類別有繪製的功能, 所以它可以在螢幕上繪出一個矩形的區域來作為遊戲的邊界, 最主要需要的資料成員是 左邊(left)、上邊(top)、右邊(right)、下邊(bottom) 
+          的四個整數資料, 請注意我們希望這個矩形區間是由 left 到 right-1, 由 top 到 bottom-1, 也就是說不包含 right 
+          那一行, 也不包括 bottom 那一列, 請實作下列介面:</font></p>
+        <ol>
+          <li><font face="微軟正黑體">Rect(const int left, const int top, const int 
+            right, const int bottom); // 建構元</font></li>
+          <li><font face="微軟正黑體"> bool contains(const Point &amp;pt) const; // 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/Q1.html">判斷是否包含傳入的點</a></font></li>
+          <li><font face="微軟正黑體"> bool contains(const Object &amp;obj) const; 
+            // 判斷是否包含傳入的整個物件</font></li>
+          <li><font face="微軟正黑體"> void draw() const; // 繪製矩形的邊界</font></li>
+        </ol>
+        <p><font face="微軟正黑體"><strong><font color="#FF0000">請注意</font></strong>設計這個 
+          Rect 類別的時候需要 Point 類別的定義, 先前設計 Point 類別的時候也需要 Rect 類別的定義, 如果在 Rect.h 
+          裡面加入 #include "Point.h" 然後又在 Point.h 裡面加入 #include "Rect.h" 
+          是沒有辦法成功的, 你不可能在定義 Point 類別之前先定義好 Rect 類別, 同時又在定義 Rect 類別之前先定義好 Point 
+          類別, 這時你必須用到類別的<font color="#FF0000"><strong>前向宣告</strong></font>, 在 
+          Point.h 中定義 Point 類別之前先加入 <font color="#FF0000"><strong>class Rect;</strong></font>, 
+          因為在 Point 類別內只需要 Rect 的參考定義, 編譯器不需要知道完整的 Rect 類別定義, 所以可以用這種前向宣告, 在 Point.cpp 
+          中需要 #include "Point.h" 以及 #include "Rect.h", 在定義 
+          Rect 類別時就可以直接在 Rect.h 裡加上 #include "Point.h" 的前處理器指令了。</font></p>
+        <p><font face="微軟正黑體"><strong><font size="+1" color="#000000">------------------</font></strong></font></p>
+        <pre><font face="微軟正黑體">--- <strong><font color="#FF0000">A.h</font></strong> ---
+<font color="#0000FF"><strong>class B;</strong></font>
+class A
+{
+public:
+   int fun(<strong><font color="#0000FF">B&amp;</font></strong> b);
+private:
+    <strong><font color="#0000FF">B*</font></strong> ptrB;
+};
+
+--- <strong><font color="#FF0000">A.cpp</font></strong> ---
+#include "A.h"
+<font color="#0000FF"><strong>#include "B.h"</strong></font>
+
+int A::fun(<strong><font color="#0000FF">B&amp;</font></strong> b)
+{
+    ptrB-&gt;fun();
+    b.fun();
+}
+
+--- <font color="#FF0000"><strong>B.h</strong></font> ---
+<font color="#0000FF"><strong>#include "A.h"</strong></font>
+class B
+{
+public:
+   int fun();
+private:
+   <font color="#0000FF"><strong>A</strong></font> a;
+};
+
+--- <font color="#FF0000"><strong>B.cpp</strong></font> ---
+#include "B.h"
+
+int B::fun()
+{
+    a.fun();
+}
+
+
+另外你需要知道下面狀況是不可能發生的<br>class A<br>{<br>    B bObj;<br>};<br>class B<br>{<br>    A aObj;<br>};</font></pre> 
+        <p><font face="微軟正黑體" color="#000000"><strong><font size="+1">------------------ 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/MutualReferences.html">還是不清楚的話請參考</a></font></strong></font></p>
+        <p><font face="微軟正黑體"><strong><font size="+1" color="#FF0000">Object</font></strong> 
+          類別就是用來表示遊戲中落下的不同形狀物件, 這個物件主要由四個座標點組成, 如下圖我們設定其中橘色的那個點是原點, 運用 Point 類別的物件陣列記錄相對座標 
+          (0, 0), (0,1), (1, 0), (1, -1)</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="step%20by%20step%20tetris%20game%20design_files/object.gif" width="383" height="126"></font></p>
+        <p align="left"><font face="微軟正黑體">另外記錄這個物件原點在螢幕上的絕對座標, 最後再記錄顯示的字元 'a', 
+          (也可以紀錄顯示的顏色), 這個類別請實作下列介面</font></p>
+        <ol>
+          <li><font face="微軟正黑體"> Object(const char face, const Point position, 
+            const Point data[4]); // 建構元</font></li>
+          <li><font face="微軟正黑體">bool move(const Point &amp;offset, const Rect 
+            &amp;boundary); // 移動 offset 位移</font></li>
+          <li><font face="微軟正黑體"> bool isInside(const Rect &amp;rect) const; // 
+            檢查物件是否在矩形區域 rect 中 </font></li>
+          <li><font face="微軟正黑體"> void draw(bool show=true) const; // 繪製 (true), 
+            清除 (false)</font></li>
+        </ol>
+        <p><font face="微軟正黑體">為了要有動畫的效果, move() 介面在移動之前要先呼叫 draw(false), 清除原來座標位置的資料, 
+          也就是執行 gotoxy(...), cout &lt;&lt; ' ' 的動作, 移動以後再呼叫 draw(true) 繪製新座標位置的資料, 
+          也就是執行 gotoxy(...), cout &lt;&lt; m_face 的動作, move() 介面的第二個參數是遊戲畫面的邊界, 
+          回傳的 bool 值是希望檢查移動到目標位置以後, 整個物件是不是都還在遊戲邊界裡面, 如果超出了邊界, 就回傳 false 代表移動沒有成功, 
+          實際上物件也不要移動到新的位置</font></p>
+        <p><font face="微軟正黑體"><strong><font size="+1">main()</font></strong> 函式裡主要的邏輯如下:</font></p>
+        <pre><font face="微軟正黑體">int main()
+{
+    const int orgX = 10, orgY = 5, width = 25, height = 16;
+    const Rect canvas(orgX, orgY, orgX+width-1, orgY+height-1);
+
+    clrscr();
+    canvas.drawBoundary();
+
+    const Point shape[4] = { Point(-1,0), Point(0,0), 
+                             Point(0,1), Point(0,2) };
+    Object obj('*', Point(orgX+width/2-1,orgY), shape);
+    assert(obj.isInside(canvas));
+
+    obj.draw();
+    while (obj.move(Point(0,1), canvas))
+        delay(300);
+
+    gotoxy(1,23); system("pause");
+}</font></pre> <blockquote> 
+          <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test4.exe">範例程式</a> </font></p>
+        </blockquote>
+        <p><font face="微軟正黑體"><br>
+          你也可以簡單修改一下 main() 函式, 使得這個掉下來的物件在碰到邊界時, 隨機改變它移動的方向, 執行範例如下</font></p>
+        <blockquote> 
+          <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test5.exe">範例程式</a> (這個程式沒有鍵盤介面, 
+            所以要停下來只能用 Ctrl-C 了, 有點暴力的方法)</font></p>
+        </blockquote>
+        <p><font face="微軟正黑體">因為 move 的第一個參數相當於物件的速度, 在 move 的過程中, 如果碰到牆壁的時候, 
+          速度是會改變的, 所以可以傳一個參考到 move 函式裡, 這樣子就可以直接在 move 裡面改速度, 當然設計到這裡應該也要想一下: 
+          速度好像應該是物件狀態的一部份, 為什麼不把速度設計成物件的資料成員? 這樣子如果有多個物件的時候 main 函式才能夠簡單地掌控所有的物件, 
+          當然如果這樣子設計也就要在物件初始化的時候序去設定速度的初值, move 的參數也要跟著一起修改。</font></p>
+        <p><font face="微軟正黑體">另外一個需要思考的事情是: 物件判斷是否可以移動的時候, 要判斷反彈的方向和速度的話, 就需要知道是撞到上下左右哪一邊, 
+          所以 Rect 的 contains 界面應該要擴充一下, 只判斷在裡面或是在外面會有一點不夠, 例如改成 hit 界面, </font><font face="微軟正黑體">回傳</font><font face="微軟正黑體">一個整數, 
+          沒有撞到東西回傳 0, 撞到上方邊界回傳 1, 右方邊界回傳 2, ..., 這樣子 move 函式裡面就可以在撞到東西的時候調整反彈的速度。</font></p>
+        <p><font face="微軟正黑體"><br>
+          下面程式碰到邊界時用剛體反彈來改變它移動的方向, 執行範例如下</font></p>
+        <blockquote> 
+          <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test7.exe">範例程式</a> (這個程式有鍵盤介面, 
+            請參考下一個步驟的說明)</font></p>
+        </blockquote>
+        </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><h3><font face="微軟正黑體">怎麼和程式互動? 如何由鍵盤輸入? </font></h3>
+        <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris.utilwin32.gcc492.exe">俄羅斯方塊</a>的遊戲裡, 
+        玩遊戲的人當然要可以<strong><font color="#FF0000">用鍵盤操作</font></strong>, 例如<strong><font color="#FF0000">旋轉</font></strong>, 
+        <strong><font color="#FF0000">左移</font></strong>, <strong><font color="#FF0000">右移</font></strong>, 
+        <strong><font color="#FF0000">直接掉下</font></strong>等等, 但是我們前面幾個程式裡主要是個迴圈, 
+        不斷地在繪製文字動畫, 如果用 cin &gt;&gt; xyz, 那麼在等使用者輸入的時候, 文字動畫就暫停下來了, 這顯然不是我們要的效果, 
+        要怎樣能夠得到需要的效果呢? 關鍵就在<strong><font size="+1" color="#FF0000"> kbhit()</font></strong> 
+        這一個函式, 這是一個所謂<strong> non-blocking </strong>的輸入函式, 你的程式呼叫這個函式時, 如果玩遊戲的人在程式執行到這一列時有按鍵盤, 
+        kbhit() 函式就會回傳 1, 如果沒有按鍵, 程式也不會卡在這一列等候使用者輸入, 而會回傳 0, 當回傳 1 時究竟是按了哪一個按鍵呢? 
+        請呼叫 <font size="+1" color="#FF0000"><strong>getch()</strong></font> 來得到那個按下的按鍵的 
+        ASCII 字元碼, 請測試下列程式: 
+        <pre>#include &lt;conio.h&gt; // kbhit(), getch()
+#include &lt;iostream&gt; // cout, endl
+#include &lt;iomanip&gt;  // setw(), hex
+using namespace std;
+#include "utilwin32.h" // delay()
+int main()
+{
+    int c=-1, d=-1;
+    while (true)
+    {
+        if (kbhit()) 
+        {
+            c = getch();
+            cout &lt;&lt; setw(2) &lt;&lt; hex &lt;&lt; c &lt;&lt; endl;
+        }
+        // 繪製動畫
+        delay(100); // 使用者運用鍵盤輸入的速度很慢, 延遲 0.1 秒使用者不會發現
+    }
+    return 0;
+}</pre>
+        </font> <p><font face="微軟正黑體">如此既可以繪製動畫, 又可以在使用者按下按鍵時迅速處理; 這樣的程式架構裡面的無窮迴圈我們常常稱為<font color="#FF0000"><strong>訊息迴圈</strong></font>, 
+          在每一個圖形化的介面中都會有這樣的迴圈, 如果要處理鍵盤右側數字方向鍵盤的話, 需要使用兩次的 getch() 如下</font></p>
+        <pre><font face="微軟正黑體">#include &lt;conio.h&gt;  // getch()
+#include &lt;iostream&gt; // cout, endl
+#include &lt;iomanip&gt;  // setw(), hex
+using namespace std;
+int main()
+{
+    int c=-1, d=-1;
+    if ((c=<font color="#FF0000">getch()</font>) == 0xe0 || c == 0) // 數字鍵或是<a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test8.exe">←→↓↑方向按鍵</a> 
+        d = <font color="#FF0000">getch()</font>;                   // 按下時會得到 0xe0 或是 0x00
+    cout &lt;&lt; "c=" &lt;&lt; setw(2) &lt;&lt; hex &lt;&lt; c <br>         &lt;&lt; "  d=" &lt;&lt; setw(2) &lt;&lt; hex &lt;&lt; d // 第二次 getch() 可以 <br>         &lt;&lt; endl;                         // 得到實際按鍵的掃描碼
+    return 0;
+}</font></pre> 
+        <p><font face="微軟正黑體">範例程式 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test6.exe">6</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test7.exe">7</a></font></p>
+        <p><font face="微軟正黑體">請思考一下暫停的邏輯該如何實作!</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#FFFFCC"><p><font face="微軟正黑體">請於時限內 (2A: <font color="#FF0000">107/05/17 
+          (四) 21:00</font>, 2B: <font color="#FF0000">107/05/18 (五) 21:00</font>) 
+          上傳程式檔案 (逾時無法上傳), 請將所完成的 project (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 
+          <font color="#FF0000">刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 
+          以及 ipch\ 資料匣下的所有內容</font>) 以 zip/rar/7zip 程式將<font color="#FF0000">整個資料匣</font>壓縮起來, 
+          在「考試作業」繳交區選擇<strong><font color="#FF0000"> </font></strong><font color="#FF0000"><strong>作業三 
+          </strong></font><a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a> 
+          </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"> <p><font face="微軟正黑體"><strong>進大學快要兩年了</strong>, 
+          眼看著就要畢業了, 看到上面這樣的東西, 一定有不熟悉的感覺, 有這個感覺的時候你會有一種<strong>又學到新東西了</strong>的想法? 
+          還是有一種<strong>又超過範圍了</strong>的感覺呢? 國中高中的時候覺得老師就是敵人, 老師最好一開始就把界線劃清楚, 規定好只要走多遠就過了, 
+          不小心被敵人誘騙多讀一點東西, 多走一步就是不得了的損失..., 還陷在這樣子的邏輯裡嗎? </font></p>
+        <p><font face="微軟正黑體">記得我們在這學期第一節課時讓你看到的軟體學習曲線</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="step%20by%20step%20tetris%20game%20design_files/software%2520learning%2520curve.gif" width="551" height="422"></font></p>
+        <p align="left"><font face="微軟正黑體">在學校裡你不透過各個課程, 藉由老師同學助教攜手合力儘快脫離 desert 
+          of despair, 儘快建立和競爭者有所區別的門檻, 難道期待進到競爭的業界裡會出現善心人士來教你怎麼樣<font color="#FF0000">讓他沒有工作</font>嗎? 
+          還是學校裡只要拿到好成績, 以後老闆看到你有好成績就會讓你領高薪不用做事呢?</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#FFFFCC" align="left"> <h3><font face="微軟正黑體">後續練習</font></h3>
+        <ul>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test8.exe">更多鍵盤介面 ←, →, ↓, ↑, q, 
+            i, d</a>: 要處理的按鍵越來越多以後, 鍵盤介面應該要定義 enum 的常數來代表, 同時也應該要寫成一個函式或是抽象化為一個類別<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test9.exe">顯示 ascii art 數字 (顯示移動速度)</a>: 
+            如果是俄羅斯方塊遊戲的話, 應該可以用比較醒目的大字來顯示遊戲者的成績<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test10.exe">多個有碰撞彈跳的物件</a>: 和牆壁碰撞以及和其它物體碰撞的邏輯基本上是一樣的, 
+            但是因為物體互相之間檢查是否碰撞, 會遇見 A 檢查 B, B 又檢查 A 的狀況, 需要比較小心處理 (其實有彈跳的這個功能的話應該要寫成打磚塊的遊戲的, 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/exes/test11.exe">範例執行程式</a>)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">接下來應該可以實作俄羅斯方塊中多種物件以及旋轉的邏輯, 還有需要的鍵盤介面<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 俄羅斯方塊中計算分數以及在下方填滿一列就消去的邏輯也需要另外設計 (可以用一個二維的陣列來製作, 
+            和上面打磚塊遊戲裡面的那一堆磚塊功能很像)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">如果已經完成初步的<a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris.utilwin32.gcc492.exe">文字介面俄羅斯方塊遊戲</a>, 
+            接下來可以嘗試設計運用 <a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris.BGIm.vc2010dll.exe">WinBGIm 
+            圖形介面的俄羅斯方塊遊戲</a>, 基本的邏輯都沒有改變, 鍵盤介面也沒有什麼變化，只是在 draw() 介面中需要用 WinBGIm 
+            的 bar() 函式來完成, 顯示文字用 outtextxy() 函式來完成, 請參考<a href="http://squall.cs.ntou.edu.tw/cprog/materials/PlotSineWave.html">基本的練習</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/BouncingBall_SFML.exe">SFML Bouncing 
+            Ball</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign3/Mushroom.png">Mushroom.png</a>, <a href="https://www.sfml-dev.org/">SFML 
+            官網</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/1052/SFMLLab/SFML01.html">SFML 
+            安裝與簡易說明</a></font></li>
+        </ul></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="step%20by%20step%20tetris%20game%20design_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="step%20by%20step%20tetris%20game%20design_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon Apr 30 2018 11:05:57 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 04/21/2016 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+
+
+</body></html>

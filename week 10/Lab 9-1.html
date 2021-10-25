@@ -1,0 +1,369 @@
+<html><head>
+<title>
+Lab 9-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%209-1_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 9-1: Complex 的應用與 Mandelbrot 圖形界面 </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%209-1_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 使用實習 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/Lab3-1.html">3-1</a>,<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab04/Lab4-2.html"> 
+        4-2</a> 中的Complex 類別 <br>
+        做一個 Mandelbrot 碎形圖形 <br>
+        練習與基本圖形界面的<font color="#FF0000">合作</font></font> <font face="微軟正黑體"><br>
+        練習視窗界面程式的 debug </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 請執行 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Mandelbrot02a.exe">Mandelbrot02a</a> 
+        程式 </font>
+        <p><font face="微軟正黑體"> 這個程式會顯示 Mandelbrot 碎形 (fractal) 圖形如下圖 (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/mandelbrot.mp4">mandelbrot.mp4</a>): 
+          </font>
+          </p><center>
+            <font face="微軟正黑體"><img src="Lab%209-1_files/MandelbrotFig01.gif"> <zzzembed src="/support/mediaplayer.swf?file=mandelbrot.mp4" width="400" height="224" allowfullscreen="true"> 
+            </zzzembed></font>
+          </center>
+        <p><font face="微軟正黑體">這個碎形圖形其實是根據複數平面上每個複數點 c 的一個特別性質畫出來的, 對於任意一個複數 c, 
+          可以定義一個數列 z<sub>0</sub> = 0, z<sub>i</sub> = (z<sub>i-1</sub>)<sup>2</sup> 
+          + c; 如果我們規定複數 z<sub>i</sub> 的<font color="#FF0000">實部或是虛部的絕對值超過 2</font> 
+          就稱為 "發散", 對於每一個複數 c 來說都會存在一個 i 值, 只要大於這個 i, z<sub>i</sub>就會發散, 
+          如此每一個複數點 c 都有一個對應的 i 值, 將這些 i 值在視窗中用不同的顏色表示出來就出現上面這張圖, 例如上圖中外圈草綠色部份的那些點所對應的 
+          i 值都是相同的, 外圈的 c 離原點比較遠, | c | 的值比較大, 所以數列比較快發散, i 可能是 2 或 3 吧。 </font>
+        </p><p><font face="微軟正黑體">參考資料 <a href="https://en.wikipedia.org/wiki/Mandelbrot_set">Mandelbrot 
+          set</a>, <a href="https://en.wikipedia.org/wiki/Julia_set">Julia set</a>, 
+          Fatou set </font>
+        </p><p><font face="微軟正黑體">Online generation: <a href="http://mandelbrot.finengin.net/" target="_blank">Mandelbrot 
+          set</a>, <a href="http://julia.finengin.net/" target="_blank">Julia 
+          set</a> </font>
+        </p><p><font face="微軟正黑體"><a href="https://www.youtube.com/watch?v=uvzfp-zRfwE">Mandelbrot 
+          zoom to 10<sup>198 </sup></a> (9 分 10 秒的視訊, 看一下, 讚嘆一下, 看完了嗎? 剪下幾張回顧一下 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/deepMandelbrot1.jpg">1</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/deepMandelbrot2.jpg">2</a>, 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/deepMandelbrot3.jpg">3</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/deepMandelbrot4.jpg">4</a>, 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/deepMandelbrot5.jpg">5</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/deepMandelbrot6.jpg">6</a>, 
+          有沒有覺得 全面啟動 inception 裡面的夢境層數太少了?)<br>
+          </font>
+        </p><p><font face="微軟正黑體"><a href="https://www.youtube.com/watch?v=n9nf5ShnRfk">Mandelbrot 
+          zoom to 10<sup>225</sup></a>, <a href="https://www.youtube.com/watch?v=hS9nj1vvbTg">Mandelbrot 
+          zoom to 10<sup>6044</sup></a> </font>
+        </p><p><font face="微軟正黑體"><br>
+          <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Mandelbrot_SFML.exe">簡單的互動程式 10<sup>15</sup></a>, 
+          ↑↓← → 可以移動觀看區域, z 可以放大, s 可以縮小; 繪圖是用簡單的 <a href="https://www.sfml-dev.org/">SFML</a> 
+          做的<br>
+          </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 這個程式因為使用視窗的界面, 所以你沒有辦法用 cout, cin 來偵錯, 
+        如果程式不幸出錯或是沒有顯示的話你還是需要一步一步地 debug, 當然你可以用 VC 的 source debugger 一步一步執行來找錯誤, 
+        不過這是最慢的方法, 同時在過程中你也會看到一大堆根本不是你寫的程式... 很困擾呢... 
+        <p> 在使用 Microsoft Foundation Class (MFC) 製作視窗界面時, 我們常用一個 TRACE 巨集來取代 cout, 
+          TRACE 的用法和 printf 很像, 相信你還沒有忘記怎樣用 printf, 例如: 
+        </p><pre>    TRACE("m_data=%d\n", m_data);
+    TRACE("m_doubleData=%f\n", m_doubleData);</pre>
+        這些敘述的輸出會到哪裡去呢? 
+        </font><p><font face="微軟正黑體"> 如果你用 debug 模式(偵錯/開始偵錯 F5)執行的話, 會跑到 output 視窗中, 如果你是正常執行(偵錯/啟動但不偵錯 
+          Ctrl-F5)的話, 可以開啟 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/dbwin32.exe">dbwin32</a> 程式來顯示偵錯的結果 </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"> <p><font face="微軟正黑體">接下來我們介紹如何一步一步地產生這個碎形圖形, 首先你需要把<strong><font color="#FF0000">繪圖座標</font></strong>對應到<font color="#FF0000"><strong>複數平面</strong></font>, 
+          例如將畫面上 500 x 500 像素 (pixel) 的區域對應到複數平面上 (-1.65, -1.15)-(0.65, 1.15) 
+          的方形區域上, 一般在繪圖的系統中橫軸是 x 軸, 向右是正的方向, 縱軸是 y 軸, 向下是正的方向, 所以視窗左上角是 (0,0), 
+          右上角是 (499, 0), 左下角是 (0, 499), 右下角是 (499, 499); 複數平面就是數學上的定義, 實數軸向右是正的, 
+          虛數軸向上是正的: </font>
+          </p><center>
+            <font face="微軟正黑體"><img src="Lab%209-1_files/MandelbrotFig02.gif"> </font>
+          </center>
+          <font face="微軟正黑體">上圖中視窗左上角的像素 (0, 0) 對應的複數座標為 (-1.65, 1.15), 視窗左下角的點座標 
+          (0, 499) 對應的複數座標為 (-1.65, -1.15), 視窗右上角的點座標 (499, 0) 對應的複數座標為 (0.65, 
+          1.15), 視窗右下角的點座標 (499, 499) 對應的複數座標為 (0.65, -1.15), 你可以用一個簡單的計算來求出所有 
+          500x500 個點個別的複數座標, 例如: </font>
+        <pre><font face="微軟正黑體">
+    int i, j;
+    Complex c;
+    double step = range / (windowSize-1);
+    for (i=0; i&lt;windowSize; i++)
+        for (j=0; j&lt;windowSize; j++)
+            c = Complex(centerX-range/2.0+i*step, 
+                        centerY+range/2.0-j*step);</font></pre>
+        <font face="微軟正黑體"> 上面迴圈中每一次算出來的複數 c 就是每個座標點 (i, j) 所對應的複數 c 的值。 
+        <p> 接下來我們需要測試繪圖區域內每一個點, 看看在下列的測試公式下, 每一個 c 值發散的狀況: 
+        </p><pre>    令複數 z 的初始值為 0+0i
+    令每一個點的複數座標為 c
+    
+    重複計算
+            z = z * z + c
+
+    每次運算後, 如果 z 的實部或是虛部的絕對值超過 2
+    的話, 就表示已經發散掉了, 此時請記錄由開始到
+    發散需要計算上式幾次, 通常在前 50 次計算中,
+    會發散的點就已經有百分之九十九都發散掉了, 
+    剩下的也幾乎不會發散了</pre>
+        上圖中同一顏色的那些點代表它們都在算到相同次數時發散掉的 (實部<font color="#FF0000">或是</font>虛部不在 2 
+        與 -2 之間的) 
+        <p> 上面是一個很漂亮的圖形, 而且如果放大來看的話, 它會不斷重複類似的圖案, 請執行 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Mandelbrot03a.exe">Mandelbrot03a</a>, 
+          在自然界中這種圖形很多, 這種圖形也常常可以用簡單的數學公式描述出來 
+        </p></font><p><font face="微軟正黑體"> 如果發散的條件改成 "當 z 的實部和虛部的絕對值<font color="#FF0000">都</font>超過 2" 的話, 還是一個碎形圖形, 
+          但是看起來有點醜, 沒有那麼賞心悅目了 </font>
+        </p><center>
+          <p><font face="微軟正黑體"><img src="Lab%209-1_files/MandelbrotFig04.gif"> </font></p>
+          <p align="left"><font face="微軟正黑體">如果你等一下子實作時看到像底下這樣子的圖</font></p>
+          <p align="center"> <font face="微軟正黑體"><img src="Lab%209-1_files/MandelbrotFig06.gif" width="256" height="285"></font></p>
+          <p align="left"><font face="微軟正黑體">這是 Complex 的實作出了一點<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/AnErrorImplementationOfComplex.txt">問題</a></font></p>
+        </center></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"> <p><font face="微軟正黑體">請下載圖形界面程式碼 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Mandelbrot02b_vc2010.rar">Mandelbrot02b_vc2010.rar</a>, 
+          解壓縮出來到<strong>硬碟</strong>中(<font color="#FF3300">請不要放在隨身碟裡, 隨身碟的檔案系統是FAT32或是FAT16, 
+          vc2010 的圖形介面程式碼需要放在NTFS的檔案系統裡, 才能順利用debug模式編譯測試!</font>), <strong>請編譯並且執行</strong></font></p>
+        <p><font face="微軟正黑體">請一定要先編譯並且執行, 解壓縮出來的程式碼至少有 1000 列以上, 如果沒有辦法編譯的話, 
+          你需要先處理, 不要等你增加了一些程式碼以後, 弄不清楚到底是你的問題還是系統安裝的問題 (VC 2010 必須要裝 <strong>service 
+          pack 1</strong> 以後才能在這個專案中順利運作, VC 2010 / 2012 / 2013 <strong>Express</strong> 
+          也沒有辦法開發 MFC GUI 程式)</font></p>
+        <p><font face="微軟正黑體">執行起來以後你應該可以看到顯示的視窗中是全部空白的, 選單中有 檔案/ MaxIteration 
+          設定的選項, 這個選項可以讓使用者在專案中應用你先前寫的 Complex 類別來撰寫程式, 請下載你先前製作好的 Complex 類別的程式碼 
+          (請注意, 大家寫的 Complex 類別基本介面都是一樣的,如果你發現你的 Complex 物件表現不太對,可以借用別人的來測試比較看看, 
+          這是物件化的程式一個很重要的好處) </font></p></td></tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體"> 在類別檢視視窗中你可以找到 Mandelbrot 類別, 打開這個類別你可以看到下列類別的定義以及空的成員函式: 
+        <pre>    class Mandelbrot  
+    {
+    public:
+    	Mandelbrot(double centerX, double centerY, double range);
+    	void generateData(int ** &amp;data, 
+    	                  int windowSize, 
+    	                  int maxIterations);
+    	void deleteData(int ** &amp;data, int windowSize);
+    private:
+        ...
+    };</pre>
+        </font> <p><font face="微軟正黑體">你可以在建構元 </font></p>
+        <pre><font face="微軟正黑體">    Mandelbrot::Mandelbrot(double centerX, double centerY, double range) 
+    {
+    }</font></pre>
+        <font face="微軟正黑體"> 函式中加一列敘述 TRACE("Mandelbrot::Mandelbrot() is called\n");, 
+        記得執行 dbwin32, 然後編譯執行這個程式, 看到列印出來的訊息, 你會發現這個建構元函式已經被呼叫過了, 也就是說這個物件已經產生了, 
+        這個 Mandelbrot 類別的物件最主要負責<font color="#FF0000">計算每一個複數點所對應發散的 i 值</font>, 
+        用來告訴圖形界面程式該顯示什麼, 你剛才下載的圖形界面程式執行起來時會自動建構一個這個類別的物件 
+        <p>傳入建構元函式的參數是繪圖區域中心點的複數座標, 例如 (-0.5, 0), 以及繪圖區域的寬與高 (目前所畫的是一個方形區域), 例如 
+          2.3, (你可以用 TRACE 敘述看一下), 傳進來的資料請在 Mandelbrot 類別中設計資料成員記錄下來 </p>
+        </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 接下來我們看到 generateData() 這個成員函式, 圖形介面程式每次需要計算整個平面的複數對應的 
+        i 值時就會呼叫這個函式, 它應該要配置如下圖的資料陣列, 計算每個點的 i 值, 並且將陣列的記憶體起始位址放在 data 變數內: 
+        </font><p><font face="微軟正黑體"> void generateData(int ** &amp;data, int windowSize, int maxIterations); 
+        </font> </p><p><font face="微軟正黑體"> 這個成員函式應該要檢查傳入的指標, 如果是 0 的話, 代表這個函式第一次被呼叫到, 
+          需要<a href="http://squall.cs.ntou.edu.tw/cpp/101spring/CPP01-C2DArray_color4up.pdf">動態地配置一塊二維的整數 
+          (int) 陣列</a>, 其架構如下圖 </font> 
+          </p><center>
+            <font face="微軟正黑體"><img src="Lab%209-1_files/MandelbrotFig03.gif"> </font> 
+          </center>
+          <font face="微軟正黑體">上圖中陣列的大小都是 windowSize, 下一個步驟裡會在這個陣列裡填入資料, 傳回去給繪圖的程式碼使用, 
+          不過這個陣列是你配置的, 繪圖程式碼並沒有幫你刪除, 習慣上還是留給配置者自己刪除比較有道理, 所以請在這個函式下次被呼叫到時 (傳進來的指標不是 
+          0 的時候), 先刪除所指到的記憶體以後再重新配置, 然後才計算每一個 i 值。 </font>
+        <p><font face="微軟正黑體">為什麼需要刪除再重新配置呢? 為什麼不直接用上一回配置的陣列就好了? 這其實是擔心圖形介面呼叫這個 
+          generateData() 函式時如果傳入的 windowSize 會變動, 前一次如果配置的陣列比較小時就會發生記憶體的存取錯誤!! 
+          (不是說好 windowSize 是 500 的嗎?? 如果這麼相信它, 你就直接用 500 囉, 不要在意傳進來的 windowSize 
+          是多少了, 這是理想狀況, 萬一不是這樣呢? 這個 gennerateData 訊息是別的物件傳遞給 Mandelbrot 物件的, 主控權不是 
+          Mandelbrot, 所以還是尊重一下傳進來的數值吧, 不要做太多的假設)</font>
+        </p><p><font face="微軟正黑體">你可以先把配置好的陣列的每一個元素都設成一個固定的數值 (例如 data[i][j] = 10;) 
+          然後編譯和測試, 不必等到算出發散的 i 值都算出來了才開始測試。</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 這個 data 陣列的每一個元素代表繪圖區域中一個像素 (pixel), 
+        依照一般的慣例, data[0][0] 代表視窗的左上角, data[0][windowSize-1] 代表右上角, data[windowSize-1][0] 
+        代表左下角, data[windowSize-1][windowSize-1] 代表右下角, 你需要計算那個點的複數座標, 依照步驟三中的公式算算看在做到第幾次時 
+        z 的實部或是虛部的絕對值超過 2, 然後記錄在 data[i][j] 中, 請注意傳入的 maxIterations 數值是你在測試時的最大次數 
+        , 如果超過這個數值還沒有發散, 就不要再做下去了, 都當成是 maxIterations 時會發散 
+        <p> 在你真正去算 z 的運算式並且算出 data[i][j] 之前, 你可以先把 data[i][j] 設定成一些簡單的圖樣來測試一下, 
+          例如 (直紋): 
+        </p><pre>    for (i=0; i&lt;windowSize; i++)
+        for (j=0; j&lt;windowSize; j++)
+            data[i][j] = i%256;</pre>
+        或是 (矩形) 
+        <pre>    int i, j, min_i, min_j;
+    for (i=0; i&lt;windowSize; i++)
+        for (j=0; j&lt;windowSize; j++)
+        {
+            min_i = i&lt;(windowSize-i) ? i : windowSize-i;
+            min_j = j&lt;(windowSize-j) ? j : windowSize-j;
+            data[i][j] = min_i&lt;min_j ? min_i : min_j;
+        }</pre>
+        請注意 data[i][j] 的數值<font color="#FF0000">一定</font>要維持在 [0, 255] 間，否則繪圖程式會當掉 
+        (這是這個繪圖程式和你之間定義的介面) </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td width="580"><font face="微軟正黑體"> 上面計算步驟中你需要用到 Complex 的複數類別, 同時類別中要提供 
+        <pre>    Complex add(const Complex &amp;rhs);
+    Complex multiply(const Complex &amp;rhs);</pre>
+        兩個成員函式, 這兩個成員函式我們在前面的實習中定義過類似的東西, 不過那時定義的是 add(const Complex &amp;rhs)實際上也許叫做 
+        addEqual(const Complex &amp;rhs) 比較貼切, 也就是把 rhs 的複數物件和自己這個物件加起來, 並且修改自己這個物件的內容, 
+        你可以直接用上次寫的成員函式來實作 z = z * z + c, 程式碼看起來如下 
+        <pre>    z.multiplyEqual(z);
+    z.addEqual(c)</pre>
+        你也可以修改你的函式 addEqual() 為沒有 side effect 的 add(), 讓它在把兩個複數加起來以後, 不要修改自己那個物件, 
+        而是以傳值 (call by value) 的方式把一個 Complex 的物件傳回, 如此你在實作 z = z * z + c 時可以用類似下列的敘述: 
+        <pre>    z = c.add(z.multiply(z));</pre>
+        或是 
+        <pre>    tmp = z.multiply(z);
+    z = tmp.add(c);</pre>
+        請注意因為我們現在做的事情是運用 MFC 撰寫視窗應用程式, 如果你直接將前面實習的 Complex.cpp 和 Complex.h 拷貝進來的話, 
+        請在你的 Complex.cpp 檔案的<font color="#FF0000"><strong>第一列</strong></font>加入 
+        <font color="#FF0000">#include "stdafx.h"</font> 如此 compiler 才不會跟你抱怨說它找不到 
+        pch (precompile header) 檔案 </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟九</font></th>
+      <td width="580"><font face="微軟正黑體"> void deleteData(int ** &amp;data, int windowSize); 
+        <p> 函式中需要實作將步驟六中配置的二維陣列刪除的程式碼 
+        </p></font><p><font face="微軟正黑體"> 一切順利的話你的執行畫面上應該可以看到 Mandelbrot 的顯示了</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟十</font></th>
+      <td width="580"><font face="微軟正黑體"> 請測試一下選單 "檔案/MaxIterations" 
+        設定, 當使用者更改過這個設定值 (10~120) 後, 你提供的 generateData 會重新被呼叫到, (你可以用 TRACE 敘述驗證這件事) 
+        同時 maxIterations 參數會有新的數值傳入 
+        </font><p><font face="微軟正黑體"> 由於你在這個程式中有動態配置記憶體, 請特別在 dbwin32 視窗中確定一下程式結束時有沒有 memory leakage (請注意, 
+          你<font color="#FF0000">不需要</font>使用先前介紹的 <a href="http://squall.cs.ntou.edu.tw/cpp/101spring/lab02/Lab2-3.html">memory_leak.h 
+          memory_leak.cpp , </a> 使用MFC dll 的程式自動會把記憶體遺漏的訊息顯示在 dbwin32 視窗中, 你可以試著配置一小塊記憶體, 
+          程式結束前不要刪除, 看看是否會偵測到)</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th align="center"><font face="微軟正黑體">步驟十一</font></th>
+      <td bgcolor="#FFFFCC"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, 
+        .sln 以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 
+        ipch\資料匣下的所有內容) 壓縮起來, 選擇 Lab9-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">偵錯</font></th>
+      <td><font face="微軟正黑體">有的時候同學在做這個實習的時後, 會遇見不太容易找的 bug, 使得圖形顯示錯誤, 到底是哪裡錯了, 
+        是 Complex 裡面寫錯了? 還是 Mandelbrot 這裡的程式寫錯了? 因為計算過程中都是浮點數, 常常看到了有錯誤的東西也不容易察覺出來, 
+        這是很討厭的狀況。<br>
+        <br>
+        不過因為我們現在有封裝良好的物件, 如果你懷疑物件的功能有問題, 例如 Complex 物件, 最簡單的方法就是換一個相同規格的物件來測試比對一下, 
+        例如你可以下載 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/ComplexObj.rar">ComplexObj.rar</a>, 
+        先把你的 Complex.cpp 和 Complex.h 由專案中移除 (不是刪除喔!), 把 ComplexObj.rar 裡面的 <font color="#FF00FF"><strong>Complex.h</strong> 
+        </font>和 <font color="#FF00FF"><strong>Complex.obj</strong></font> 運用 
+        "加入現有項目" 加到專案裡面, 稍微調整一下Mandelbrot 裡面的程式來運用這個 Complex 物件的介面, 
+        然後編譯測試, 看看結果是不是對的? 如果換過以後發現結果是對的, 糟糕, 那就表示你原來用的 Complex 類別裡面的功能有一些問題...</font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#DDEEBB"> 
+      <th bgcolor="#FFFFCC" align="center">&nbsp;</th>
+      <td bgcolor="#FFFFCC"> <p><font face="微軟正黑體">再給大家一點點 MFC GUI 的範例</font></p>
+        <ol>
+          <font face="微軟正黑體"><a name="MFC_GUI"></a> 
+          <li>簡單的表單應用程式 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/1030402TestDialog01.rar"><br>
+            範例程式碼</a>, <a href="http://squall.cs.ntou.edu.tw/cppScreenCapture/1030402VC10MFCDlg01_SC.swf/index.html">完整程式製作過程</a> 
+            <font size="-1">(android <a href="http://squall.cs.ntou.edu.tw/cpp/tools/com.adobe.flashplayer.apk">com.adobe.flashplayer.apk</a>)</font> 
+            , <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/testDlg.exe"><br>
+            範例二</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/testDlg.zip">範例二程式碼</a> <br>
+            <br>
+          </li>
+          <li>MFC SDI 應用程式: <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/Plan4MFCUI.html">GUIComplexCalc</a>, 
+            <a href="http://squall.cs.ntou.edu.tw/cppScreenCapture/1030404GUIComplexCalc_SC.swf/index.html">完整程式製作過程</a> 
+            <font size="-1">(android <a href="http://squall.cs.ntou.edu.tw/cpp/tools/com.adobe.flashplayer.apk">com.adobe.flashplayer.apk</a>)</font><br>
+            <br>
+          </li>
+          <li><a href="http://squall.cs.ntou.edu.tw/cpp/88spring/BattleShp/assign3.html">BattleShip</a>, 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/BattleShip01.exe">範例</a>, (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/BattleShip01.zip">原始程式</a>)</li>
+          <li><a href="http://squall.cs.ntou.edu.tw/cpp/90spring/simpleCalculatorWIN.html#StateDiagram">簡易計算機</a> 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/CalWinV1900311a_Release_MFCStatic.exe">範例</a> <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/CalWINV1Raw1010424_Release_staticMFC_VC10.exe">介面</a> 
+            (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Mandelbrot02a.exe">原始程式</a>) </li>
+          <li><a href="http://squall.cs.ntou.edu.tw/cpp/93spring/assign3/assign3.html">接龍 
+            </a><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/Fantan930512Test.rar">範例1</a> <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/Fantan930512LegendTest.rar">範例2</a> 
+            (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/Fantan930416d.rar">介面原始程式 vc6</a>)</li>
+          </font>
+          <li> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/92spring/assign4.html">貪食蛇</a>, 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/Snake_noCollisionDetection.exe">範例(沒有偵測障礙物) </a> 
+            (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/SnakeMfc_noCollisionDetection.zip">原始程式</a>)</font></li>
+          <li><font face="微軟正黑體">踩地雷 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/win32mine_r.exe">範例</a> 
+            (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/1020418win32mine_vc2010_CPP_OK.zip">原始程式</a>) <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/win32mine_Release_vc10_CPP_FacadeOnly.exe">介面</a> 
+            (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/examples/1020424win32mine_vc10_CPP_FacadeOnly.zip">介面原始程式</a>)</font></li>
+        </ol></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%209-1_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%209-1_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Fri Jun 23 2017 01:58:23 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 04/11/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

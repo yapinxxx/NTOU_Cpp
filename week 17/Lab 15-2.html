@@ -1,0 +1,311 @@
+<html><head>
+<title>
+Lab 15-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2015-2_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+<h1>
+Lab 15-2: Exception - returning reference
+</h1>
+<center><p><img src="Lab%2015-2_files/rainbow.gif"></p></center>
+
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+
+    <tr bgcolor="#DDEEBB">
+      <th width="75" align="center">實習目標</th>
+      <td width="580">
+    練習使用 C++ 例外狀況 (exception) 的處理機制:
+    <br>
+    　　　　　　當函式的回傳值有不可避免的功能時<br>
+    　　　　　　尋找較適當的例外處理地點
+    </td>
+    </tr>
+
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+      <th width="75" align="center">步驟一</th>
+      <td width="580">
+    有的時候函式的傳回值不可能拿來傳遞錯誤碼,
+    例如下面這個 Vector 類別的 int &amp;operator[](int) 函式,
+    函式傳回所指定的元素的參考:
+        <pre>    class Vector
+    {
+    public:
+        Vector(int size);
+        ~Vector();
+        <font color="blue">int &amp;operator[](int index);</font>
+    private:
+        int *m_data;
+        int m_size;
+    };
+    
+    Vector::Vector(int size)
+        : m_size(size), m_data(0)
+    {
+        if (m_size&gt;0)
+        {
+            m_data = new int[m_size+1];
+            for (int i=0; i&lt;m_size; i++)
+                m_data[i] = 0;
+        }
+        else
+            m_size = 0;
+    }
+    
+    Vector::~Vector()
+    {
+        delete[] m_data;
+    }
+    
+    <font color="blue">int&amp; Vector::operator[](int index)</font>
+    {
+        if ((index &lt; m_size)&amp;&amp;(index &gt;= 0))
+            return m_data[index];
+        else
+            return m_data[m_size];
+    }</pre>
+    
+    這個函式的傳回值是 int&amp; 型態的變數,
+    必須要 bind 在一個變數上,
+    如果發生傳入的 index 超出 (0, m_size) 範圍外的話,
+    如何通知呼叫的函式???
+        <p>
+    如下例:
+        </p><pre>    Vector iVector(4);
+    ...
+    iVector[2] = 10; // OK
+    <font color="red">iVector[4]</font> = 20; // Error index</pre>
+    
+    雖然由於 operator[]() 傳回 m_data[m_size] 的參考,
+    使得程式不會出現 memory access violation 的錯誤, 
+    但是接下去程式的邏輯應該不會正確地執行,
+    如何中斷這個程式的執行呢?
+    </td>
+    </tr>
+  
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+      <th width="75" align="center">步驟二</th>
+      <td width="580">
+    請利用 throw 語法改寫 operator[]() 中 else 的部份,
+    在發現陣列 index 超過範圍時請 throw 一個自定的
+    array_index_out_of_bound 例外類別
+        <pre><font color="#DDEEFF">    if ((index &lt; m_size)&amp;&amp;(index&gt;=0))
+        return m_data[index];
+    else
+        throw array_index_out_of_bound(index, m_size);</font></pre>
+        <p>
+    這個 array_index_out_of_bound 例外類別請繼承標準 C++ 函式庫 stdexcept
+    中的 runtime_error 類別,
+    在建構時將非法存取的那個 i 值還有陣列的大小傳入建構元函式中,
+    並且合成一個錯誤訊息字串 (基本上在 C++ 裡有兩種方法你可以用來合成錯誤訊息,
+	    </p><p>1. 用 ostrstream, 例如:
+	    </p><pre>    char buf[200];
+    ostrstream os(buf, 199);
+    os &lt;&lt; "Try to access the " &lt;&lt; index &lt;&lt; "-th element" &lt;&lt; '\0';
+    // m_errorMsg = new char[...];
+    // strcpy(m_errorMsg, buf);</pre>
+    2. 用 sprintf, 例如:
+	    <pre>    char buf[200];
+    sprintf(buf, "Try to access the %d-th element", index);
+    // m_errorMsg = new char[...];
+    // strcpy(m_errorMsg, buf);</pre>
+), 
+	記錄在 m_errorMsg 中,
+    類別可以宣告成:
+        <pre><font color="DDEEFF">    class array_index_out_of_bound: public runtime_error
+    {
+    public:
+        array_index_out_of_bound(int index, int size);
+        ~array_index_out_of_bound();
+        const char *what() const;
+    private:
+        char *m_errorMsg;
+    };</font></pre>
+    
+    並且覆寫 exception::what() 成員函式, 
+    傳回錯誤訊息
+    </td>
+    </tr>
+  
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+      <th width="75" align="center">步驟三</th>
+      <td width="580">
+    測試程式如下,
+    特地把產生例外的程式放在 fun1() 函式內,
+    出錯時在 Vector::operator[] 內會 throw 一個 array_index_out_of_bound
+    的暫時性物件,
+    fun1() 剩餘的迴圈會立即中斷回到 fun2() 函式中的 catch (array_index_out_of_bound &amp;) 敘述,
+    由於它只處理部份的錯誤回復動作, 
+    因此它繼續 throw 原來的 array_index_out_of_bound 例外物件,
+    fun2() 函式內剩餘的部份不會執行,
+    流程回到 main() 函式中 catch (exception &amp;) 敘述
+        <pre>    void fun1()
+    {
+        int i;
+        Vector dataHolder(10);
+        for (i=1; i&lt;=10; i++)
+            dataHolder[2*i] = 2*i;
+        cout &lt;&lt; "fun1()::after for loop\n";
+    }
+    
+    void fun2()
+    {
+        int *ptr=new int[100];
+        // ...
+        try
+        {
+            fun1();
+            ...
+        }
+        catch (array_index_out_of_bound &amp;e)
+        {
+            cout &lt;&lt; "fun2()::" &lt;&lt; e.what() &lt;&lt; endl;
+            delete[] ptr;
+            cout &lt;&lt; "fun2()::" &lt;&lt; "ptr memory released" &lt;&lt; endl;
+            throw;
+        }
+        cout &lt;&lt; "fun2()::after catch\n";
+        delete[] ptr;
+    }
+
+    void main()
+    {
+        try
+        {
+            fun2();
+            ...
+        }
+        catch (exception &amp;e)
+        {
+            cout &lt;&lt; "main()::" &lt;&lt; e.what() &lt;&lt; endl;
+        }
+        cout &lt;&lt; "main()::after catch\n";
+    }</pre>
+        <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab15/Exception2.exe">範例執行程式</a>
+    <p>
+    輸出範例如下:
+        </p><pre>fun2()::array_index_out_of_bound::
+       Try to access the 11-th element of a 10-element vector
+fun2()::ptr memory released
+main()::array_index_out_of_bound::
+       Try to access the 11-th element of a 10-element vector
+array_index_out_of_bound:: dtor()
+main()::after catch</pre>
+
+    請注意在 fun1() 的 throw 敘述產生的暫時性物件,
+    一直到 main() 的 catch (exception &amp;) 敘述結束時才會解構掉
+    </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+      <th align="center">步驟四</th>
+      <td> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, 
+        .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 壓縮起來, 選擇 Lab15-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </td>
+    </tr>
+
+  
+    <tr bggcolor="#FFFFCC" bgcolor="#FFFFCC">
+      <th width="75" align="center">注意事項</th>
+      <td width="580">這個實習主要的目的是讓你熟悉
+C++ exception 的處理機制, 但是並<font color="#FF0000">不是</font>告訴你撰寫一個動態管理記憶體的陣列
+物件時一定要用 exception 語法,
+        請不要誤會; 上課時我們談到 exception 語法所處理的例外狀況是執行時發生的錯誤, 是要給程式的使用者看到的, 
+不是給程式的設計者看的, 使用者不懂 C++ 的語法, 如果陣列的大小是由使用者指定的, 則不夠大使得存取發生錯誤的訊息可能就可以讓使用者看到,
+ 可以要求使用者更改他的輸入, 如果陣列的大小是程式設計者設定的, 和使用者操作時輸入的參數無關, 那麼這個錯誤就不需要給使用者, 就應該用 
+assert 來設計, 代表程式設計者應該在開發的過程中就要處理好這個錯誤, 不要讓這個錯誤發生; 這和 exception 的語法沒有關係, 
+而是和你程式的設計有關。</td>
+    </tr>
+
+  </tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%2015-2_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%2015-2_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon May 26 2014 23:12:34 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 05/31/2004
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

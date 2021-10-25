@@ -1,0 +1,355 @@
+<html><head>
+<title>
+Lab 11-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2011-1_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 11-1: Inheritance </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%2011-1_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 練習 C++ 中繼承的語法 </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 這個作業中我們嘗試擴充<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab10/Lab10-2.html">上一次實習</a>的 
+        StudentList 與 Iterator 這一組容器類別, 我們希望能夠在<font color="red">不更動 StudentList 
+        與 Iterator 類別的程式情況下</font> (這是所謂的 OCP, Open-Closed Principle, <a href="http://teddy-chen-tw.blogspot.tw/2011/12/2.html">1</a>, 
+        <a href="http://squall.cs.ntou.edu.tw/cpp/103spring/ocp.pdf">2</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/103spring/slides/CPP29-OOD%20Smells%20and%20Principles%20SOLID.pdf">3</a>), 
+        製作一個 LoggedStudentList, 這個類別基本上具有完整的 StudentList 類別所提供的功能, 但是在建構元中需要指定一個已經開啟的文字檔案串流以供記錄所有操作過程, 
+        同時類別中多了一個 dump() 函式可以<font color="#FF0000">將所有串列中的學生資料列印在檔案串流中</font>, 
+        在執行 void appendEntry(Student *student), void insertEntry(Iterator iter, 
+        Student *student), 以及 bool deleteEntry(char *id) 時也都會<font color="#FF0000">在記錄檔案中列印一列訊息顯示目前的動作</font>, 
+        檔案中列印的結果如下: 
+        <pre>LoggedStudentList::appendEntry()
+    [Mary Chen, 111111111, 0933111111, Business]
+LoggedStudentList::appendEntry()
+    [John Wang, 222222222, 0928222222, Computer Science]
+LoggedStudentList::appendEntry()
+    [Mel Lee, 333333333, 0968333333, Mechanical Engineering]
+LoggedStudentList::appendEntry()
+    [Bob Tsai, 444444444, 0930444444, Electrical Engineering]
+LoggedStudentList::appendEntry()
+    [Ron Yang, 555555555, 0918555555, Computer Science]
+LoggedStudentList::deleteEntry() id=444444444
+LoggedStudentList::insertEntry()
+    [Carol Chen, 333331111, 0933333111, Business]
+List dumping
+    Element[0]: [Mary Chen, 111111111, 0933111111, Business]
+    Element[1]: [John Wang, 222222222, 0928222222, Computer Science]
+    Element[2]: [Mel Lee, 333333333, 0968333333, Mechanical Engineering]
+    Element[3]: [Carol Chen, 333331111, 0933333111, Business]
+    Element[4]: [Ron Yang, 555555555, 0918555555, Computer Science]</pre>
+        </font> </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 請下載上一次實習的程式, 其中的四個類別的定義如下: 
+        <pre>    class <font color="red"><strong>Student</strong></font>
+    {
+    public:
+        Student();
+        Student(const char *name, const char *ID, 
+                const char *phone, const char *department);
+        virtual ~Student();
+        bool IDEquals(const char *id) const;
+        void display(ostream &amp;os) const;
+        bool ofTheSameDepartment(Student &amp;student2) const;
+    private:
+        char *m_name;
+        char *m_ID;
+        char *m_phone;
+        char *m_department;
+    };
+    
+    class <font color="red"><strong>StudentList</strong></font>
+    {
+        friend class StudentListIterator;
+        class <font color="red"><strong>Node</strong></font>
+        {
+            friend StudentList;
+            friend class StudentListIterator;
+        public:
+            Node(Student *data);
+            virtual ~Node();
+        private:
+            Student *m_data;
+            Node *m_next;
+        };
+    public:
+        StudentList();
+        virtual ~StudentList();
+        void appendEntry(Student *student);
+        void insertEntry(StudentListIterator iter, Student *student); 
+        Student *find(char *id);
+        bool deleteEntry(char *id);
+        Student *&amp;operator[](int slot);
+        int size() const;
+    private:
+        Node *m_head, *m_tail;
+        int  m_size;
+        static Node m_dummy;
+    };
+    
+    class <font color="red"><strong>StudentListIterator</strong></font>
+    {
+        friend class StudentList;
+    public:
+        StudentListIterator(StudentList &amp;list);
+        void reset();
+        void next();
+        Student &amp;operator*() const;
+        Student *operator-&gt;() const;
+        bool hasMoreData() const;
+    private:
+        StudentList::Node *m_iterator;
+        StudentList *m_list;
+        static Student m_dummy;
+    };</pre>
+        請不要修改這四個類別的任何定義 (上次實習在步驟八中已經將 Iterator 類別改名為 StudentListIterator 了) </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 請修改你的主程式如下 (紅色部份為使用 LoggedStudentList, 
+        其它部份和原來的程式是相同的): 
+        <pre>    #include &lt;iostream&gt;
+    #include &lt;fstream&gt;
+    using namespace std;
+    
+    #include "Student.h"
+    #include "LoggedStudentList.h"
+    #include "StudentListIterator.h"
+    
+    void main()
+    {<font color="red">
+        ofstream logfile("main2.log");
+        LoggedStudentList sList(logfile);</font>
+        sList.appendEntry(new Student("Mary Chen", "111111111", 
+                                      "0933111111", 
+                                      "Business"));
+        sList.appendEntry(new Student("John Wang", "222222222", 
+                                      "0928222222", 
+                                      "Computer Science"));
+        sList.appendEntry(new Student("Mel Lee", "333333333", 
+                                      "0968333333", 
+                                      "Mechanical Engineering"));
+        sList.appendEntry(new Student("Bob Tsai", "444444444", 
+                                      "0930444444", 
+                                      "Electrical Engineering"));
+        sList.appendEntry(new Student("Ron Yang", "555555555", 
+                                      "0918555555", 
+                                      "Computer Science"));
+    
+        int i;
+        StudentListIterator iter1(sList), iter2(sList);
+        for (i=0, iter1.reset(); 
+             iter1.hasMoreData(); iter1.next(), i++)
+        {
+            cout &lt;&lt; i &lt;&lt; ":";
+            iter1-&gt;display(cout);
+            cout &lt;&lt; endl;
+        }
+    
+        sList.find("222222222")-&gt;display(cout); cout &lt;&lt; endl;
+    
+        if (sList.deleteEntry("444444444"))
+            cout &lt;&lt; "Bob Tsai's entry deleted successfully!\n";
+        else
+            cout &lt;&lt; "Bob Tsai's entry deletion failed!\n";
+    
+        if (sList.find("444444444") == 0)
+            cout &lt;&lt; "Can not find Bob Tsai's entry!\n";
+    
+    
+        cout &lt;&lt; endl;
+        for (iter1.reset(); iter1.hasMoreData(); iter1.next())
+        {
+            for (iter2=iter1, iter2.next(); 
+                 iter2.hasMoreData(); iter2.next())
+            {
+                if (iter1-&gt;ofTheSameDepartment(*iter2))
+                {
+                    cout &lt;&lt; "The following two students"
+                            " are of the same department:\n";
+                    iter1-&gt;display(cout);
+                    cout &lt;&lt; endl;
+                    iter2-&gt;display(cout);
+                    cout &lt;&lt; endl;
+                }
+            }
+        }
+    
+        cout &lt;&lt; endl;
+        for (iter1.reset(); iter1.hasMoreData(); iter1.next())
+            if (iter1-&gt;IDEquals("333333333"))
+                sList.insertEntry(iter1, 
+                    new Student("Carol Chen", "333331111", 
+                                "0933333111", "Business"));
+        for (i=0; i&lt;sList.size(); i++)
+        {
+            sList[i]-&gt;display(cout);
+            cout &lt;&lt; endl;
+        }
+    
+        <font color="red">sList.dump()</font>;
+    }</pre>
+        </font> </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 請定義新的類別 LoggedStudentList, 這個類別需要繼承 
+        StudentList 類別, 你可以手動編輯或是在使用 Visual Studio 界面 new Class 時選擇新類別的基礎類別為 StudentList 
+        類別, 如果你是手動編輯的話, 請記得在 class LoggedStudentList : public StudentList 敘述之前要 
+        include "StudentList.h", 基本程式碼如下: <font color="#DDEEFF">
+        <pre>    #include "StudentList.h"
+
+    class LoggedStudentList : public StudentList
+    {
+    public:
+    private:
+    };</pre>
+        </font></font> </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體"> 如步驟一的說明, 由於我們希望在所有操作list的動作時都在指定的檔案中記錄下來, 
+        所以在這個類別中我們要定義五個成員函式 (包括 ctor, appendEntry, insertEntry, deleteEntry, dump), 
+        其中 appendEntry, insertEntry, 和 deleteEntry 這些成員函式的名稱和 父類別 StudentList 
+        中的定義需要完全一樣, 如此在步驟三中所描述的 main() 的內容才能夠順利執行 <font color="white">
+        <pre>    #include "StudentList.h"
+
+    class LoggedStudentList : public StudentList
+    {
+    public:
+        LoggedStudentList(ofstream &amp;ofs);
+        void appendEntry(Student *student);
+        void insertEntry(StudentListIterator iter, Student *student); 
+        bool deleteEntry(char *id);
+        void dump();
+    private:
+    };</pre>
+        </font></font> </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 這個類別需要定義一個參考資料成員, 記錄由建構元所傳入的檔案串流的參考 
+        <font color="#DDEEFF">
+        <pre>    class LoggedStudentList : public StudentList
+    {
+    public:
+        ...
+    private:
+        ofstream &amp;m_ofs;
+    };</pre>
+        </font> 接下來請撰寫相關的五個成員函式 </font>
+        <ol>
+          <p>
+          </p><li><font face="微軟正黑體"> 建構元 LoggedStudentList(ofstream &amp;ofs): 需要初始化 
+            m_ofs 成員, 請注意只有唯一的一種初始化方法:<font color="#DDEEFF">初始化串列 (initialization 
+            list)</font></font> 
+            <p>
+          </p></li><li><font face="微軟正黑體"> void appendEntry(Student *student); <br>
+            void insertEntry(StudentListIterator iter, Student *student); <br>
+            bool deleteEntry(char *id); 
+            <p> 這三個函式最主要需要在串流檔案中記錄下相關資料, 然後呼叫父類別中的同名函式來完成其功能, 例如: <font color="#DDEEFF">
+            </font></p><pre><font color="#DDEEFF">    m_ofs &lt;&lt; "LoggedStudentList::appendEntry()\n    ";
+    student-&gt;display(m_ofs); 
+    m_ofs &lt;&lt; endl;
+    StudentList::appendEntry(student);</font></pre><font color="#DDEEFF">
+            </font></font> 
+            <p>
+          </p></li><li><font face="微軟正黑體"> void dump() 函式 </font></li></ol></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 測試一下吧! 欣賞一下你在 LoggedStudentList 中所新增的程式碼, 
+        應該只有 50 列左右吧! 可是這個串列類別除了有和上一次實習所製作的 StudentList 一模一樣的功能之外, 還有新增加的功能, 同時 
+        StudentListIterator 類別也可以正常工作, 這就是繼承的語法所帶來的第一種好處 <font color="blue">程式碼的重用 
+        (code reuse)</font>, 
+        </font><p><font face="微軟正黑體"> 我們常常會繼承一些已經設計好 (完整測試過) 的類別, 新增或是修改一點點功能來使得這個類別適合目前的程式的需求。 </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td width="580"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 
+        資料匣下的所有內容) 壓縮起來, 選擇 Lab11-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%2011-1_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%2011-1_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu May 25 2017 09:02:27 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 04/05/2004 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

@@ -1,0 +1,462 @@
+<html><head>
+<title>SFML01</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="SFML01_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> SFML01: SFML 的安裝與測試</font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="SFML01_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"> <p><font face="微軟正黑體">這一個系列的實習讓大家運用 SFML 來設計有圖形以及多媒體網路介面的程式<br>
+          <br>
+          能夠配合 VC2010 的 SFML 最後版本是 <a href="https://www.sfml-dev.org/download/sfml/2.3.2/">SFML 
+          2.3.2 (2015/09)</a><br>
+          </font></p>
+        <p><font face="微軟正黑體"> <a href="https://www.sfml-dev.org/download/sfml/2.4.2/"> 
+          2.4.2 (2017/02)</a> Windows 上能夠配合 VC2012, VC2013, VC2015, g++4.9.2, 
+          也支援 OSX 和 Linux, 每一個版本之間有相當的修改 (可惜還沒有 Android 版本)<br>
+          <br>
+          如果要自己建置配合 VC2017 的 SFML 2.4.2 版本請參考 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML_environment_1805.pdf">說明</a></font></p>
+        <p><font face="微軟正黑體">目前最新的版本是<a href="https://www.sfml-dev.org/download/sfml/2.5.0/"> 
+          2.5.0 (2018/05)</a> Windows 上能夠配合 VC2013, VC2015, VC2017, g++7.3.0, 
+          也支援 OSX 和 Linux, 每一個版本之間有相當的修改</font></p></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"> <h3><font face="微軟正黑體"><a href="https://www.sfml-dev.org/download/sfml/2.3.2/">SFML 
+          2.3.2 下載</a></font></h3>
+        <blockquote> 
+          <p><font face="微軟正黑體"><a href="https://www.sfml-dev.org/files/SFML-2.3.2-windows-vc10-64-bit.zip">64位元</a> 
+            (<a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML-2.3.2-windows-vc10-64-bit.zip">SFML-2.3.2-windows-vc10-64-bit.zip</a>) 
+            <br>
+            下面的說明都是用 64位元作業系統為例, 32位元的設定要自己調整一下</font></p>
+          <p><font face="微軟正黑體"><a href="https://www.sfml-dev.org/files/SFML-2.3.2-doc.zip">HTML 
+            文件下載</a>, <a href="https://www.sfml-dev.org/documentation/2.3.2/hierarchy.php">線上參考文件</a>, 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML-2.3.2.chm">chm<br>
+            </a> </font></p>
+        </blockquote></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><h3><font face="微軟正黑體">SFML 2.3.2 安裝</font></h3>
+        <blockquote> 
+          <p><font face="微軟正黑體"> 解壓縮 SFML-2.3.2-windows-vc10-64-bit.zip 至 <strong><font color="#0000FF">C:\Program 
+            Files\SFML-2.3.2\</font></strong></font></p>
+          <p><font face="微軟正黑體"> 在環境變數 (environment variable) <strong><font color="#FF0000">path</font></strong> 
+            中加入<strong> <font color="#0000FF">C:\Program Files\SFML-2.3.2\bin</font></strong><br>
+            (以便程式執行時可以找到動態連結函式庫 openal32.dll, sfml-system-2.dll, sfml_window-2.dll, 
+            sfml-graphics-2.dll, sfml-network-2.dll, sfml-audio-2.dll 或是 debug 
+            的版本 sfml-system-d-2.dll, sfml_window-d-2.dll, sfml-graphics-d-2.dll, 
+            sfml-network-d-2.dll, sfml-audio-d-2.dll)</font></p>
+          <p><font face="微軟正黑體"><img src="SFML01_files/fig01-1.gif" width="380" height="206"></font></p>
+          <p><font face="微軟正黑體"><img src="SFML01_files/fig01-2.gif" width="332" height="339"></font></p>
+          <p><font face="微軟正黑體"><img src="SFML01_files/fig01-3.gif" width="313" height="302"></font></p>
+          <p> <font face="微軟正黑體"><img src="SFML01_files/fig01-4.gif" width="377" height="142"></font></p>
+        </blockquote>
+        <p><font face="微軟正黑體">請注意完成以後要繼續之前，要把所有的 visual studio project 都關上, 重新開啟 
+          visual studio, 設定才會生效</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><h3><font face="微軟正黑體">SFML 2.3.2 標準範例</font></h3>
+        <blockquote> 
+          <p><font face="微軟正黑體">C:\Program Files\SFML-2.3.2\examples\</font></p>
+          <blockquote> 
+            <blockquote> 
+              <blockquote> 
+                <blockquote> 
+                  <p><font face="微軟正黑體"> ftp\<br>
+                    opengl\<br>
+                    pong\<br>
+                    shader\<br>
+                    sockets\<br>
+                    sound\<br>
+                    sound-capture\<br>
+                    voip\<br>
+                    win32\<br>
+                    window\</font></p>
+                </blockquote>
+              </blockquote>
+            </blockquote>
+          </blockquote>
+        </blockquote></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><h3><font face="微軟正黑體">網路上的教學以及範例</font></h3>
+        <blockquote> <font face="微軟正黑體"><a href="https://www.youtube.com/watch?v=wHDXOadATTU">SFML2.0</a> 
+          (40 lessons) <br>
+          <a href="https://www.youtube.com/watch?v=FLpD54gx_5w&amp;list=PLRtjMdoYXLf776y4K432eL_qPw4na_py3"><br>
+          SFML 2.1</a> (52 lessons) 
+          <p><a href="https://www.youtube.com/watch?v=6tXhETE7Whw">SFML 2.3.1</a> 
+            (21 lessons)</p>
+          <p><a href="https://www.youtube.com/watch?v=Aaf2Y-96nsk">SFML 2.4</a> 
+            (13 lessons)</p>
+          <p>請搜尋 youtube SFML </p>
+          <p>SFML Mandelbrot <a href="https://www.youtube.com/watch?v=uvzfp-zRfwE">1</a>, 
+            <a href="https://www.youtube.com/watch?v=zXTpASSd9xE">2</a>, <a href="https://www.youtube.com/watch?v=0jGaio87u3A&amp;t=17s">3</a></p>
+          <p>SFML Games <a href="https://www.youtube.com/watch?v=BigJeW-hZaE">1</a>, 
+            <a href="https://www.youtube.com/watch?v=NKw7JTmkqbE">2</a>, <a href="https://www.youtube.com/watch?v=eWIJrN-ekAI">3</a>, 
+            <a href="https://www.youtube.com/watch?v=Z01ivJXs_jk">4</a>. <a href="https://www.youtube.com/watch?v=LrEvoKI07Ww&amp;t=1s">5</a>, 
+            <a href="https://www.youtube.com/watch?v=7ugMnrEIl6Y">6</a>, <a href="https://www.youtube.com/watch?v=SPBut-quayM">7</a>, 
+            <a href="https://www.youtube.com/watch?v=C4G7tZK5zo8">8</a>, <a href="https://www.youtube.com/watch?v=wHDXOadATTU">9</a>, 
+            <a href="https://www.youtube.com/watch?v=U_rMrBi4KH4">10</a>, <a href="https://www.youtube.com/watch?v=zH_omFPqMO4&amp;list=PLB_ibvUSN7mzUffhiay5g5GUHyJRO4DYr">11</a>, 
+            <a href="https://www.youtube.com/watch?v=-q1gu28dmVo">12</a></p>
+          </font></blockquote></td></tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><h3><font face="微軟正黑體">SFML books</font></h3>
+        <ol>
+          <li><font face="微軟正黑體">SFML Game Development<br>
+            https://www.packtpub.com/game-development/sfml-game-development<br>
+            </font></li>
+          <li><font face="微軟正黑體"> SFML Essentials<br>
+            https://www.packtpub.com/game-development/sfml-essentials<br>
+            </font></li>
+          <li><font face="微軟正黑體"> SFML Blueprints<br>
+            https://www.packtpub.com/game-development/sfml-blueprints<br>
+            </font></li>
+          <li><font face="微軟正黑體">SFML Game Development By Example<br>
+            https://www.packtpub.com/game-development/sfml-game-development-example</font></li>
+        </ol>
+        <font face="微軟正黑體" color="#CCFF99">如果你需要電子書的話...</font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><h3><font face="微軟正黑體">Visual C++ 2010 專案</font></h3>
+        <h4><font face="微軟正黑體" color="#FF0000">一般來說在開發的時候設定為 debug, 動態連結函式庫, Win32 
+          console </font></h4>
+        <p><font face="微軟正黑體" color="#FF0000"><font color="#0000FF">Win32 主控台應用程式會多一個文字訊息視窗可以顯示偵錯的文字訊息</font></font></p>
+        <blockquote> 
+          <p> <font face="微軟正黑體"><strong>1. </strong>開啟新專案 testSFML232, 已安裝的範本, 
+            Visual C++: Win32, <font color="#FF0000"><strong>Win32 主控台應用程式</strong></font>, 
+            確定, 其他選項: <font color="#FF0000"><strong>空專案</strong></font>, 完成<br>
+            <strong>1.1. </strong>建置 -&gt; 組態管理員 -&gt; 使用中的方案平台 -&gt; 新增 -&gt; 
+            輸入或選擇新平台:<strong><font color="#FF0000">x64</font></strong>, 複製設定值來源: 
+            <strong><font color="#FF0000">Win32</font></strong>, <font color="#FF0000"><strong>勾選</strong></font>建立新專案平台, 
+            確定<font color="#FF0000"><br>
+            <strong>1.2. 選擇 x64 平台</strong></font></font></p>
+          <p> <font face="微軟正黑體"><strong>2. </strong>專案 -&gt; testSFML232 屬性 -&gt; 
+            組態屬性 -&gt; 組態: 所有組態<br>
+            <strong>2.1. </strong>組態屬性 -&gt; C/C++ -&gt; 一般 -&gt; 其他 Include 目錄: 
+            <font color="#FF0000">C:\Program Files\SFML-2.3.2\include</font><br>
+            <strong>2.2. </strong>組態屬性 -&gt; 連結器-&gt; 一般 -&gt; 其他程式庫目錄: <font color="#FF0000">C:\Program 
+            Files\SFML-2.3.2\lib</font></font></p>
+          <p> <font face="微軟正黑體"><strong>3. </strong>專案 -&gt; testSFML232 屬性 -&gt; 
+            組態: Debug<br>
+            <strong>3.1. </strong>組態屬性 -&gt; 連結器-&gt; 輸入 -&gt; 其他相依性: <font color="#FF0000"> 
+            sfml-graphics-d.lib; sfml-window-d.lib; sfml-system-d.lib; sfml-audio-d.lib; 
+            sfml-network-d.lib; kernel32.lib; user32.lib; gdi32.lib; winspool.lib; 
+            comdlg32.lib; advapi32.lib; shell32.lib; ole32.lib; oleaut32.lib; 
+            uuid.lib; odbc32.lib; odbccp32.lib; %(AdditionalDependencies) </font></font></p>
+          <p> <font face="微軟正黑體"><strong>4. </strong>專案 -&gt; testSFML232 屬性 -&gt; 
+            組態: Release<br>
+            <strong>4.1. </strong>組態屬性 -&gt; 連結器-&gt; 輸入 -&gt; 其他相依性: <font color="#FF0000">sfml-graphics.lib; 
+            sfml-window.lib; sfml-system.lib; sfml-audio.lib; sfml-network.lib; 
+            kernel32.lib; user32.lib; gdi32.lib; winspool.lib; comdlg32.lib; advapi32.lib; 
+            shell32.lib; ole32.lib; oleaut32.lib; uuid.lib; odbc32.lib; odbccp32.lib; 
+            %(AdditionalDependencies)</font></font></p>
+          <p><font face="微軟正黑體" color="#000000"><strong>你也可以下載 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML232%20vc10%20sample%20dynamic%20win32%20console.7z">SFML232 
+            vc10 sample dynamic win32 console.7z</a> 專案, 解壓縮以後, <br>
+            點選 SFML test.sln, 上方工具列<font color="#FF0000">方案平台選擇 x64</font>, 編譯執行, 
+            <br>
+            在方案總管中以右鍵點選 SFML test <font color="#0000FF">重新命名專案</font><br>
+            </strong></font></p>
+          <p><font face="微軟正黑體">這個設定下編譯出來的應用程式 (.exe) 如果你要拷貝到沒有安裝 SFML-2.3.2 的機器上執行的話, 
+            需要附上<a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML232%20vc10%20redistributables.7z"> openal32.dll, 
+            sfml-system-2.dll, sfml-window-2.dll, sfml-graphics-2.dll, sfml-audio-2.dll</a>, 
+            和 .exe 放在同一個資料匣裡, 沒有安裝 SFML 的機器才能夠執行 </font></p>
+        </blockquote>
+        <h4><font face="微軟正黑體" color="#FF0000">開發完以後可以把設定改為 release, 靜態連結函式庫, 
+          Win32 application</font></h4>
+        <blockquote> 
+          <p><font face="微軟正黑體"><strong>1. </strong>開啟新專案 testSFML232, 已安裝的範本, 
+            Visual C++: Win32, <font color="#FF0000"><strong>Win32 專案</strong></font>, 
+            確定, 其他選項: <font color="#FF0000"><strong>空專案</strong></font>, 完成<br>
+            <strong>1.1. </strong>建置 -&gt; 組態管理員 -&gt; 使用中的方案平台 -&gt; 新增 -&gt; 
+            輸入或選擇新平台:<font color="#FF0000"><strong>x64</strong></font>, 複製設定值來源: 
+            <font color="#FF0000"> <strong>Win32</strong></font>, <font color="#FF0000"><strong>勾選</strong></font>建立新專案平台, 
+            確定<font color="#FF0000"><br>
+            <strong>1.2. 選擇 x64 平台</strong></font></font></p>
+          <p> <font face="微軟正黑體"><strong>2. </strong>專案 -&gt; testSFML232 屬性 -&gt; 
+            組態屬性 -&gt; 組態: 所有組態<br>
+            <strong>2.1. </strong>組態屬性 -&gt; C/C++ -&gt; 一般 -&gt; 其他 Include 目錄: 
+            <font color="#FF0000">C:\Program Files\SFML-2.3.2\include</font><br>
+            <strong>2.2. </strong>組態屬性 -&gt; 連結器-&gt; 一般 -&gt; 其他程式庫目錄: <font color="#FF0000">C:\Program 
+            Files\SFML-2.3.2\lib</font></font></p>
+          <p> <font face="微軟正黑體"><strong>3. </strong>專案 -&gt; testSFML232 屬性 -&gt; 
+            組態: Debug<br>
+            <strong>3.1. </strong>組態屬性 -&gt; 連結器-&gt; 輸入 -&gt; 其他相依性: <font color="#FF0000">sfml-graphics-d.lib; 
+            sfml-window-d.lib; sfml-system-d.lib; sfml-audio-d.lib; sfml-network-d.lib; 
+            kernel32.lib; user32.lib; gdi32.lib; winspool.lib; comdlg32.lib; advapi32.lib; 
+            shell32.lib; ole32.lib; oleaut32.lib; uuid.lib; odbc32.lib; odbccp32.lib; 
+            %(AdditionalDependencies)</font></font></p>
+          <p> <font face="微軟正黑體"><strong>4. </strong>專案 -&gt; testSFML232 屬性 -&gt; 
+            組態: Release<br>
+            <strong>4.1. </strong>組態屬性 -&gt; 連結器-&gt; 輸入 -&gt; 其他相依性: <font color="#FF0000">sfml-graphics.lib; 
+            sfml-window.lib; sfml-system.lib; sfml-audio.lib; sfml-network.lib; 
+            kernel32.lib; user32.lib; gdi32.lib; winspool.lib; comdlg32.lib; advapi32.lib; 
+            shell32.lib; ole32.lib; oleaut32.lib; uuid.lib; odbc32.lib; odbccp32.lib; 
+            %(AdditionalDependencies)</font><br>
+            </font></p>
+          <p><font face="微軟正黑體" color="#000000"><strong>你也可以下載 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML232%20vc10%20sample%20static%20win32%20application.7z">SFML232 
+            vc10 sample static win32 application.7z</a> 專案, 解壓縮以後, <br>
+            點選 SFML test.sln, 上方工具列<font color="#FF0000">方案平台選擇 x64</font>, 編譯執行, 
+            <br>
+            在方案總管中以右鍵點選 SFML test <font color="#0000FF">重新命名專案</font></strong></font> 
+          </p>
+          <p><font face="微軟正黑體"><br>
+            這個設定下編譯出來的應用程式 (.exe) 如果你要拷貝到沒有安裝 SFML-2.3.2 的機器上執行的話, 只需要附上 openal32.dll 
+            就可以了 (openal32.dll 函式庫的授權要求一定要附上完整 DLL)</font></p>
+        </blockquote></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><h3><font face="微軟正黑體">基本範例說明 </font></h3>
+        <p><font face="微軟正黑體">這個程式是<a href="https://www.sfml-dev.org/documentation/2.3.2/"> 
+          線上說明資料 裡放的第一個測試程式</a></font></p>
+        <pre><font face="微軟正黑體">#include &lt;SFML/Audio.hpp&gt;
+#include &lt;SFML/Graphics.hpp&gt;
+int main()
+{
+    sf::RenderWindow window(sf::VideoMode(804, 993), "SFML window"); // 開啟視窗
+
+    sf::Texture texture; // 載入影像檔案
+    if (!texture.loadFromFile("cute_image.jpg")) // 支援 jpg, png 圖片格式
+        return EXIT_FAILURE;
+
+    sf::Sprite sprite(texture); // 可以旋轉放大移動的圖片物件, 與 Texture 物件關聯
+                                                 // 可以整張影像作為一個圖片物件, 也可以指定部份的影像
+
+    sf::Font font; // 字型物件
+    if (!font.loadFromFile("ariblk.ttf")) // ariel black 字型
+        return EXIT_FAILURE;
+
+    sf::Text text("Hello SFML\nThis is a test!", font, 50); // 指定字型 為 50 點, ariel black
+
+    sf::Music music;
+    if (!music.openFromFile("Reggae8-84.ogg")) // 支援 ogg 格式
+        return EXIT_FAILURE;
+
+    music.play(); // 播放音樂
+    music.setLoop(true); // 反覆播放
+
+    <font color="#0000FF"><strong>while (window.isOpen())</strong></font> // 除非先前執行過 window.close() 否則 isOpen() 回傳 true
+    <font color="#0000FF"><strong>{</strong></font>
+        sf::Event event;
+        while (window.pollEvent(event)) // 由視窗的訊息佇列中取得訊息 (滑鼠、鍵盤、選單...)
+        {
+            if (event.type == sf::Event::Closed) // 此事件為使用者點選視窗右上角的 X 關閉視窗
+                window.close();
+            if (event.type == sf::Event::KeyPressed) // 鍵盤有按鍵被按下
+                if (event.key.code==sf::Keyboard::Escape)  //  如果是 Esc  按鍵
+                    window.close();
+        }
+
+        window.clear(); // 清除螢幕 (請注意 SFML 有 double buffer, 
+                                     // 這裡是在一個還看不到的螢幕緩衝區上畫圖)
+
+        window.draw(sprite); // 將圖片物件以預設的位置 (0,0), 比例 1.0, 角度 0 繪出
+
+        window.draw(text); // 將文字物件以預設的位置 (0,0), 比例 1.0, 角度 0 繪出
+
+        window.display(); // 將緩衝區裡的資料顯示在螢幕上
+    <strong><font color="#0000FF">}</font></strong>
+    return EXIT_SUCCESS;
+}</font></pre></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td width="580"><h3><font face="微軟正黑體">修改視窗大小以及圖片大小</font></h3>
+        <p><font face="微軟正黑體" color="#000000">請下載 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML232%20vc10%20sample%20dynamic%20win32%20console.7z">SFML232 
+          vc10 sample dynamic win32 console.7z</a> 專案, 解壓縮以後, 點選 SFML test.sln, 
+          上方工具列<font color="#FF0000">方案平台選擇 x64</font>, 編譯執行; 在方案總管中以右鍵點選 SFML 
+          test <font color="#0000FF">重新命名專案為 SFML01</font></font></p>
+        <p><font face="微軟正黑體"><a href="https://www.sfml-dev.org/documentation/2.3.2/classes.php" target="_blank">SFML 
+          類別功能線上說明</a></font></p>
+        <p><font face="微軟正黑體">請修改視窗大小為 480x660</font></p>
+        <p><font face="微軟正黑體">請運用 <a href="https://www.sfml-dev.org/documentation/2.3.2/classsf_1_1RectangleShape.php">RectangleShape</a> 
+          定義一個 420x520 的棕色 (128,42,42) 長方形, 在視窗的中間繪出以作為圖片的外框 (需要用到的類別與成員 sf::Vector2f, 
+          sf::RectangleShape::setFillColor(), sf::Transformable::setPosition(), 
+          sf::Color)</font></p>
+        <p><font face="微軟正黑體">在 window.draw(sprite); 之前請運用 sprite.setScale(factorX, 
+          factorY) 調整原來 804x993 的圖片到寬度 402x496, 並且在視窗中央顯示 (需要用到 sf::Transformable::setScale(), 
+          sf::Transformable::setPosition())</font></p>
+        <p><font face="微軟正黑體">能夠測試執行的時候一定要測試一下, 不要等到所有的都修改完才測試</font></p>
+        <p><font face="微軟正黑體">接下來這幾個步驟的<a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML01Demo.7z">範例執行程式</a> (win7-x64, 
+          win8-x64, win10-x64)</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟九</font></th>
+      <td width="580"><h3><font face="微軟正黑體">修改背景音樂的音量並且以按鍵 U, D 控制大小聲以 P 控制暫停播放</font></h3>
+        <p><font face="微軟正黑體">請運用 Music::setVolume(float) 來調整音量 (你需要定義一個紀錄目前音量的變數, 
+          音量範圍在 0.0f ~ 100.0f 之間, 如果你希望像範例程式一樣顯示音量大小的話, 需要用到 std::string, std::ostringstream, 
+          std::ostringstream::str()) </font></p>
+        <p><font face="微軟正黑體">請運用 Music::pause() 來暫停播放聲音</font></p>
+        <p><font face="微軟正黑體">按鍵對應到的常數為為 Keyboard::U, Keyboard::D, 以及 Keyboard::P</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟十</font></th>
+      <td width="580" bgcolor="#CCFFCC"> <h3><font face="微軟正黑體">修改字型為微軟正黑體, 調整文字顏色</font></h3>
+        <p><font face="微軟正黑體">請使用 C:\Windows\Fonts\msjh.ttc 字型, 字型大小設為 45, 中文常數字串請用 
+          <strong><font color="#FF0000">L"</font></strong>中文<strong><font color="#FF0000">"</font></strong> 
+          來指定 wchar_t 型態的常數字串</font></p>
+        <p><font face="微軟正黑體">使用 Text::setColor(Color) 來調整顏色為棕色</font></p>
+        <p><font face="微軟正黑體">請調整文字顯示的位置到圖片下方</font></p>
+        <p><font face="微軟正黑體">請運用 Vertex 陣列在文字下方畫一黃綠直線</font></p>
+        <pre><font face="微軟正黑體">sf::Vertex line[2];
+line[0].position = sf::Vector2f(20,630);
+line[0].color  = sf::Color::Yellow;
+line[1].position = sf::Vector2f(460,630);
+line[1].color = sf::Color::Green;
+
+window.draw(line,2,sf::LinesStrip);</font></pre></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th align="center"><font face="微軟正黑體">步驟十一</font></th>
+      <td bgcolor="#FFFFCC"><h3><font face="微軟正黑體">程式偵錯</font></h3>
+        <p><font face="微軟正黑體">程式不太聽話, 有邏輯的錯誤該怎麼辦?</font></p>
+        <p><font face="微軟正黑體">還好剛才是<font color="#FF0000">設定為 debug, 動態連結函式庫, Win32 
+          console</font>, 就用平常的偵錯方法吧 </font></p>
+        <p><font face="微軟正黑體">#include &lt;iostream&gt;<br>
+          using namespace std;</font></p>
+        <p><font face="微軟正黑體">cout &lt;&lt; "Help! Help!" &lt;&lt; endl;</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">步驟十二</font></th>
+      <td bgcolor="#DDEEBB"><h3><font face="微軟正黑體">為什麼繪圖需要放在迴圈裡面, 一直不斷地畫呢? 不會很浪費 
+          CPU 時間嗎?</font></h3>
+        <p><font face="微軟正黑體">是有一點浪費, 你可以打開視窗系統的 "工作管理員", 觀察一下效能</font></p>
+        <p><font face="微軟正黑體">果然有一個執行緒狠狠地佔據 CPU 的時間</font></p>
+        <p><font face="微軟正黑體">如果希望稍微節省一點, 在迴圈內可以加上 sf::sleep(sf::milliseconds(10));<br>
+          但是處理使用者的訊息也就會有最多 10 毫秒的延遲了, 如果程式和使用者的互動很多或是繪圖很花時間, 這個作法是不能夠接受的</font></p>
+        <p><font face="微軟正黑體">為什麼不把繪圖部份拿到迴圈前面呢? 繪圖只做一次, 主要迴圈裡還是要處理訊息</font></p>
+        <pre><font face="微軟正黑體">繪圖程式片段
+
+<font color="#0000FF"><strong>while (window.isOpen())</strong></font><br><font color="#0000FF"><strong>{</strong></font>
+    sf::Event event;
+    while (window.pollEvent(event))
+    {
+        ....
+    }
+<font color="#0000FF"><strong>}</strong></font></font></pre> 
+        <p><font face="微軟正黑體">你可以試看看, 會看到圖形輸出, 按 U, D, P, &lt;Esc&gt; 也都有反應, 但是在"工作管理員", 
+          觀察一下效能, 還是佔著 CPU 不放, 還是一直在執行無窮迴圈啊!! 如果從去掉外層的大迴圈, 訊息就只處理一次了, 執行緒做完以後程式直接結束!! 
+          這樣的程式還有一個問題, 如果你的視窗縮到最小再還原, 就是全黑的了, 他要叫你的程式重新繪製一次, 但是你的程式的繪圖片段只執行一次! 
+          所以還是請把繪圖片段放進迴圈裡吧!</font></p>
+        <p><font face="微軟正黑體">對這個程式來說, 你可以試下面這樣的處理方式</font></p>
+        <pre><font face="微軟正黑體" color="#0000FF"><strong>while (window.isOpen())</strong></font><font face="微軟正黑體"><br><font color="#0000FF"><strong>{</strong></font>
+    sf::Event event;
+    if (window.<font color="#FF0000"><strong>waitEvent</strong></font>(event)) // blocked until an event happens
+    {
+        ....
+    }
+    繪圖程式片段
+<font color="#0000FF"><strong>}</strong></font></font></pre> 
+        <p><font face="微軟正黑體">沒有訊息的時候 waitEvent 並不會回傳, 也不會使用 CPU, 因為這個程式並沒有要一直修改畫面所以是可以運作的, 
+          但是對於一個 Game 來說就不行了, 沒有使用者的滑鼠和鍵盤事件時, 程式還是要一直繪圖...</font></p>
+        <p><font face="微軟正黑體">這個問題在 SFML 裡沒有很簡單的解, SFML 沒有辦法定義自己的訊息, 所以不能用類似 Win32 
+          的 GetMessage() 和 WM_TIMER 訊息來解決, SFML 裡你需要用一個獨立的執行緒執行訊息處理迴圈, 把 pollEvent 
+          換成 waitEvent, 然後在主執行緒裡根據你的 framerate 來繪圖, 如果繪圖不太花 CPU 時間, 就用 sf:sleep 
+          多休息一會兒</font></p>
+        <p><font face="微軟正黑體">寫到這裡, 其實我有一點弄錯了, 不知道自己在講什麼了, 其實 SFML 是一個讓你用 C/C++ 
+          寫遊戲的環境, 寫遊戲的時候不是就希望使用超快的 CPU, 超多的記憶體, 超級不公平地把玩遊戲的人虐到爆嗎?? 那我何必要讓 CPU 
+          沒事多休息呢? CPU 裡面還有好多核心沒有用到才是寫遊戲的人該擔心的, 要想辦法開多個執行緒, 把場景人物音效弄到超炫才是重點吧!! 
+          我以上面寫的你看看就好, 除了上面這種遊戲界面之外, 一般使用者介面是需要避免使用無窮迴圈把 CPU 資源吃完的!!</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th align="center"><font face="微軟正黑體">步驟十三</font></th>
+      <td><h3><font face="微軟正黑體">發佈你的程式</font></h3>
+        <p><font face="微軟正黑體">每次執行時出現那個 命令視窗 好不專業!!</font></p>
+        <p><font face="微軟正黑體" color="#000000">請下載 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/SFMLLab/SFML232%20vc10%20sample%20static%20win32%20application.7z">SFML232 
+          vc10 sample static win32 application.7z</a> 專案, 解壓縮以後, 點選 SFML test.sln, 
+          上方工具列<font color="#FF0000">方案平台選擇 x64</font>, 編譯執行; 在方案總管中以右鍵點選 SFML 
+          test <font color="#0000FF">重新命名專案為 SFML01</font></font> </p>
+        <p><font face="微軟正黑體">把剛才專案裡的 main.cpp 拷貝過來到這個專案裡, 編譯執行</font></p>
+        <p><font face="微軟正黑體"> 這個設定下編譯出來的應用程式 (.exe) 如果你要拷貝到沒有安裝 SFML-2.3.2 的機器上執行的話, 
+          只需要附上 openal32.dll 就可以了 (openal32.dll 函式庫的授權要求一定要附上完整 DLL)</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">步驟十三</font></th>
+      <td><font face="微軟正黑體">請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 
+        檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\資料匣下的所有內容) 
+        壓縮起來, 選擇 SFMLLab01<a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="SFML01_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="SFML01_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon May 21 2018 14:33:00 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 04/11/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

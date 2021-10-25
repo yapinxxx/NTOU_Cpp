@@ -1,0 +1,246 @@
+<html><head>
+<title>
+Lab 15-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2015-1_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+<h1>
+Lab 15-1: Exception - from inside a constructor
+</h1>
+<center><p><img src="Lab%2015-1_files/rainbow.gif"></p></center>
+
+<table width="700" cellspacing="10" cellpadding="6" border="0">
+  <tbody><tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bgcolor="#DDEEBB">
+    <th width="75" align="center">實習目標</th>
+    <td width="580">
+    練習使用 C++ 例外狀況 (exception) 的處理機制 -
+    <br>
+    　　　　　　當函式不能有回傳值時
+(例如 建構元/解構元)</td>
+  </tr>
+
+  <tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟一</th>
+      <td width="580"> 我們在 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab11/Lab11-1.html">LoggedStudentList 
+        實習</a>的步驟三中曾經有下列的設計: 
+        <pre>    ofstream logfile("main2.log");
+    LoggedStudentList sList(logfile);</pre>
+    
+    如果上面的敘述成功開啟輸出檔案串流的話
+    (我們可以藉由 logfile.is_open() 來測試), 
+    才產生 LoggedStudentList 物件,
+    這是兩階段的產生 sList 物件的方法, 
+    例如:
+    <pre>    ofstream logfile("main2.log");
+    if (logfile.is_open())
+    {
+        LoggedStudentList sList(logfile);
+        ...
+    }</pre>
+    <p>
+    另外一種設計是直接把輸出檔案名稱傳入 LoggedStudentList 建構元中,
+    例如:
+    </p><pre>    LoggedStudentList sList("main2.log");</pre>
+    
+    但是在這種狀況下如果檔案串流開啟失敗的話, 
+    因為建構元沒有傳回值,
+    沒有辦法顯示開啟失敗的狀況,
+    所以必須使用 try-throw-catch 來處理了, 
+    例如:
+    <pre>    try
+    {
+        LoggedStudentList sList("main2.log");
+        ...
+    }
+    catch (exception &amp;e)
+    {
+        ...
+    }</pre>
+    
+    <p>如果在 LoggedStudentList 建構元中發現無法順利建構該物件的話,
+    就使用 throw 的語法產生一個 std::exception 的衍生物件,
+    由 catch 的敘述來處理這種例外狀況
+, 或是</p>
+        <pre>    try
+    {
+        LoggedStudentList sList("main2.log");
+        ...
+    }
+    catch (char *e)
+    {
+        ...
+    }</pre>
+    
+        <p>用 throw 的語法產生一個 字串型態 的例外狀況</p></td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟二</th>
+      <td width="580" bgcolor="#DDEEBB"> 請拷貝在 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab11/Lab11-1.html">LoggedStudentList 
+        實習</a>中完成的程式碼, 修改建構元函式, 參數改為檔案名稱的字元陣列: 
+        <pre>    LoggedStudentList(const char *filename);</pre>
+
+    請修改類別成員 m_ofs 成為一個專屬的檔案串流成員物件,
+    <pre>    class LoggedStudentList : public StudentList
+    {
+    public:
+        ...
+    private:
+        ofstream m_ofs;
+    };</pre>
+    
+    <p>請注意此處我們用物件成員來設計而不是用指標或是參考成員來設計, 因為這個檔案串流是專屬於這個 LoggedStudentList 物件的, 物件解構時檔案串流就直接關閉掉</p>
+        <p>運用初始化串列建構 m_ofs 檔案串流成員物件,
+    </p>
+        <pre>    LoggedStudentList::LoggedStudentList(const char *filename)
+        : m_ofs(filename)
+    {
+    }</pre>
+    如果建構失敗的話,
+    運用 throw 敘述丟出一個字串型態的例外, 例如:
+    <pre>    if (!m_os.is_open())
+        throw "File stream not opened!";</pre>
+        <p>請注意: 如果要 throw 一段任意的字串的話, 你需要動態配置字元陣列, 同時在 catch 敘述處理完畢時需要 delete[] 
+          掉那個字元陣列</p>
+        <p><font color="#99FF66">請注意</font><font color="#DDEEBB">: catch 敘述所捕捉的例外狀況一定要和 
+          throw 敘述裡面丟出的例外狀況相同, 才能夠順利執行 (如果你直接拷貝步驟一和步驟二的程式碼應該會遇見不一致的問題。</font></p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟三</th>
+      <td width="580"> 請撰寫 try - catch 的程式來完成 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab11/Lab11-1.html">LoggedStudentList 
+        實習</a> 步驟三的測試 
+        <p>
+    <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab15/main2.exe">範例執行程式</a>
+    </p><p>
+    正常執行結果
+    </p><pre>0:[Mary Chen, 111111111, 0933111111, Business]
+1:[John Wang, 222222222, 0928222222, Computer Science]
+2:[Mel Lee, 333333333, 0968333333, Mechanical Engineering]
+3:[Bob Tsai, 444444444, 0930444444, Electrical Engineering]
+4:[Ron Yang, 555555555, 0918555555, Computer Science]
+[John Wang, 222222222, 0928222222, Computer Science]
+Bob Tsai's entry deleted successfully!
+Can not find Bob Tsai's entry!
+
+The following two students are of the same department:
+[John Wang, 222222222, 0928222222, Computer Science]
+[Ron Yang, 555555555, 0918555555, Computer Science]
+
+[Mary Chen, 111111111, 0933111111, Business]
+[John Wang, 222222222, 0928222222, Computer Science]
+[Mel Lee, 333333333, 0968333333, Mechanical Engineering]
+[Carol Chen, 333331111, 0933333111, Business]
+[Ron Yang, 555555555, 0918555555, Computer Science]</pre>
+
+    如果在檔案總管中將 main2.log 設為唯讀檔案,
+    檔案開啟失敗,
+    輸出結果為:
+    <pre>main()::Cannot open file main2.log !!
+        program aborted</pre>
+    </td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟四</th>
+      <td width="580"> 請助教檢查後, 將所完成的專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 刪除掉 
+        .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 壓縮起來, 選擇 
+        Lab15-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </td>
+  </tr>
+
+</tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%2015-1_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%2015-1_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Jun 12 2014 11:25:40 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 05/31/2004
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

@@ -1,0 +1,350 @@
+<html><head>
+
+<title>
+
+Lab 4-2
+
+</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+
+</head>
+
+
+
+<body bgcolor="#C8F4F4" background="Lab%204-2_files/cyan_diffuse.gif">
+<font face="微軟正黑體"> 
+<!---------------------------------------------------------------->
+</font> 
+<center>
+  <h1><font face="微軟正黑體"> Lab 4-2: New/delete, function overloading, <br>
+    and reference test </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%204-2_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"> <p><font face="微軟正黑體">1. 練習使用 new / delete 配置記憶體 </font></p>
+        <p><font face="微軟正黑體"><br>
+          2. 練習撰寫 overloaded global function </font></p>
+        <p><font face="微軟正黑體"><br>
+          3. 練習撰寫 overloaded member function </font></p>
+        <p><font face="微軟正黑體"><br>
+          4. 練習撰寫 overloaded operators, ex. operator&lt;&lt;, operator&gt;&gt; </font></p>
+        <p><font face="微軟正黑體"><br>
+          5. 練習使用參考 (reference) 變數 </font></p></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體">在上課時我們談到在 C++ 中同一個函式名稱可以定義多個不同的函式, 只要函式所接受的參數有一些不一樣就可以了, 
+        例如: 
+        <pre><font face="微軟正黑體">    void add(int, int);
+
+    void add(int);
+
+    void add(float, float);</font></pre>
+        <font face="微軟正黑體"> 這些都是可以同時定義的函式, 你在呼叫這些函式的時候 compiler 不會產生任何混淆, 例如: 
+        <pre><font face="微軟正黑體">    int x, y;
+
+    float r, s;
+
+    add(x);
+
+    add(x, y);
+
+    add(10, y);
+
+    add(r, s);
+
+    add(r, 10);</font></pre>
+        <font face="微軟正黑體"> compiler 都可以根據參數的型態和參數的個數去找到正確的函式來呼叫 
+        <p> 在這個練習的第一部份裡我們繼續<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/Lab3-1.html">實習 
+          3.1</a>裡 Complex 類別的設計, 替它加上幾個 overloaded functions 
+        </p></font></font></font><p><font face="微軟正黑體"><font face="微軟正黑體"><font face="微軟正黑體"> 請<a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php" target="_blank">下載</a>你上一次實習時的程式檔案, 
+          產生一個新的 專案, 把 complex.h 和 complex.cpp 拷貝進來, 並且加入 專案 中 </font></font></font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"> <p><font face="微軟正黑體">我們先寫一小段應用程式, 請使用 new[] 配置一個有 10 個元素的 
+          Complex 物件陣列, 寫一個迴圈將其中資料設為 (1+i), (2+2i), (3+3i), ..., (10+10i), 再寫一個迴圈將它們都加起來, 
+          將加總結果用 print() 成員函式列印出來, 最後用 delete[] 刪除所配置的物件陣列以及它們所佔用的記憶體 </font></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 請參考<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/Lab3-1.html">實習 
+        3.1</a>中第五步驟, 在那裡我們定義了一個 setValue(double, double) 的函式, 現在我們要定義一個 setValue(Complex 
+        <font color="red">&amp;</font>src) 的函式,這個函式最主要的目的是為了拷貝一個複數物件 src 到自己這個物件裡, 用法如下: 
+        <pre><font face="微軟正黑體">    Complex x;
+
+    .... // 計算或是設定 x 的內容
+
+    Complex y;
+
+    y.setValue(x); // 由 x 中拷貝資料到 y 中 (把 y 物件的內容設定為 x 物件的內容)
+
+    assert(x.equal(y, 1e-10));</font></pre>
+        <font face="微軟正黑體"> 請完成 setValue(Complex &amp;src) 成員函式的定義 (在函式中應該複製 src.m_real 
+        和 src.m_imaginary 的欄位), 並且在 main() 或是 unitTest() 函式中測試此成員函式的功能 
+        </font></font><p><font face="微軟正黑體"><font face="微軟正黑體"><font face="微軟正黑體"> 請注意在這裡我們已經開始使用方便的<font color="red">參考變數</font>來取代指標變數了 
+          </font></font></font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 在我們進行下一步驟之前我們需要先修改 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/Lab3-1.html">實習 
+        3.1</a> 中第九步驟所作的 void Complex::print() 成員函式, 這個函式本來會把類別裡的資料固定列印到螢幕上去, 
+        現在我們稍微修改一下讓它可以更<font color="#FF0000"><strong>一般化</strong></font>, 同樣一個函式可以列印到不同的資料串流裡 
+        (螢幕串流或是檔案串流) 
+        <p><font face="微軟正黑體"> 請將函式參數型態改為 </font>
+        </p><pre><font face="微軟正黑體">    void Complex::print(ostream &amp;out);</font></pre>
+        <font face="微軟正黑體"> 在函式內請將資料寫到傳入的串流變數 out 內, 而不要固定寫到 cout 去。 如果你覺得使用相同函式名稱的概念已經很清楚的話, 
+        也可以直接定義同名的函式, 就是 overload print() 這個函式 
+        <p><font face="微軟正黑體">注意: print 函式的參數型態是 <font color="#FF0000"><strong>ostream</strong></font>, 
+          (需要 #include &lt;ostream&gt;, 也需要 using namespace std;) 雖然希望接收的參數希望是類似下面定義的 
+          outfile 檔案串流物件, 型態是 ofstream:</font></p>
+        <pre><font face="微軟正黑體">    ofstream outfile("outputfile.txt");
+    Complex x;
+    ...
+    x.print(outfile);</font></pre>
+        </font></font> <p><font face="微軟正黑體">但是有的時候也希望可以直接列印到螢幕去, 到字串裡, 甚至到網路遠端的裝置去, 
+          例如</font></p>
+        <pre><font face="微軟正黑體">    x.print(cout)</font></pre>
+        <font face="微軟正黑體"> 所以我們就不用 ofstream 而用它的父類別 ostream，這裡有繼承的概念, 但是目前還沒有講到，你可以想像說 
+        "類別" 是由很多具有共同的特徵共同的特徵同類型物件所抽象化出來的, 我們定義了某一個類別以後就用這個類別來描述所有同類型的物件, 
+        "父類別" 則是從很多同類型的 "類別" 抽象化出來的共通特性和介面; ostream 是 ofstream 
+        和 ostrstream 共同的父類別, 同時 cout 也是一個 ostream 型態的物件, 所以 ostream 具有所有輸出串流的共同特性, 
+        我們只需要說參數是 ostream 型態的, 實際上傳遞 cout 或是 outfile 給這個函式時參數型態都是對的, 沒有型態不合的問題。進一步更完整的描述要等到我們課程進行到<font color="#FF0000"><strong>繼承 
+        (inheritance)</strong></font> 時才會說明。</font></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" height="1686" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"> <font face="微軟正黑體"><a name="extendiostream"></a>接下來我們要練習<font color="#FF0000"><strong>覆蓋 
+        (overload)</strong></font> 一個全域 (global) 的函式 operator&lt;&lt;(), 在 ostream 
+        類別裡本來就有定義一個成員函式 
+        <pre><font face="微軟正黑體">    ostream &amp;ostream::operator&lt;&lt;(int);</font></pre>
+        <font face="微軟正黑體"> 這個函式最主要是給下面的敘述使用的: 
+        <pre><font face="微軟正黑體">    int x;
+
+    <font color="#0000FF">cout &lt;&lt; x</font>;
+
+對 C++ 編譯器來說 <font color="#0000FF">cout &lt;&lt; x</font>; 相當於是 <font color="#0000FF">cout.operator&lt;&lt;(x)</font>; 的函式呼叫, 你可以用 debugger 來確定 
+(把中斷點設在 cout &lt;&lt; x; 然後逐步執行到函式裡, 你就可以看到執行到哪一個函式)</font></pre>
+        <font face="微軟正黑體"> ostream 這個類別不是我們自己寫的, 我們不可能去增加它的成員函式, 但是我們可以藉由覆蓋 operator&lt;&lt;() 
+        這個全域函式來讓我們感覺好像是擴充了 ostream 這個類別的功能, 我們希望可以這樣子使用: </font></font></font> 
+        <pre><font face="微軟正黑體">    Complex x, y;
+
+    x.setValue(3, 4); y.setValue(5, 6);
+
+    cout &lt;&lt; '(' &lt;&lt; <font color="red">x</font></font> <font face="微軟正黑體">&lt;&lt; ") * (" &lt;&lt; <font color="red">y</font></font> <font face="微軟正黑體">&lt;&lt; ')';     
+
+    // 在螢幕上列印出 (3 + 4 i) * (5 + 6 i)</font></pre>
+        <font face="微軟正黑體"> 函式的定義應該如下: </font> 
+        <pre>  <font face="微軟正黑體" color="red">ostream &amp;operator&lt;&lt;(ostream &amp;os, Complex &amp;rhs)</font><font face="微軟正黑體">
+    {
+
+        ...
+
+        return os;
+
+    }</font></pre>
+        <p><font face="微軟正黑體">新增上述程式之後, 你可以編譯一下, 然後立刻就發現了一個大問題, 編譯器不允許你在 operator&lt;&lt;() 
+          函式中直接存取 Complex 類別內的私有資料成員, 這是<font color="#FF0000"><strong>適當封裝過的類別應該有的特性</strong></font>的特性: 
+          <font color="#FF0000">所有的資料成員只有這個類別的成員函式才能夠直接存取</font>, 要克服這個問題, 一般編譯器允許你用四種方法:</font></p>
+        <ol>
+          <li><font face="微軟正黑體">把 Complex::m_real 和 Complex::m_imaginary 兩個資料成員改成 
+            public 的。<br>
+            當然<font color="red">不建議</font>用這種方法, 這樣子做不就沒有封裝了嗎? 物件內部的資料變成可以被任意程式修改... 
+            <br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">替 Complex 類別增加兩個 accessor 函式, Complex::getReal() 
+            和 Complex::getImaginary() 函式裡就直接回傳 m_real 和 m_imaginary 的數值<br>
+            使用這個方法以後, 基本上別的模組只能夠看到 m_real 和 m_imaginary 的資料,但是不能直接修改, 甚至你也還保留了一些修改實作方法的彈性, 
+            如果有一天你希望 m_real 不是單純一個 double 型態變數, 而是由一個函式由極座標運算出來, 你還是可以自由的修改而不會影響到客戶端程式; 
+            如果有其他選擇的話, 還是<font color="red">不太建議</font>這種用法, 因為我們說出現 accessor 和 mutator 
+            通常代表界面設計並不完整<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">將 ostream &amp; ::operator&lt;&lt;(ostream &amp;os, 
+            Complex &amp;rhs) 設為 Complex 類別的<font color="#FF0000"><strong>夥伴函式</strong></font>。也就是在 
+            Complex 的類別宣告中加上下面這一列<br>
+            <font color="red"><strong>friend </strong>ostream &amp;operator&lt;&lt;(ostream 
+            &amp;os, Complex &amp;rhs);</font><br>
+            表示 Complex 類別特別允許這個函式存取它的私有的內容, 如此就可以完成上面的功能了 (friend 的語法只在 C++ 中有, 
+            Java 中就沒有, friend 語法從某種角度來看是破壞封裝的, 如果有其它選擇, <font color="red">不建議</font>用此種方法)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 呼叫上一個步驟所作的 Complex::print(ostream &amp;) 函式來完成這個功能, 
+            並且在 main() 函式中測試一下, 注意這個函式應該要放在 Complex.cpp 中, 函式的原型應該要放在 Complex.h 
+            中 <p></p> </font>
+        </li></ol>
+        <p></p>
+        <p><font face="微軟正黑體"> 完成上面的函式之後, 你也可以將一個複數類別的物件以指定格式寫到檔案裡面,例如: </font>
+        </p><pre><font face="微軟正黑體">    Complex x;
+
+    x.setValue(3, 4);
+
+    ofstream file("outputfile.txt");
+
+    file &lt;&lt; x; // 在檔案裡寫入 3 + 4 i</font></pre>
+        <font face="微軟正黑體"> 請測試一下, 程式碼要保留 demo 給助教看 
+        <p><font face="微軟正黑體"> 請注意上面的應用完全不需要另外增加別的設計, 這是 C++ 中繼承性質所帶來的好處, 請注意我們前面把 
+          Complex::print() 改為 Complex::print(ostream &amp;) 也是為了讓 print 能夠支援任意型態的資料串流, 
+          我們在課程後面一點會再詳細地說明。 </font>
+        </p><p><font face="微軟正黑體">請注意: </font>
+        </p><pre><font face="微軟正黑體">    cout &lt;&lt; "Hello"; 和
+
+    cout.operator&lt;&lt;("Hello");</font></pre>
+        </font> <p><font face="微軟正黑體">所呼叫的函式是不一樣的, 所以它們的表現是不一樣的, 你可以用 debugger 
+          來驗證這件事, 事實上 cout &lt;&lt; "Hello"; 是呼叫 operator&lt;&lt;(cout, "Hello") 函式來完成的, 而且根本就不存在 
+          ostream::operator&lt;&lt;(char *) 這樣的成員函式, 同樣地 cout &lt;&lt; 'h'; 是呼叫 
+          operator&lt;&lt;(cout, 'h');, 根本不存在 ostream::operator&lt;&lt;(char) 
+          這樣的成員函式, 如果你嘗試用 cout.operator&lt;&lt;('h'); 呼叫, 程式會執行, 但是你會發現其實呼叫到的成員函式是 
+          ostream::operator&lt;&lt;(int)。 </font></p>
+        <p><font face="微軟正黑體">接下來你也可以嘗試擴充 iostream 中的 extraction operator 函式</font></p>
+<pre><font face="微軟正黑體" color="red"> istream &amp;operator&gt;&gt;(istream &amp;is, Complex &amp;rhs)</font>
+{
+    ... 
+    return is;
+}</pre>
+        <p> </p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 在這個步驟中希望大家更進一步了解和運算子 &lt;&lt; 等效的函式呼叫敘述, 
+        首先大家知道 
+        <pre><font face="微軟正黑體">    int x, y;
+
+    cout &lt;&lt; x;
+
+    cout &lt;&lt; x &lt;&lt; y;</font></pre>
+        <font face="微軟正黑體"> 可以寫成等效的 
+        <pre><font face="微軟正黑體">    cout.operator&lt;&lt;(x);
+
+    cout.operator&lt;&lt;(x).operator&lt;&lt;(y);</font></pre>
+        <font face="微軟正黑體"> 或是 
+        <pre><font face="微軟正黑體">     (cout.operator&lt;&lt;(x)).operator&lt;&lt;(y);</font></pre>
+        請測試一下 
+        <p> 在上面的敘述裡 cout.operator&lt;&lt;(x) 是呼叫一個名稱是 operator&lt;&lt; 的成員函式, 
+          把 x 用參考的型態傳進函式裡, 函式會傳回一個 ostream&amp; 型態的參考, 如上一步驟所示, 事實上是傳回 cout 物件的參考, 
+          所以可以繼續作下一次的呼叫 (...).operator&lt;&lt;(y); 
+        </p></font></font><p><font face="微軟正黑體"><font face="微軟正黑體"> 在上一個步驟裡我們定義了 ostream&amp; operator&lt;&lt;(ostream&amp;, Complex &amp;) 的全域函式, 
+          所以可以用下面的敘述: </font></font> </p><pre><font face="微軟正黑體">    Complex x, y;
+
+    x.setValue(3, 4); y.setValue(5, 6);
+
+    cout &lt;&lt; '(' &lt;&lt; <font color="red">x</font></font> <font face="微軟正黑體">&lt;&lt; ")*(" &lt;&lt; <font color="red">y</font></font> <font face="微軟正黑體">&lt;&lt; ')' &lt;&lt; endl;</font></pre>
+        <font face="微軟正黑體"> 請用 operator&lt;&lt;() 的語法改寫上面這一列程式 </font> <p><font face="微軟正黑體"> 
+          提示: endl 應該用 cout.operator&lt;&lt;(...), 字元和字串應該用 operator&lt;&lt;(cout, 
+          ...), 而我們自己定義的複數類別也應該用 operator&lt;&lt;(cout, ...)<font color="red">, 
+          </font></font><font face="微軟正黑體" color="red">請思考為什麼有的時候用 cout.operator&lt;&lt;(...) 
+          有的時候用 operator&lt;&lt;(cout, ...)?</font> </p></font></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580" bgcolor="#FFFFCC"><font face="微軟正黑體"> 在這個步驟中, 希望大家能夠更清楚地知道為什麼要有<font color="red">參考型態</font>的參數傳遞, 
+        請用指標變數來取代參考變數, 定義下面的全域函式 
+        <pre><font face="微軟正黑體">    ostream *operator&lt;&lt;(ostream *os, Complex src)
+    {
+
+        ... // 請列印 <font color="red">[[a + b i]]</font> 以便和另外一個函式有所區別
+
+        return os;
+
+    }</font></pre>
+        <font face="微軟正黑體"> 請完成上面的函式的定義, 並且寫一小段和 
+        <pre><font face="微軟正黑體">    Complex x;
+
+    cout &lt;&lt; x;</font></pre>
+        <font face="微軟正黑體"> 等效但是運用上面的函式的敘述來測試, (Hint: 應該是<font color="#FFFFCC"> 
+        &amp;cout &lt;&lt; x;</font>), 然後再寫一個和 
+        <pre><font face="微軟正黑體">    Complex x;
+
+    cout &lt;&lt; x &lt;&lt; endl;</font></pre>
+        等效的敘述來測試, 程式請保留起來, demo 給助教看, 然後再寫和下列等效的敘述 
+        <pre><font face="微軟正黑體">    cout &lt;&lt; x &lt;&lt; y &lt;&lt; endl;</font></pre>
+        以及和 
+        <pre><font face="微軟正黑體">    operator&lt;&lt;(operator&lt;&lt;(cout, x), y).operator&lt;&lt;(endl);</font></pre>
+        </font></font></font> <p><font face="微軟正黑體">等效的敘述來測試, 程式請保留起來, demo 給助教看, 
+          <font color="blue">做了這麼些練習後, 應該發覺 參考變數 (reference) 有很多好處了吧!!</font></font> 
+        </p>
+        <p><font face="微軟正黑體">Hint: <font color="#FFFFDD">operator&lt;&lt;(operator&lt;&lt;(&amp;cout, 
+          x), y)-&gt;operator&lt;&lt;endl);</font></font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td width="580"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 
+        資料匣下的所有內容) 壓縮起來, 選擇 Lab4-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程需要使用這裡所完成的程式 </font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體"> 
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><font face="微軟正黑體"><img src="Lab%204-2_files/rainbow.gif"></font>
+</p></center>
+</font> 
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%204-2_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Apr 06 2017 19:42:08 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 03/13/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

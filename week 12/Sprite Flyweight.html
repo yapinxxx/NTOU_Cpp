@@ -1,0 +1,316 @@
+<html><head>
+<title>Sprite Flyweight</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Sprite%20Flyweight_files/cyan_diffuse.html">
+<font face="微軟正黑體"> 
+<!---------------------------------------------------------------->
+</font> 
+<center>
+  <h1><font face="微軟正黑體">1052 Quiz#3 節省系統資源的物件架構</font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Sprite%20Flyweight_files/rainbow.gif"> </font> 
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <th width="700" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><font size="+1" face="微軟正黑體" color="#000000"><strong>C++ 實習測試: 節省系統資源的物件架構 
+        </strong> </font> </td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><p><font face="微軟正黑體">時間: <strong>70</strong>分鐘 (<strong>106/05/18</strong> 
+          <strong><font size="+1" color="#FF0000">09:20</font></strong> ~ <strong><font size="+1" color="#FF0000">10:30</font></strong> 
+          上傳時間截止) </font></p>
+        <p><font face="微軟正黑體">你可以看自己的資料, 可以查網路上的說明或是範例, 但是請不要和同學討論</font></p></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <th align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td bgcolor="#DDEEBB"> <p><font face="微軟正黑體">先下載執行一下這個 <a href="http://squall.cs.ntou.edu.tw/cpp/1052/labtest/test3/MarqueeDemo.7z">Marquee 
+          範例程式</a>, 解壓縮以後裡面有三個程式</font></p>
+        <p align="left"><font face="微軟正黑體"><strong>Marquee0</strong></font></p>
+        <p align="center"> <font face="微軟正黑體"><img src="Sprite%20Flyweight_files/Marquee0.png" width="236" height="232"> 
+          </font></p>
+        <p><font face="微軟正黑體"><strong>Marquee1</strong></font></p>
+        <p align="center"><font face="微軟正黑體"><img src="Sprite%20Flyweight_files/Marquee1.png" width="236" height="227"></font></p>
+        <p><font face="微軟正黑體"><strong>Marquee2</strong></font></p>
+        <p align="center"><font face="微軟正黑體"><img src="Sprite%20Flyweight_files/Marquee2.png" width="536" height="97"></font></p>
+        <p><font face="微軟正黑體">第一個應用程式是靜態的顯示不同大小、不同顏色的字元符號; 第二個應用程式讓它們有一些動作, 三排的文字第一及第三排以同樣速度向左移動, 
+          第二排每個字母翻轉後向右移動, 第一排向左移動就移出畫面而已, 第二排移出去以後會由第一排的右邊移入, 第三排的動作類似第二排; 第三個應用程式只有一排, 
+          變成簡單的跑馬燈動畫, 當然一般的 Video game 隨著主角移動時場景的改變也是很像這樣的效果</font></p>
+        <p><font face="微軟正黑體">上面主要是展示一下 SFML 的貼圖, 給我們這裡要製作的程式一個應用的環境: 在貼出一張圖片的時候, 
+          圖片本身對照到一張影像圖, 這張影像需要載入繪圖卡, 是比較重要的資源, 我們如果要在視窗中貼出同一張圖片時, 影像應該只要載入繪圖卡一次, 
+          不要重複地載入相同的圖片...</font></p>
+        <p><font face="微軟正黑體">原本的影像如下</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="Sprite%20Flyweight_files/graffitiAlphabetFacialEmotion.png" width="213" height="220"></font></p>
+        <p><font face="微軟正黑體">在程式裡需要載入整張影像, 將個別字母影像, 在不同的位置上以不同的大小, 不同的角度, 不同的著色繪出, 
+          例如上面第二張圖中左上角的 L 是<font color="#0000FF"><strong>藍色</strong></font>, 右下角的 
+          L 是<font color="#0000FF"><strong>黃色</strong></font>, 他們的大小和位置是不一樣的, 
+          但是對照到的基本影像是一樣的, 你可以想像如果應用程式裡要重複繪製某個字母圖片很多次, 而且每一個顯示的字母都對應到不同的繪圖物件的話, 
+          會很浪費記憶體資源。</font><font face="微軟正黑體">(另一個類似的狀況是瀏覽器裡顯示下載的影像, 如果某一個網頁裡有多張重複的圖片, 
+          瀏覽器需要重複下載相同的圖片嗎? 還是每一張圖片只下載一次, 但是繪製很多次?)</font></p>
+        </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#FFFFCC"><p><font face="微軟正黑體">我們可以設計一下物件
+的架構, 使每一個字母的繪圖物件都可以重複使用多次, 
+          主要的影像只存放一次, 
+位置、縮放大小、角度等等參數則每次使用這個物件的時候調整。如果像上面這張圖裡的字型影像還有很多很多組, 
+應用程式允許使用者指定任一字母以某一字型、某一位置、某一大小、某一顏色來顯示，基本上程式只需要把用到的影像載入, 
+          需要用到的字元才產生繪圖物件, 很多沒有用到的字型影像完全不需要載入, 
+載入的字型中如果沒有使用到的字母也不需要產生繪圖物件。 </font></p>
+        <p><font face="微軟正黑體">在 SFML 環境中我們可以考慮下圖中的架構:</font></p>
+        <p align="center"><img src="Sprite%20Flyweight_files/fig1.gif" width="460" height="320"></p>
+        <p><font face="微軟正黑體">上圖中的 <strong>sf::Sprite</strong> 和 <strong>sf::Texture</strong> 
+          是 SFML 中提供的類別, sf::Texture 是用來載入影像圖片的, sf::Sprite 則是可以指定位置、大小、顏色、角度的繪圖物件, 
+          不過大家還不熟悉 SFML, 而且真的放繪圖物件進來以後上面的類別功能解釋起來繁瑣多了, 所以我們先簡化一下, 先考慮只有 CharSpriteFactory 
+          和 CharSprite 兩個類別, 你先假設建構 CharSprite 類別的物件是很花資源的, 所以這個設計的精神在於: 「<font color="#FF0000"><strong>節省資源, 
+          整個系統中不同的 font 和 symbol 的 CharSprite 物件只保留一個」</strong></font>, 請根據下面簡化過的類別圖、類別的功能解釋還有部份的程式碼來完成相關的設計</font></p>
+        <p align="center"><img src="Sprite%20Flyweight_files/fig2.gif" width="385" height="197"></p>
+        <p align="left"><font face="微軟正黑體">首先下面的 main() 函式就是上圖中的 Client, 也就是運用 
+          CharSpriteFactory 和 CharSprite 兩個類別的客戶端</font></p>
+        <pre align="left"><font face="微軟正黑體">struct Character
+{
+    string font;
+    char symbol;
+};
+
+int main()
+{
+    Character documentData[] = 
+                               {{"Doodle", 'R'}, {"Doodle" , 'A'}, 
+                                {"Doodle", 'C'}, {"Cartoon", 'E'},
+                                {"Tatoo" , 'C'}, {"Tatoo"  , 'A'}, 
+                                {"Tatoo" , 'R'}, {"Tatoo"  , 'M'},
+                                {"Doodle", 'A'}, {"Tatoo"  , 'D'}, 
+                                {"Doodle", 'A'}, {"Tatoo"  , 'M'}};
+    vector&lt;Character&gt; <strong><font color="#0000FF">document</font></strong>(documentData, documentData+12);
+
+    // 上面這個 <font color="#0000FF"><strong>document</strong></font> vector 物件裡面就是要顯示的文件, 其中有 12 個文字, 
+    // "RACECARMADAM", 每個文字還有指定顯示的字型, 目前假設只有 Doodle 
+    // 和 Tatoo 兩種字型
+
+    // 下面的 <strong><font color="#FF0000">factory</font></strong> 物件是用來<font color="#0000FF"><strong>產生</strong></font>和<strong><font color="#0000FF">管理</font></strong>所有 CharSprite 物件的, 客戶端使用
+    // getSprite() 介面來取得指定 font 和 symbol 的 CharSprite 物件的指標, 
+    // factory 物件需要檢查參數 font 和 symbol, 看看是不是已經產生過了, 
+    // 如果是的話就直接回傳那個 CharSprite 物件的指標, 否則就用指定的 font 
+    // 和 symbol 產生一個新的 CharSprite 物件, 再傳回新產生物件的指標
+
+    CharSpriteFactory* <strong><font color="#FF0000">factory</font></strong> = new CharSpriteFactory;
+
+    // 下面的迴圈中, 客戶端程式就是運用這個 factory 傳回需要的 CharSprite
+    // 物件的指標 s, 然後運用 CharSprite::draw() 介面來以指定的縮放比例和位置
+    // 繪出那個字, 因為我們已經把 Sprite 和 Texture 拿掉了, 所以 draw 介面
+    // 裡面不要真的繪製圖片了, 只要把 font, symbol, scale, xPosition, yPosition
+    // 印出來就好了
+
+    float scale = 0.9f;
+    int xPosition = 0, yPosition = 0;
+    for (int i=0; i&lt;document.size(); i++)
+    {
+        CharSprite *s = factory-&gt;getSprite(document[i].font, document[i].symbol);
+        s-&gt;draw(scale, xPosition, yPosition);
+        scale*=1.01;
+        xPosition+=30;
+        yPosition+=40;
+    }
+    
+    delete factory;
+
+  return 0;
+}</font></pre> 
+        <p><font face="微軟正黑體">程式輸出 </font></p>
+        <p><font face="微軟正黑體">(Doodle,R,0.9,0,0)<br>
+          (Doodle,A,0.909,30,40)<br>
+          (Doodle,C,0.91809,60,80)<br>
+          (Cartoon,E,0.927271,90,120)<br>
+          (Tatoo,C,0.936544,120,160)<br>
+          (Tatoo,A,0.945909,150,200)<br>
+          (Tatoo,R,0.955368,180,240)<br>
+          (Tatoo,M,0.964922,210,280)<br>
+          (Doodle,A,0.974571,240,320)<br>
+          (Tatoo,D,0.984317,270,360)<br>
+          (Doodle,A,0.99416,300,400)<br>
+          (Tatoo,M,1.0041,330,440)</font></p>
+        <p><font face="微軟正黑體">上面這段程式碼還缺 CharSprite 還有 CharSpriteFactory 兩個類別還沒定義, 
+          所以還沒有辦法編譯, 讓我們加上最少的程式碼來編譯這一段程式</font></p>
+        <pre><font face="微軟正黑體">class CharSprite
+{
+public:
+    void draw(float scale, int xPosition, int yPosition) 
+<font color="#0000FF">    { 
+        cout &lt;&lt; '(' &lt;&lt; scale &lt;&lt; ')' &lt;&lt; endl; 
+    }</font>
+};
+
+class CharSpriteFactory
+{
+public:
+    CharSprite* getSprite(string font, char symbol)<font color="#0000FF"> { return &amp;tmp; }</font>
+private:
+<font color="#0000FF">    CharSprite tmp;</font>
+};</font></pre>
+    <p><font face="微軟正黑體">上面這段程式只要加入需要的 #include 敘述就可以編譯執行了, 其中<font color="#0000FF">藍色</font>的部份只是暫時的, 
+          只是為了符合介面的型態, 同時讓程式可以暫時執行而已, 下面的步驟裡你應該會把他改掉。</font></p>
+        </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#DDEEBB"><h3><strong><font face="微軟正黑體">請完成 CharSprite 
+          類別的設計</font></strong></h3>
+        <ol>
+          <li><font face="微軟正黑體">根據上面的類別圖需要設計兩個資料成員 m_font 和 m_symbol<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">需要設計建構元函式 CharSprite(string font, char symbol);<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">需要完成 void draw(float scale, int xPosition, int 
+            yPosition); 函式 (只需要印出 font, symbol, scale, xPosition, yPosition 就好了<strong>)</strong></font></li>
+        </ol>
+        <p><font face="微軟正黑體">程式應該還是可以編譯執行的, 會印出多一點東西了, 建構元函式只需要把傳入的資料記錄下來就可以, 
+          這個函式是給 CharSpriteFactory 物件使用的, 並不是給客戶端使用的</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#FFFFCC"><h3><strong><font face="微軟正黑體">請完成 CharSpriteFactory 
+          類別的設計</font></strong></h3>
+        <p><strong><font color="#FF0000">目標</font></strong>: <font face="微軟正黑體">CharSpriteFactory 
+          產生出來的 factory 物件是用來<font color="#0000FF"><strong>產生</strong></font>和<strong><font color="#0000FF">管理</font></strong>所有 
+          CharSprite 物件的, 客戶端使用 CharSpriteFactory::getSprite() 介面來取得指定 font 和 
+          symbol 的 CharSprite 物件的指標, factory 物件需要檢查參數 font 和 symbol, 看看指定的 CharSprite 
+          物件是不是已經產生過了, 如果是的話就直接回傳那個 CharSprite 物件的指標, 否則就用指定的 font 和 symbol 產生一個新的 
+          CharSprite 物件, 紀錄在資料容器裡面, 再傳回新產生物件的指標, 客戶端並不擁有這些 CharSprite 物件, 所以客戶端用完以後不要刪除這些物件, 
+          要留給 factory 物件來刪除</font></p>
+        <ol>
+          <font face="微軟正黑體"> </font> 
+          <li><font face="微軟正黑體"> 根據類別圖請設計 m_sprites 這個容器, 需要紀錄產生出來的 CharSprite 
+            物件的指標, 需要能夠查詢指定的 font 和 symbol 的 CharSprite 物件是不是存在於這個容器裡面<br>
+            <br>
+            你可以定義你需要的結構, 可以用你熟悉的容器來實作, 甚至可以用陣列來實作<br>
+            <br>
+            當然如果你用過 <a href="http://sirius.cs.ntou.edu.tw/cpp/102spring/lab02/Lab2-2%20list%20map.html">STL 
+            裡面的 map</a> 的話, 請你使用 map 來實作, 因為 map 是一個 binary search tree, 查詢的時候最迅速, 
+            而且它的介面很簡單<br>
+            <br>
+            不管你打算用哪一種容器實作, 因為查詢的關鍵字有兩個欄位 font 和 symbol, 請定義下面的結構來輔助<br>
+            <br>
+            <pre>struct FontSymbol
+{
+    FontSymbol(string f, char s);
+    string font;
+    char symbol;
+};</pre>
+            <p>請定義並且實作成員函式來比對 font 和 symbol 兩個不同型態的關鍵字</p>
+            bool operator&lt;(const FontSymbol &amp;rhs) const; <br>
+            <br>
+            所以可以用 map&lt;FontSymbol, CharSprite*&gt; m_sprites; 來實作</font><font face="微軟正黑體"><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">要查詢 map 物件裡面存不存在某一個鍵值, 你不能用 if (m_sprites[FontSymbol(font, 
+            symbol)] == ???) 來測試, 這樣子做的話當不存在的時候會直接放進去一個新的資料, 你需要用 if (m_sprites.find(FontSymbol(font, 
+            symbol) == m_sprites.end()) 來測試, 請完成 getSprite() 介面函式, 在指定的物件不存在時, 
+            動態地產生 CharSprite 物件<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請運用 map&lt;FontSymbol, CharSprite*&gt;::iterator 
+            來完成 CharSpriteFactory 類別的解構元 </font></li>
+        </ol>
+        <p>到這裡應該可以得到需要的輸出了</p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><h3><font face="微軟正黑體">考試時間: <strong>70</strong>分鐘 
+          (<strong><font size="+1" color="#FF0000">09:20</font></strong> ~ <strong><font size="+1" color="#FF0000">10:30</font></strong><font color="#000000"> 
+          上傳時間截止)</font></font></h3>
+        <font face="微軟正黑體">將所完成的 project (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 
+        <font color="#FF0000">刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 
+        ipch\ 資料匣下的所有內容</font>) 以 zip/rar/7zip 程式將<font color="#FF0000">整個資料匣</font>壓縮起來, 
+        在「考試作業」繳交區選擇 <font color="#FF0000"><strong>Labtest3 </strong></font><a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a> 
+        </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td height="63" bgcolor="#FFFFCC"> <p><font face="微軟正黑體"><strong>後續</strong>:</font></p>
+        <ol>
+          <li><font face="微軟正黑體">在 SFML 的環境中, 你可以運用 sf::Texture 類別來載入影像, sf::Sprite 
+            類別來作出每一個字母的繪圖物件, 你可以用最前面下載的 Marquee 應用程式裡面的影像檔案 graffitiAlphabetFacialEmotion.png 
+            和資料檔案 graffitiAlphabetFacialEmotion.txt 來設計, 資料檔案裡面每一個字母有一列來描述, 例如 
+            A 9 11 49 93 24, 其中 (9,11) 是左上角, (49,93) 是寬度和高度, 24 是字型基準線以下的高度<br>
+            <br>
+            </font></li>
+          <li> 
+            <div align="left"><font face="微軟正黑體">上面這個是 Flyweight 樣版的一個特例, 一般化的類別圖如下</font><br>
+              <br>
+              <img src="Sprite%20Flyweight_files/fig3.gif" width="395" height="248"></div>
+            <br>
+            <font face="微軟正黑體">設計 </font><font face="微軟正黑體">Factory &nbsp;類別除了管理所有共享的 
+            Flyweight 物件之外, 是為了移除 Client 和真正 ConcreteFlyweight 類別的產生程式碼之間的相依性; 
+            設計 Flyweight 抽象類別是為了完全隔絕 Factory 和 Client 以及 ConcreteFlyweight 類別的相依性; 
+            Flyweight 類別裡面的 intrinsicState 是那些固定不動的資料, 以上面例子來說就是影像的資料, extrinsicState 
+            是那些需要調整的資料, 以上面的例子來說就是圖片的顯示位置、以及縮放大小。</font></li>
+        </ol>
+        </td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體"> 
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+</font> 
+<center>
+  <p><font face="微軟正黑體"><img src="Sprite%20Flyweight_files/rainbow.gif"> </font> 
+</p></center>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Sprite%20Flyweight_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu May 18 2017 23:46:08 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 05/18/2017 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+
+</body></html>

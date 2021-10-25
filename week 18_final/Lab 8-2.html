@@ -1,0 +1,305 @@
+<html><head>
+<title>
+Lab 8-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%208-2_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+<h1>
+Lab 8-2: 雙向參考與擴充程式功能
+</h1>
+<center><p><img src="Lab%208-2_files/rainbow.gif"></p></center>
+
+<table width="700" cellspacing="10" cellpadding="6" border="0">
+  <tbody><tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bgcolor="#DDEEBB">
+    <th width="75" align="center">實習目標</th>
+      <td width="580"> <br><ul>
+          <li> 本單元中首先將製作<font color="#FF0000"><strong>雙向參考</strong></font> <br>
+            <br>
+          </li>
+          <li> 然後增加 新增教師, 新增課程, 新增系所, 新增學院 等功能 <br>
+            <br>
+          </li>
+          <li> 最後完成存檔功能 </li>
+        </ul>
+		</td>
+  </tr>
+
+  <tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟一</th>
+      <td width="580"> 這次實習接續<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/Lab6-2.html">實習 6-2</a> 
+        與<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab07/Lab7-2.html">實習 7-2</a>, 繼續完成還沒有完成的類別關係, 
+        並且實作比較進階的參考關係, 請下載實習 7-2 中你所完成的程式 
+        <p>
+    我們所實作的應用程式仍然是由下面 UML 的類別圖來描述
+    <br>
+    <img src="Lab%208-2_files/univ2.gif">
+    </p></td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟二</th>
+    <td width="580">
+    在上圖中每一個 Course 物件與任課老師 Teacher 物件有關聯,
+    同時每一個 Teacher 物件也和多個他所開授課程的 Course 物件有關聯,
+    第一個關聯我們可以在 Course 類別中用 Teacher *m_teacher; 來實作, 
+    第二個關聯我們可以在 Teacher 類別中用 vector&lt;Course *&gt; m_courses; 來實作,
+    <p>
+    請注意在上面的定義中, 
+    你需要在定義 Teacher 類別之前先作一個 forward 宣告
+    </p><pre>    class Course;
+    
+    class Teacher
+    {
+        ...
+    
+        vector&lt;Course *&gt; m_courses;
+        ...
+    };</pre>
+    
+    告訴 Compiler 說 Course 是一個類別,
+    如此 Compiler 看到 vector&lt;Course *&gt; 時才不會發生錯誤,
+    另外在定義 Course 類別之前也要先作一個 Teacher 類別的 forward 宣告如下:
+    <pre>    class Teacher;</pre>
+    
+    <p> 在 Course.cpp 中加入 #include "teacher.h", 在 Teacher.cpp 中加入 #include 
+          "course.h"
+        </p><p>目前在 Department 以及 Institute 類別中已經有 m_courses 及 m_teachers 的課程和老師物件, 
+          如何建立相互間的關係呢? 
+        </p><p> 實作時必須考量一個老師可以在學校裡多個系所中開設課程, 所以要建立這些關連的時候需要去不同的系所中搜尋, 也需要注意到教師姓名重複的問題, 
+          (可以在教師類別裡新增一個欄位是教師的 ID, 如此可以避免教師姓名重複的問題, 不過在這個練習中我們先假設姓名不會重複), 另外我們暫時不要考慮一個老師可以在多個系所中掛名的問題 
+          (下面的處理方法其實也可以解決這個問題)。 
+        </p><p>
+    在這個實習中我們可以在 University 建構元中讀檔案建構物件時先準備一個指標容器
+    </p><pre>    vector&lt;Teacher *&gt; allTeachers;</pre>
+        將已經建構出來的老師物件的指標容器當作建構元的參數傳遞到 College, 再傳遞到 Department 或是 Institute 物件中, 
+        每次建構一個老師物件時就把 Teacher 指標加入容器中, 例如: 
+        <pre>    Teacher *ptr;
+    for (iTeacher=0; iTeacher&lt;numberOfTeachers; iTeacher++)
+    {
+        m_teachers.push_back(ptr=new Teacher(infile));
+        allTeachers.push_back(ptr);
+    }</pre>
+
+    等到每一個學院中所有系所都建構完成時, 
+    這個容器裡包含了所有老師物件的指標,
+    可以用來建構與課程間相互的連結。
+    <p>
+    接下來我們再將這個輔助的指標容器傳給所有的課程物件來建構指向老師的連結,
+    以及老師指向課程的連結, 課程物件中程式如下:
+        </p><pre>    void Course::constructCourseTeacherRelation(std::vector&lt;Teacher *&gt; &amp;allTeachers)
+    {
+        int i;
+        for (i=0; i&lt;allTeachers.size(); i++)
+            if (allTeachers[i]-&gt;isCalled(m_teacherName))
+            {
+                allTeachers[i]-&gt;addCourse(this);
+                m_ptrTeacher = allTeachers[i];
+                return;
+            }
+        assert(0);
+    }</pre>
+        其中請替 Teacher 類別加入兩個小成員函式, isCalled() 和 addCourse(), isCalled() 函式只是檢查教師姓名 
+        <pre>    bool Teacher::isCalled(string name)
+    {
+        return (m_name == name);
+    }</pre>
+        請注意, 不要去 Teacher 類別中寫一個 getName() 的成員函式把教師姓名傳出該物件, 至於 addCourse() 則是建立由 
+        Teacher 指向 Course 物件的連結, 
+        <pre>    void Teacher::addCourse(Course *course)
+    {
+        m_courses.push_back(course);
+    }</pre>
+
+    <p>現在我們已經建立了 Teacher 類別與 Course 類別之間的雙向關係了。 </p>
+        <p>這個輔助的容器如果用 C++ 標準函式庫裡現成的 map 容器來實作 map&lt;string, Teacher*&gt;, 線性搜尋就不用自己寫了, 
+          其中 string 是老師名字或是 ID, 最後的程式碼更簡單了, 自己嘗試一下吧!</p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟三</th>
+      <td width="580"> 現在來注意看一下 Teacher 類別與 Course 類別之間的關係, 首先由 Teacher 物件連結到對應的 
+        Course 物件的目的是<strong><font color="#0000FF">: </font></strong><font color="#0000FF"><strong>查詢教師所開設課程</strong></font>時比較<font color="#FF0000"><strong>方便</strong></font>, 
+        程式寫起來比較單純, 不需要回到最上層再一個一個學院、一個一個系所裡慢慢地去尋找所有的課程, 如果一個老師可以在不同系所裡開設課程的話, 也不會不小心漏掉任何一個課程; 
+        當然這樣子查詢起來也比較<strong><font color="#FF0000">迅速</font></strong>
+<p> 我們在前一次的實習中所製作的 "查詢教師開授課程" 功能時是一個一個系所慢慢去搜尋所有的課程, 把由指定的教師所開授的課程列印出來, 現在我們可以大幅簡化這個函式了, 
+          它只要去找到指定的教師物件, 直接列印所有開授課程即可 
+        </p><pre>    void Teacher::listCourses(std::ostream &amp;os)
+    {
+        std::vector&lt;Course *&gt;::iterator iter;
+        os &lt;&lt; "\n";
+        for (iter=m_courses.begin(); iter&lt;m_courses.end(); iter++)
+            (*iter)-&gt;listWithDeptName(os);
+    }</pre>
+    </td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟四</th>
+      <td width="580"> 另外一個方向的連結 (由 Course 類別到 Teacher 類別) 需不需要呢? 也就是每一個課程中任課教師到底該是一個字串型態的屬性, 
+        還是一個指標連結到教師物件, 第一個考量是教師的資料會不會更改, 如果教師的姓名或是職級有可能會更改的話, 當然以連結的方式來建立會減少資料修改時的問題; 
+        其次才需要考量儲存空間的問題。 </td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟五</th>
+    <td width="580">
+    接下來我們要增加修改資料庫的功能
+    <pre>    7. 新增課程
+    8. 新增教師</pre>
+
+    新增課程時, 需要輸入系所名稱, 課程名稱, 課程代號, 學年度, 學期, 與授課教師, 
+    函式先找到指定的系所, 
+    新增課程後藉由 m_allTeachers 物件建立與授課教師之間的連結
+    <p>
+    新增教師時, 需要輸入系所名稱與教師名稱,
+    在確定系所名稱正確,
+    且沒有同名衝突後,
+    將教師資料加入系所物件中,
+    並且記錄在 m_allTeachers 指標容器內
+    </p></td>
+  </tr>
+
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟六</th>
+    <td width="580">
+    資料存檔
+    <p>
+    程式執行結束時, 
+    由於物件架構經過使用者線上地操作 (新增與刪除) 後,
+    可能和剛開始時並不相同,
+    因此需要重新儲存,
+    因為我們選擇由文字格式的資料檔案中讀取資料, 
+    因此現在也應該把所有資料儲存回文字資料檔案中,
+    這個事情可以在解構元中完成,
+    但是解構元不能夠傳遞參數,
+    沒有辦法把檔案串流傳遞進去,
+    所以如果希望傳遞檔案串流的話必需替每一個類別另外撰寫 
+    WriteFile(ostream &amp;os) 成員函式,
+    </p><p>
+    另外如果考慮到執行中系統的不穩定性, 
+    也許可以提前到每次修改資料之後立即存檔。
+    </p><p>
+    範例執行程式 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab08/campusCourse4.exe">campusCourse4.exe</a> (請下載後執行)
+    </p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟七</th>
+    <td width="580">
+    程式其它相關功能
+    <ol>
+    <p></p><li>
+    其它查詢學期課程列表
+    <p></p></li><li>
+    刪除與修改資料功能
+    <p></p></li><li>
+    學生資料
+    <p></p></li><li>
+    學生選課作業
+    </li></ol>
+    </td>
+  </tr>
+
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟八</th>
+      <td width="580"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 
+        刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 壓縮起來, 
+        選擇 Lab8-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </td>
+  </tr>
+
+</tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%208-2_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%208-2_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Tue May 08 2018 11:43:07 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 03/22/2004
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

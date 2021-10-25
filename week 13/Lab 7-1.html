@@ -1,0 +1,237 @@
+<html><head>
+<title>
+Lab 7-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%207-1_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+<h1>
+Lab 7-1: Operator overloading II: type conversion operator and constructor
+</h1>
+<center><p><img src="Lab%207-1_files/rainbow.gif"></p></center>
+
+<table width="700" cellspacing="10" cellpadding="6" border="0">
+  <tbody><tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bgcolor="#DDEEBB">
+    <th width="75" align="center">實習目標</th>
+      <td width="580">
+    練習定義<font color="#FF0000">型態轉換建構元</font>與<font color="#FF0000">型態轉換運算子</font>
+    </td>
+  </tr>
+
+  <tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟一</th>
+      <td width="580"> 這次實習接續<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/Lab3-1.html">實習 3: 複數類別</a>, 
+        請下載實習 3 所完成的 Complex 類別程式碼 </td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟二</th>
+      <td width="580"> 在類別裡原先我們設計了 Complex::setValue(double, double) 的成員函式來初始化每一個 
+        Complex 物件, 請你將這個函式移除, 另外撰寫一個建構元函式 
+        <pre>    Complex::Complex(double, double);</pre>
+    來取代 setValue() 函式的功能,
+    並且在程式其它地方完成必要的修改,
+    請檢查原先的測試程式是不是都正確地運作,
+    這個時候我們應該慶幸上一次在寫的時候寫了很多 assert 敘述,
+    這些敘述自動幫我們檢查修改過的程式是不是對的,
+    如果那時設計得好, 
+    現在要用眼睛慢慢檢查的機會就小很多了。
+    <p>
+    不是說慢慢地檢查很不好,
+    而是你要檢查的話一定要把上一次的程式完整了解過才能檢查,
+    上一次設計時也許有一些設計的取捨也許你現在已經忘了,
+    這都是很容易在軟體裡產生 bug 的時機, 
+    所以以前很多很有經驗的程式師,
+    都是死也不肯修改舊的程式的,
+    就算程式看起來很簡單,
+    他的經驗告訴他,
+    增加一點點的功能可能會增加很多的 bugs,
+    在沒有預防的情況下這的確是事實,
+    所以以往客戶永遠沒有辦法理解為什麼程式設計者那麼頑固,
+    明明是很小的功能也不肯直接去改...
+    </p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟三</th>
+      <td width="580"> 假設你宣告一個函式需要接受 Complex 類別的物件作為參數, 例如 
+        <pre>    void Complex::addTwice(<font color="red">Complex data</font>)
+    {
+        m_real += data.m_real * 2;
+        m_imaginary += data.m_imaginary * 2;
+    }</pre>
+    
+    正常的呼叫方法如下
+    <pre>    Complex a(1,2), b(3,4);
+    a.addTwice(<font color="red">b</font>);</pre>
+    
+    有沒有辦法讓下面的呼叫也正常運作呢?
+    <pre>    double c=10.0;
+    a.addTwice(<font color="red">c</font>);</pre>
+        在上面這個敘述中基本上希望將傳進去的實數 c 當成是實數部份把它加在複數 a 上, 一種方法是作出一個暫時性的 Complex 物件, 再傳入函式裡運算, 
+        請自己先想一下怎麼寫, 再測試下面的程式: <font color="white">
+<pre>    a.addTwice(CComplex(c, 0));</pre>
+        </font>
+    
+    第二種方法就是我們要大家寫的型態轉換建構元了,
+    我們知道在下面的程式裡 Compiler 會自動幫我們轉換資料:
+    <pre>    double square(<font color="red">double x</font>)
+    {
+        return x*x;
+    }
+    ...
+    int z=10;
+    double y;
+    y = square(<font color="red">z</font>);</pre>
+    
+    int 型態的變數 z 裡面的資料會自動地轉換為 double 型態,
+    然後拷貝到變數 x 當中進行運算, 我們現在就是希望能夠有這種功能,
+    方法很簡單, 請定義一個建構元如下:
+    <pre>    Complex::Complex(double x)
+        :m_real(x), m_imaginary(0.0)
+    {
+    }</pre>
+        然後再測試 a.addTwice(c); 的程式碼, 或是 a = 10.5; 應該都可以用了吧, 有了這個建構元, Compiler 就可以自動幫你由 
+        double 型態建構出一個 Complex 類別的物件出來, 並且傳進函式中處理。 
+        <p>
+    它看起來和一般的建構元沒有什麼差異,
+    不過也有人特別叫它<font color="#FF0000">型態轉換建構元 (type conversion operator)。</font>
+        </p><p> 其實還有另外一種方法可以運用上一步驟的建構元 Complex::Complex(double,double) 來完成我們在這一步驟裡所作的轉換, 
+          就是用函式預設的參數, 自己想一想囉! (請參考<a href="http://squall.cs.ntou.edu.tw/cpp/97spring/970211_CPP08-CPPABetterC_color4up.pdf">投影片 
+          page8</a>, 請注意預設的參數必須在類別的定義裡面設定, 不是在類別的實作裡設定)</p></td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟四</th>
+      <td width="580">
+    接下來我們來寫<font color="#FF0000">型態轉換運算子 (type conversion operator)</font>
+    <p>
+    我們在 C 中會看到下列的強制型態轉換的程式片段:
+    </p><pre>    int x;
+    double y=20.5;
+    x = <font color="red">(int)</font> y;</pre>
+        (int) 就是型態轉換的運算子, 在 C++ 中我們可以替某一個類別的物件定義一個型態轉換的運算子, 例如我們可以替 Complex 類別定義 
+        (double) 的運算子, 將 Complex 類別的物件轉換為 double 型態的資料, 當然我們需要先界定這個轉換的意義到底是什麼, 
+        假設我們把一個複數物件轉換成它的長度如下: 
+        <pre>    Complex a(10.5, 20.3);
+    double magnitude;
+    <font color="red">magnitude = a;</font></pre>
+    
+    如果沒有特別的定義, 
+    C++ compiler 會說上面這個敘述是錯的,
+    請定義下面的成員函式:
+        <pre>    Complex::<font color="#FF0000">operator double</font>()
+    {
+        return sqrt(m_real*m_real+m_imaginary*m_imaginary);
+    }</pre>
+    
+    如此前面的轉換就可以順利進行了,
+    同時你也可以用下面兩種敘述:
+    <pre>    magnitude = (double) a;
+    magnitude = double(a);</pre>
+        效果都是一樣的。 另外如果你有一個函式接受一個 double 型態的參數, 你現在也可以把一個 Complex 的物件傳進去, compiler 
+        會自動幫你轉換。 </td>
+  </tr>
+
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟五</th>
+      <td width="580"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 
+        刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容)壓縮起來, 
+        選擇 Lab7-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </td>
+  </tr>
+
+</tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%207-1_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%207-1_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Mar 20 2014 09:40:37 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 03/23/2013
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

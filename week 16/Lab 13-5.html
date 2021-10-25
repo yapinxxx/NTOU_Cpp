@@ -1,0 +1,351 @@
+<html><head>
+<title>Lab 13-5</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2013-5_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 13-5: From #ifdef #else #endif to Abstract Factory 
+    Pattern</font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%2013-5_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"> <p><font face="微軟正黑體">練習運用 <a href="https://sourcemaking.com/design_patterns/abstract_factory"><strong>Abstract 
+          Factory</strong></a><strong> </strong>設計樣板 (Design Pattern)<br>
+          <br>
+          練習運用 <a href="https://sourcemaking.com/design_patterns/singleton"><strong>Singleton</strong> 
+          </a>設計樣板<br>
+          <br>
+          練習運用抽象類別定義共同的操作介面, 客戶端只需要運用抽象的操作介面來操作物件, 可以和實際運作的類別切割開來, 這是 <strong><a href="http://teddy-chen-tw.blogspot.tw/2011/12/2.html">Open-Closed 
+          Principle</a></strong> 和 <strong><a href="http://teddy-chen-tw.blogspot.tw/2012/01/5dependency-inversion-principle.html">Dependency 
+          Inversion Principle</a></strong> 的基本運用, 運用<font color="#0000FF"><strong>界面繼承</strong></font>實現 
+          Factoring 方式的程式碼重用。<br>
+          </font></p></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">簡介</font></th>
+      <td width="580"><font face="微軟正黑體">大家常常使用的圖形式互動介面 (GUI, Graphic 
+User Interface) 
+        環境有很多種，製作軟體時，常常需要整合考量最終使用者的執行環境，因此同一個軟體會有多個版本，例如微軟 Win32 版本、蘋果 
+OSX 版本、*NIX 
+        X-Windows CDE/Motif 版本、X-Windows Gnome/Gtk 版本、跨平台的 KDE/Qt 
+版本、Java，如此同時包含各個版本的程式在撰寫時變得有些雜亂，維護起來很麻煩，新增功能時要修改的部份很多，這個練習我們先介紹如何運用前處理器指
+令來避免重複程式碼, 
+        遵守 <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">Don't 
+        Repeat Yourself (DRY) 原則</a>的專案，我們會看到這種作法的缺點，然後介紹如何運用 Abstract Factory 
+        樣板來同時切換一整組的 GUI 介面元件，不需要使用前處理器指令的功能，如此程式可以不斷地擴充到不同的 GUI 環境中。</font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><h3>運用前處理器指令避免重複程式碼</h3>
+        <p><font face="微軟正黑體">這是一個概念性的應用程式，只有兩種圖形介面元件：選單 (Menu) 和按鈕 (Button)，假設有兩個類別實作 
+          Qt 環境中的選單和按鈕，另外兩個類別實作 Win32 環境中的選單和按鈕，所有這些圖形介面類別都繼承共同的父類別 Widget，Widget 
+          類別中提供所有衍生類別共通的操作介面函式 draw()</font></p>
+        <p align="center"><img src="Lab%2013-5_files/ButtonMenu.gif" width="211" height="119"></p>
+        <pre><font face="微軟正黑體">#define QT
+
+#include &lt;iostream&gt;
+using std::cout;
+
+class Widget
+{
+public:
+    virtual void draw() = 0;
+};
+
+class QtButton : public Widget
+{
+public:
+    void draw() { cout &lt;&lt; "QtButton\n"; }
+};
+
+class QtMenu : public Widget
+{
+public:
+    void draw() { cout &lt;&lt; "QtMenu\n"; }
+};
+
+class Win32Button : public Widget
+{
+public:
+    void draw() { cout &lt;&lt; "Win32Button\n"; }
+};
+
+class Win32Menu : public Widget
+{
+public:
+    void draw() { cout &lt;&lt; "Win32Menu\n"; }
+};</font></pre>
+        <font face="微軟正黑體"> 下面兩個函式代表兩個視窗，視窗裡除了都有一個選單之外，其中一個視窗中有一個按鈕，另外一個視窗中有兩個按鈕 
+        ；如果我們要產生 Qt 版程式，就在檔案最前面就加入 #define QT 的前處理器定義，否則加入 #define WIN32 的前處理器定義 
+        <pre><font face="微軟正黑體">void display_window_one()
+{
+#ifdef QT
+    Widget* w[] = { new QtMenu,
+                                  new QtButton };
+#else // WIN32
+    Widget* w[] = { new Win32Menu,
+                                  new Win32Button };
+#endif
+    w[0]-&gt;draw();  w[1]-&gt;draw();
+}
+
+void display_window_two()
+{
+#ifdef QT
+    Widget* w[] = { new QtMenu,
+                                  new QtButton,
+                                  new QtButton };
+#else // WIN32
+    Widget* w[] = { new Win32Menu,
+                                  new Win32Button,
+                                  new Win32Button };
+#endif
+    w[0]-&gt;draw();  w[1]-&gt;draw();  w[2]-&gt;draw();
+}
+
+int main()
+{
+#ifdef QT
+    Widget* w = new QtButton;
+#else // WIN32
+    Widget* w = new Win32Button;
+#endif
+    w-&gt;draw();
+
+    display_window_one();
+    display_window_two();
+}</font></pre>
+        我們用上面的程式來模擬一個整合各種介面的應用程式，運用前處理器指令來選擇操作平台，避免程式碼的重複，由於在所有有圖形化使用者介面的程式裡都需要選擇操作平台，如果這是個一萬列的程式，可能有9000列的程式裡都會有這些 
+        #ifdef #else #endif 的敘述，如果我們需要新增程式的功能來支援 Mac OSX 平台，這 9000 列程式都需要更改!! 
+        (提醒你一下, 在這份文件裡談到<strong>客戶端</strong>不是指最終端的使用者, 是指上面談到的這些使用 Widget 類別的程式碼) 
+        </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580" bgcolor="#FFFFCC"> <p><font face="微軟正黑體">我們不希望運用前處理器指令來選擇操作平台，因為在增加一種平台的時候，<strong>客戶端程式</strong> 
+          (main(), display_window_one(), display_window_two()) 都需要增加 #ifdef 選項，都需要重新編譯, 
+          對於這樣的按鈕 (Button) 和選單 (Menu) 類別來說，客戶端應用程式是很多很多的，不是像我們這個範例裡只有三個函式</font></p>
+        <p><font face="微軟正黑體">甚至我們根本<font color="#FF0000"><strong>不</strong></font>希望<strong>客戶端程式</strong>知道實際上使用的類別名稱 
+          (QtXxxx, Win32Xxxx), 這樣子才能夠讓客戶端程式和實作 GUI 的子系統切割開來。</font></p>
+        <p><font face="微軟正黑體">如此在增加一種平台的時候，例如 MacXxxxx，所有的客戶端程式可以完全不需要修改，但是功能卻增加了，這又是 
+          <strong>Open-Closed Principle</strong> 的運用。</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580" bgcolor="#DDEEBB"> <p><font face="微軟正黑體">我們運用 Abstract Factory 
+          樣板來設計, 下面是 Abstract Factory 的類別圖</font></p>
+        <p align="center"><img src="Lab%2013-5_files/AbstractFactory.gif" width="561" height="351"></p>
+        <p><font face="微軟正黑體">在這個樣板中，客戶端 (Client) 運用抽象類別 AbstractFactory 的界面來取得需要的抽象 
+          Button 或是 Menu 物件, 基本上<font color="#0000FF"><strong>客戶端程式設計時完全根據這些抽象類別的定義來寫</strong></font>, 
+          不需要考量最後實作這些圖形化界面的環境是什麼, 這是所謂的 <font color="#0000FF"><strong>Design by 
+          Contract (DbC)</strong></font> 的設計方法, 這些抽象類別在程式擴充的時候是不會變動的, 或是說這些界面雖然是伺服端的界面, 
+          但是在概念上是屬於客戶端的。</font></p>
+        <p><font face="微軟正黑體">最後執行時需要產生一個 AbstractFactory 的子類別物件，運用它實作的方法 createButton(), 
+          createMenu() 產生實體的 Button 以及 Menu 的子類別的物件。</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><p><font face="微軟正黑體">首先請定義 Button 以及 Menu 類別，在 Button 類別中定義 
+          virtual void drawPressed() 介面函式，在 Menu 類別中定義 virtual void drawEnabled() 
+          介面函式，這個 drawPressed() 介面是所有 Button 的衍生類別需要實作的共同操作介面，主要是當按鍵被按下時，需要畫出不同的狀態代表按鍵被按下了，同樣地 
+          virtual void drawEnabled() 介面是所有 Menu 的衍生類別需要實作的共同操作介面，修改 QtButton, 
+          Win32Button, QtMenu, 以及 Win32Menu 的父類別 ，這四個類別裡個別都需要實作 drawEnabled() 
+          或是 drawPressed() 介面，我們還是用 cout &lt;&lt; "...." 來抽象地代表這些函式實際完成的動作。</font></p>
+        <p><font face="微軟正黑體">請注意: Widget, Button, Menu 這些抽象類別很重要，因為我們希望把客戶端程式碼和實際的 
+          QtButton, Win32Button, QtMenu, Win32Menu 這些和平台相關的實作類別<strong>切割</strong>開來 
+          (切斷耦合的關係 (decoupling), 希望以後在新增其它介面例如 MacButton, MacMenu 時, 客戶端程式碼不需要修改, 
+          後續 OCP 才能順利運用)。那麼客戶端程式如何操作這些實體的介面物件呢? 就是<font color="#FF0000"><strong>透過抽象類別裡定義的介面函式</strong></font>來操作，例如只要是 
+          Button 的衍生類別的物件，一定會支援 draw() 和 drawPressed() 的功能。</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><p><font face="微軟正黑體">接下來請參考上面的類別圖，定義 AbstractFactory 抽象類別, 
+          具有 virtual 介面 createButton() 以及 createMenu()</font></p>
+        <p><font face="微軟正黑體">定義 QtFactory 繼承 AbstractFactory, 實作 createButton() 
+          函式，產生 QtButton 物件，實作 createMenu() 函式，產生 QtMenu 物件</font></p>
+        <p><font face="微軟正黑體">定義 Win32Factory 繼承 AbstractFactory, 實作 createButton() 
+          函式，產生 Win32Button 物件，實作 createMenu() 函式，產生 Win32Menu 物件</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580" bgcolor="#FFFFCC"> <p><font face="微軟正黑體">QtFactory 以及 Win32Factory 
+          請運用 <font color="#0000FF"><strong>Singleton 樣板</strong></font> 來保證整個系統運作過程中只有唯一的一個 
+          QtFactory 物件，或是唯一的一個 Win32Factory 物件，如下圖一個 Singleton 類別只會產生唯一的物件，QtFactory 
+          或是 Win32Factory 類別產生的物件是工廠，工廠只需要一個就可以達成生產很多產品的功能</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="Lab%2013-5_files/Singleton.gif" width="214" height="177"></font></p>
+        <p><font face="微軟正黑體">如上圖，Singleton 類別裡有一個 static 的資料成員 m_instance，這個資料成員記錄的就是這個類別唯一的物件，常常是在 
+          main() 函式開始執行之前或是在第一次呼叫 getInstance() 時會初始化，有一個 static 的 Singleton *getInstance() 
+          函式，會回傳 m_instance 的指標。建構元、拷貝建構元、和設定運算子都不是 public 的，如此可以避免別的類別裡錯誤地產生 
+          Singleton 類別的物件</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td><p><font face="微軟正黑體">需要運用 <strong>Dependency Inversion Principle</strong> 
+          把<strong><font color="#FF0000"> 客戶端</font></strong> 程式 與 QtFactory, 
+          QtButton, QtMenu 或是 Win32Factory, Win32Button, Win32Menu 這些物件<font color="#FF0000"><strong>切割開來</strong></font>，希望客戶端程式 
+          不需要知道 QtButton 或是 Win32Button, 只需要知道 Button 類別，這也就是定義 Widget, Button, 
+          和 Menu 抽象類別的目的, 如此後續我們擴充 MacFactory, MacButton, MacMenu，擴充 MotifFactory, 
+          MotifButton, MotifMenu，或是擴充 GtkFactory, GtkButton, GtkMenu 時，才能夠維持 OCP 
+          的原則，不要更改客戶端的程式</font></p>
+        <pre><font face="微軟正黑體">int main()
+{
+    AbstractFactory* factory;
+    string platform;
+
+    do
+    {
+        cout &lt;&lt; "Qt or Win32? ";
+        cin &gt;&gt; platform;
+    }
+    while (platform!="Qt" &amp;&amp; platform!="Win32");
+
+    factory = AbstractFactory::getInstance(platform);
+
+    Button *w = factory-&gt;createButton();
+    w-&gt;draw();
+    w-&gt;drawPressed();
+    delete w;
+
+    Window win1(*factory, "First Window", 1);
+    Window win2(*factory, "Second Window", 2);
+    win1.draw();
+    win2.draw();
+    return 0;
+}</font></pre>
+        <p><font face="微軟正黑體">請注意: 上面程式片段中，<strong><font color="#FF0000">為了讓客戶端程式完全不知道個別 
+          Factory 的類別名稱</font></strong>，在 AbstractFactory 類別裡設計一個 static AbstractFactory 
+          *getInstance(string platform) 的靜態成員，根據傳遞進來的 platform&nbsp;字串，回傳適當的 AbstractFactory 
+          物件的指標，例如</font></p>
+        <pre><font face="微軟正黑體">AbstractFactory *AbstractFactory::getInstance(string platform)
+{
+    if (platform == "Qt")
+        return QtFactory::getInstance();
+    else if (...) 
+        ...
+}</font></pre>
+        <font face="微軟正黑體"> 但是這樣子設計會有一個問題, 就是基礎類別 AbstractFactory 設計的時候需要知道所有衍生類別的名稱, 
+        才能用這個 getInstance() 函式把字串轉換成衍生類別的名稱, 事實上 C++ 在這裡缺了一點點機制來完成這個設計; 話說如果不設計成 
+        AbstractFactory 的成員, 另一個選擇是設計成一個全域函式, 等於需要有額外的管理者才有辦法完全隔絕客戶端和 QtFactory 
+        或是 Win32Factory; 各個類別函式庫裡有不同的解決方案, MFC &nbsp;裡運用 CRuntimeClass 來完成, 例如 
+        CRuntimeClass* pRuntimeClass = RUNTIME_CLASS( CMyClass );<br>
+        CObject* pObject = pRuntimeClass-&gt;CreateObject(); 如果在 Java 環境下可以用 Class.ForName("xxx").getInstance() 
+        來完成</font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#FFFFCC"> 
+      <th align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td><p><font face="微軟正黑體">根據 display_window_one() 和 display_window_two() 
+          這兩個客戶端的函式，請設計一個 Window 類別取代，建構元需要傳入一個 AbstractFactory 物件的參考，一個視窗的標題文字，以及視窗中有幾個按鈕，這個客戶端類別的介面需要配合步驟七裡的程式碼</font></p>
+        <pre><font face="微軟正黑體">    Window win1(*factory, "First Window", 1);
+    Window win2(*factory, "Second Window", 2);
+    win1.draw();
+    win2.draw();</font></pre>
+        <font face="微軟正黑體"> 請特別注意這個類別是客戶端程式，應該只需要使用 Widget, Button, Menu 這些抽象類別裡的介面，不需要使用實體的 
+        QtButton 或是 QtMenu 物件，同時這個類別雖然也有定義 draw() 介面，可是和 Widget 實作和平台相關的各種基礎繪圖工具是沒有關係的，不需要繼承 
+        Widget 類別，draw() 介面裡只需要視窗標題、呼叫個別 Widget 衍生類別的 draw() 來繪出選單、按鈕等等元素即可。</font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟九</font></th>
+      <td width="580" bgcolor="#DDEEBB"> <p><font face="微軟正黑體">請擴充上面的類別架構，假設現在客戶要求同樣的程式能夠有 
+          Mac OSX 的版本，請在不修改客戶端 Windows 類別, 也不修改 Widget, Button, Menu 類別的前提下，（main() 
+          函式裡似乎需要有一點點修改，通常如果不希望改 main() 函式，也可以改由 config 檔案裡讀取環境設定），增加 MacFactory, 
+          MacButton, MacMenu 類別來擴充功能，完成以後的範例執行程式如下</font></p>
+        <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab13/GUIComponents_AbstractFactory1.exe">參考執行程式</a></font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th align="center"><font face="微軟正黑體">步驟十</font></th>
+      <td> <p><font face="微軟正黑體">請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 
+          檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 
+          壓縮起來, 選擇 Lab13-5<a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+          後面的實習課程可能需要使用這裡所完成的程式。</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體"></font></th>
+      <td width="580" bgcolor="#DDEEBB"> <h3><font face="微軟正黑體" color="#0000FF"><strong>Fundamental 
+          Theorem</strong><strong> of Software Engineering (FTSE)</strong></font></h3>
+        <p><font face="微軟正黑體">"We can solve any problem by introducing an 
+          <font color="#0000FF"><strong>extra level of indirection</strong></font>."</font></p>
+        <p align="right"><font face="微軟正黑體">by Andrew Koenig</font></p>
+        <p><font face="微軟正黑體">在這裡你會看到運用抽象類別來建立額外的中間層軟體</font></p>
+        <p><font face="微軟正黑體">先前你學過用來建立 indirection 的語法還包括 迴圈、函式、變數指標、函式指標...</font></p>
+        </td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%2013-5_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%2013-5_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon Jun 11 2018 15:38:20 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 05/30/2015 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+/font&gt;
+
+
+
+</body></html>

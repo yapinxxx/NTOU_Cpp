@@ -1,0 +1,529 @@
+<html><head>
+<title>稀疏矩陣類別設計</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="%E7%A8%80%E7%96%8F%E7%9F%A9%E9%99%A3%E9%A1%9E%E5%88%A5%E8%A8%AD%E8%A8%88_files/cyan_diffuse.html">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1> <font size="+2" face="微軟正黑體">1062 2A Quiz#1: 稀疏矩陣 (Sparse Matrix) 類別設計</font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="%E7%A8%80%E7%96%8F%E7%9F%A9%E9%99%A3%E9%A1%9E%E5%88%A5%E8%A8%AD%E8%A8%88_files/rainbow.gif"></font> 
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <th align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><font face="微軟正黑體"><b><font size="+2" color="#666699">C++ 實習測試: 稀疏矩陣 
+        (Sparse Matrix) 類別設計</font></b></font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><font face="微軟正黑體">時間: <strong><font size="+1" color="#0000FF">110</font></strong> 
+        分鐘 (<strong>09:20-11:10, <font color="#FF0000">11:10</font></strong> 上傳時間截止)</font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <th align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"> 
+        <p align="center"><font face="微軟正黑體"><img src="%E7%A8%80%E7%96%8F%E7%9F%A9%E9%99%A3%E9%A1%9E%E5%88%A5%E8%A8%AD%E8%A8%88_files/fig01.gif" width="166" height="121"></font></p>
+        <p><font face="微軟正黑體"><strong>如上圖，概念上<font color="#0000FF">稀疏矩陣</font>是一個很大的矩陣 
+          (很多列、很多行) 但是裡面<font color="#FF0000">絕大部份數值都是 0</font></strong> </font></p>
+        <ul>
+          <li> 
+            <div align="left"><font face="微軟正黑體">例如一個 <font color="#FF0000"><strong>1000</strong></font> 
+              列<strong><font face="微軟正黑體"><strong>、</strong></font><font color="#FF0000">1000</font></strong> 
+              行的整數矩陣，如果直接用一個二維陣列來表示的話，需要 1000*1000*4 = <font color="#0000FF"><strong>4000000 
+              個位元組</strong></font>，如果裡面只有 500 個不為 0 的數字，其它都是 0，基本上應該只需要 500*4 
+              = <font color="#0000FF"><strong>2000 個位元組</strong></font> 就足夠存放這個矩陣裡的所有資料，但是我們卻多紀錄了 
+              999500 個 0，多用了 <strong><font color="#0000FF">3998000 個位元組</font></strong> 
+              的空間，這些空間也許是記憶體、也許是硬碟、也許是網路頻寬，以現在的技術來說，多用一點硬碟和頻寬也許比較不是問題了，但是記憶體還是比較不能浪費的東西，值得用比節儉的方式來紀錄一個稀疏矩陣<br>
+              <br>
+              </font></div>
+          </li>
+          <li><font face="微軟正黑體"> 以上圖的矩陣為例，我們可以只存放那 <font color="#FF0000"><strong>7</strong></font> 
+            個非 0 的元素 {3,1,1,3,4,-2,2} (但是附帶地也需要紀錄每一個元素的行列位置)，如下圖：<br>
+            <img src="%E7%A8%80%E7%96%8F%E7%9F%A9%E9%99%A3%E9%A1%9E%E5%88%A5%E8%A8%AD%E8%A8%88_files/fig02.gif" width="188" height="190"> <br>
+            這樣子可以少用很多記憶體，當然這樣子存放一個矩陣也是有缺點的，最明顯的就是矩陣的運算 (轉置、加法、乘法、...) 以及輸出/輸入，都變得比較麻煩了<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 下面的 C 程式實作 Horowitz 資料結構課本裡，運用陣列和結構設計稀疏矩陣乘法的程式， 
+            struct Entry 用來表示稀疏矩陣中一個非 0 的元素 
+            <pre>struct <strong><font color="#FF0000">Entry</font></strong> {
+    int <strong><font color="#0000FF">row</font></strong>;    // 第幾列
+    int <strong><font color="#0000FF">col</font></strong>;    // 第幾行
+    int <font color="#0000FF"><strong>value</strong></font>;  // 元素數值
+};</pre>
+            在程式中這些元素會依照上圖的順序放在 struct Entry 結構陣列裡 (依列號先後排放，同一列時依行號先後排放)，例如<br>
+            <pre>struct Entry A[100];</pre>
+            每一個結構陣列存放一個稀疏矩陣，陣列的第一個元素的 row 欄位 (A[0].row) 代表稀疏矩陣的總列數，col 欄位 (A[0].col) 
+            代表稀疏矩陣的總行數，value 欄位 (A[0].value) 代表稀疏矩陣裡非 0 元素的個數<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 下一段的 C 程式裡，由鍵盤讀入上圖的稀疏矩陣範例，第一列有三個整數，分別代表稀疏矩陣的總列數、總行數、以及非 
+            0 元素的個數，接下去的資料中每一列代表稀疏矩陣中的一個元素，資料包括 <font color="#0000FF"><strong>列</strong></font>、<strong><font color="#0000FF">行</font></strong>、<strong><font color="#0000FF">數值</font></strong><br>
+            3 5 7<br>
+            0 1 3<br>
+            0 3 1<br>
+            1 0 1<br>
+            1 2 3<br>
+            1 3 4<br>
+            2 2 -2</font><font face="微軟正黑體"><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">目前程式裡面主要有四個函式, main, printMatrix, transposeMatrix, 
+            和 multiplyMatrix, 其中 main 裡面<br>
+            <br>
+            1. 讀取兩個 <strong><font color="#FF0000">M </font></strong>列 <font color="#FF0000"><strong>N</strong></font> 
+            行 的矩陣 <strong><font color="#0000FF">A</font></strong> 和矩陣 <font color="#0000FF"><strong>B</strong></font><br>
+            2. 呼叫 printMatrix 函式依序列印這兩個矩陣中非 0 元素的資料<br>
+            3. 呼叫 transposeMatrix 函式計算 <font color="#0000FF"><strong>B</strong></font> 
+            的轉置矩陣 <font color="#0000FF"><strong>B<sup>T</sup></strong></font><br>
+            4. 呼叫 multiplyMatrix 函式計算矩陣乘積 <strong><font color="#0000FF">A</font></strong> 
+            <font color="#0000FF"><strong>B<sup>T</sup></strong></font><br>
+            5. 呼叫 printMatrix 列印 <strong><font color="#0000FF">A</font></strong> 
+            <font color="#0000FF"><strong>B<sup>T</sup></strong></font><br>
+            6. 呼叫 transposeMatrix 函式計算 <font color="#0000FF"><strong>A</strong></font> 
+            的轉置矩陣 <font color="#0000FF"><strong>A<sup>T</sup></strong></font><br>
+            7. 呼叫 multiplyMatrix 函式計算矩陣乘積 <strong><font color="#0000FF">A<strong><sup>T</sup></strong></font></strong> 
+            <font color="#0000FF"><strong>B</strong></font><br>
+            8. 呼叫 printMatrix 列印<strong><font color="#0000FF"> A</font></strong><font color="#0000FF"><strong><sup>T</sup></strong></font></font> 
+            <font face="微軟正黑體" color="#0000FF"><strong>B</strong></font><font face="微軟正黑體"><br>
+            <br>
+            其中 multiplyMatrix 函式將 <font color="#FF0000"><strong>M</strong></font> 
+            x <strong> <font color="#FF0000">N</font></strong> 的矩陣乘上 <strong><font color="#FF0000">N</font></strong> 
+            x <strong><font color="#FF0000">L</font></strong> 的矩陣，得到一個<font color="#FF0000"><strong> 
+            M</strong></font> x <strong> <font color="#FF0000">L</font></strong> 
+            的矩陣，演算法基本上做了 <strong>M</strong> * <strong>L</strong> 次「合併兩個數列 (類似 
+            merge sort 裡面的數列合併)」的動作，細節你需要回憶一下先前的資料結構和演算法，不過今天要求你寫的部份應該不需要知道乘法演算法的細節 
+            (除非你忙中有錯把對的程式改出問題來了!!)</font></li>
+        </ul></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td bgcolor="#FFFFCC"> <center>
+          <p align="left"><font face="微軟正黑體">就是下面這個 <strong>C 程式</strong>了 (希望你沒有什麼程式恐懼症，它看起來比較長、有點討厭的原因應該是為了實作比較有效率的資料結構的關係，不過是程式而已，程式做的工作多，人需要做的工作就少，生活就愉快一點!)</font></p>
+          </center>
+        <pre><font face="微軟正黑體">#include &lt;stdio.h&gt;
+#include &lt;malloc.h&gt; // malloc(), free()
+
+struct Entry
+{
+    int row;
+    int col;
+    int value;
+};
+
+void printMatrix(struct Entry matrix[]);
+void transposeMatrix(const struct Entry A[], struct Entry B[]);
+void multiplyMatrix(const struct Entry A[], const struct Entry B[], struct Entry C[]);
+
+int main()
+{
+    int i;
+    struct Entry A[100]={0}, At[100]={0}, B[100]={0}, Bt[100]={0}, C[100]={0};
+
+    scanf("%d%d%d", &amp;(A[0].row), &amp;(A[0].col), &amp;(A[0].value));
+    for (i=1; i&lt;=A[0].value; i++)
+        scanf("%d%d%d", &amp;(A[i].row), &amp;(A[i].col), &amp;(A[i].value));
+    A[i].row = -1; // extra entry for multiplyMatrix()
+
+    scanf("%d%d%d", &amp;(B[0].row), &amp;(B[0].col), &amp;(B[0].value));
+    for (i=1; i&lt;=B[0].value; i++)
+        scanf("%d%d%d", &amp;(B[i].row), &amp;(B[i].col), &amp;(B[i].value));
+    B[i].row = -1; // extra entry for multiplyMatrix()
+
+    if ((A[0].row != B[0].row)||(A[0].col != B[0].col))
+    {
+        printf("Matrix A and B are not of the same dimension!\n");
+        return 1;
+    }
+
+    printf("\n");
+    printf("Matrix A:\n");
+    printMatrix(A);
+
+    printf("Matrix B:\n");
+    printMatrix(B);
+
+    transposeMatrix(B, Bt);
+    printf("Transpose Matrix B:\n");
+    printMatrix(Bt);
+
+    multiplyMatrix(A, Bt, C);
+
+    printf("Matrix A * Matrix B':\n");
+    printMatrix(C);
+
+    transposeMatrix(A, At);
+    printf("Transpose Matrix A:\n");
+    printMatrix(At);
+
+    multiplyMatrix(At, B, C);
+
+    printf("Matrix A' * Matrix B:\n");
+    printMatrix(C);
+
+    getchar(); getchar();
+    return 0;
+}
+
+void printMatrix(struct Entry matrix[])
+{
+    int i;
+    printf("%d * %d matrix with %d non-zero item:\n",
+           matrix[0].row, matrix[0].col, matrix[0].value);
+    for (i=1; i&lt;=matrix[0].value; i++)
+        printf("&lt;%d,%d:%d&gt;\n", matrix[i].row, matrix[i].col, matrix[i].value);
+    printf("====================\n");
+}
+
+void transposeMatrix(const struct Entry A[], struct Entry B[])
+{
+    int i, iB=0, *start = (int *) malloc(sizeof(int)*(A[0].col+1));
+
+    B[iB].row = A[0].col; B[iB].col = A[0].row; B[iB++].value = A[0].value;
+
+    for (start[0]=1, i=1; i&lt;=A[0].col; i++)
+        start[i] = 0;
+    for (i=1; i&lt;=A[0].value; i++)
+        start[A[i].col+1]++; // counting element's in a row
+    for (i=1; i&lt;=A[0].col; i++)
+        start[i] += start[i-1]; // accumulating
+
+    for (i=1; i&lt;=A[0].value; i++)
+    {
+        iB = start[A[i].col]++;
+        B[iB].row = A[i].col;
+        B[iB].col = A[i].row;
+        B[iB].value = A[i].value;
+    }
+    free(start);
+    B[B[0].value+1].row = -1; // extra entry for multiply to test end of B1's row
+}
+
+void multiplyMatrix(const struct Entry A[], const struct Entry B[],
+                                   struct Entry C[])
+{
+    int iA, iC, iA1, iB1, iA1row, iB1row, sum;
+    struct Entry *B1 = (struct Entry *)
+        malloc(sizeof(struct Entry)*(B[0].value+2));
+
+    transposeMatrix(B, B1);
+
+    C[0].row = A[0].row;
+    C[0].col = B[0].col;
+    C[0].value = 0;
+    iA = iC = 1;
+    while (iA &lt;= A[0].value)
+    {
+        sum = 0;
+        iA1 = iA; iB1 = 1;
+        iA1row = A[iA1].row; iB1row = B1[iB1].row;
+        while (iB1 &lt;= B1[0].value)
+        {
+            if (A[iA1].col == B1[iB1].col)
+            {
+                sum += A[iA1].value * B1[iB1].value;
+                iA1++; iB1++;
+            }
+            else if (A[iA1].col &gt; B1[iB1].col)
+                iB1++;
+            else // if (A[iA1].col &lt; B1[iB1].col)
+                iA1++;
+            if (A[iA1].row != iA1row)
+                while (B1[iB1].row == iB1row) iB1++;
+            if (B1[iB1].row != iB1row)
+            {
+                if (iB1 &lt;= B1[0].value)
+                    iA1 = iA;
+                else
+                    while (A[iA1].row == iA1row) iA1++;
+                if (sum!=0)
+                {
+                    C[0].value++;
+                    C[iC].row = iA1row;
+                    C[iC].col = iB1row;
+                    C[iC++].value = sum;
+                    sum = 0;
+                }
+                iB1row = B1[iB1].row;
+            }
+        }
+        iA = iA1;
+    }
+    free(B1);
+}</font>
+</pre></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><h3><font face="微軟正黑體" color="#0000FF">輸入測試資料</font></h3>
+        <pre><font face="微軟正黑體">3 5 7
+0 1 3
+0 3 1
+1 0 1
+1 2 3
+1 3 4
+2 2 -2
+2 4 2
+3 5 7
+0 0 3
+0 1 1
+1 0 -1
+1 3 2
+2 0 5
+2 1 2
+2 4 -1</font></pre> <h3><font face="微軟正黑體" color="#0000FF">程式輸出結果</font></h3>
+        <pre><font face="微軟正黑體">Matrix A:<br>3 * 5 matrix with 7 non-zero item:<br>&lt;0,1:3&gt;<br>&lt;0,3:1&gt;<br>&lt;1,0:1&gt;<br>&lt;1,2:3&gt;<br>&lt;1,3:4&gt;<br>&lt;2,2:-2&gt;<br>&lt;2,4:2&gt;<br>====================<br>Matrix B:<br>3 * 5 matrix with 7 non-zero item:<br>&lt;0,0:3&gt;<br>&lt;0,1:1&gt;<br>&lt;1,0:-1&gt;<br>&lt;1,3:2&gt;<br>&lt;2,0:5&gt;<br>&lt;2,1:2&gt;<br>&lt;2,4:-1&gt;<br>====================<br>Transpose Matrix B:<br>5 * 3 matrix with 7 non-zero item:<br>&lt;0,0:3&gt;<br>&lt;0,1:-1&gt;<br>&lt;0,2:5&gt;<br>&lt;1,0:1&gt;<br>&lt;1,2:2&gt;<br>&lt;3,1:2&gt;<br>&lt;4,2:-1&gt;<br>====================<br>Matrix A * Matrix B':<br>3 * 3 matrix with 7 non-zero item:<br>&lt;0,0:3&gt;<br>&lt;0,1:2&gt;<br>&lt;0,2:6&gt;<br>&lt;1,0:3&gt;<br>&lt;1,1:7&gt;<br>&lt;1,2:5&gt;<br>&lt;2,2:-2&gt;<br>====================<br>Transpose Matrix A:<br>5 * 3 matrix with 7 non-zero item:<br>&lt;0,1:1&gt;<br>&lt;1,0:3&gt;<br>&lt;2,1:3&gt;<br>&lt;2,2:-2&gt;<br>&lt;3,0:1&gt;<br>&lt;3,1:4&gt;<br>&lt;4,2:2&gt;<br>====================<br>Matrix A' * Matrix B:<br>5 * 5 matrix with 14 non-zero item:<br>&lt;0,0:-1&gt;<br>&lt;0,3:2&gt;<br>&lt;1,0:9&gt;<br>&lt;1,1:3&gt;<br>&lt;2,0:-13&gt;<br>&lt;2,1:-4&gt;<br>&lt;2,3:6&gt;<br>&lt;2,4:2&gt;<br>&lt;3,0:-1&gt;<br>&lt;3,1:1&gt;<br>&lt;3,3:8&gt;<br>&lt;4,0:10&gt;<br>&lt;4,1:4&gt;<br>&lt;4,4:-2&gt;<br>====================</font></pre> 
+        <p><font face="微軟正黑體">下面是這次考試的詳細要求</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td height="3168" bgcolor="#FFFFCC"> 
+        <p><font size="+1" face="微軟正黑體" color="#0000FF">考試時間: 
+          <strong>110</strong>分鐘</font><font face="微軟正黑體"> (<strong><font color="#FF0000">11:10</font></strong> 
+          截止上傳，為了避免截止時間系統以及網路的延遲，請<font color="#FF0000"><strong>提早 10 分鐘</strong></font>上傳，確保你已經上傳一個版本了)</font></p>
+        <ol>
+          <li><font face="微軟正黑體">請使用 <font size="+1" color="#FF0000"><strong>Visual 
+            Studio 2010</strong></font> 新增專案，讓 Visual Studio 為方案建立目錄，設定<font color="#0000FF"><strong>方案名稱</strong>是 
+            <strong><font color="#FF0000">quiz1</font></strong></font>，<font color="#0000FF">(專案)<strong>名稱</strong>為 
+            <strong><font color="#FF0000">C_Version</font></strong></font>，加入一個 
+            C++ 程式檔案 main.cpp，將上述程式拷貝進去，編譯執行，複製貼上前面的輸入資料，測試一下程式輸出是不是和上面一樣<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請將 main 函式裡面<strong>讀取矩陣</strong>的程式段落寫成一個<strong> 
+            <font color="#0000FF">readMatrix</font></strong> 函式，下面是 main 函式裡讀取矩陣 
+            A 的程式段落<br>
+            <pre>    scanf("%d%d%d", &amp;(A[0].row), &amp;(A[0].col), &amp;(A[0].value));
+    for (i=1; i&lt;=A[0].value; i++)
+        scanf("%d%d%d", &amp;(A[i].row), &amp;(A[i].col), &amp;(A[i].value));</pre>
+            請設計好函式的參數，將 main 函式裡面由鍵盤讀取矩陣 A 以及讀取矩陣 B 的程式段落用 readMatrix(A); readMatrix(B); 
+            取代，<font color="#0000FF"><strong>請使用 iostream 函式庫取代 stdio 函式庫</strong></font>，請編譯並且測試<br>
+            <br>
+            請注意 A[i].row = -1; // extra entry for multiplyMatrix() 不要放進 readMatrix 
+            裡面，這一列是額外為了配合 multiplyMatrix 演算法的，但是 i 需要改成什麼呢? 你稍微看一下讀資料的程式碼就知道應該是 
+            A[0].value+1<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 測試的時候用眼睛檢查輸出真的不是好辦法，請撰寫一個 <strong><font color="#0000FF">int 
+            equalMatrix(const struct Entry A[], const struct Entry B)</font></strong> 
+            函式來比較兩個矩陣是不是完全相等，相等<strong>回傳 1</strong>，不等<strong>回傳 0</strong>；然後把 
+            main 函式裡面運用 transposeMatrix 計算的結果 <font color="#0000FF"><strong>B<sup>T</sup></strong></font> 
+            和下面的 <strong><font color="#0000FF">C0</font></strong> 代表的稀疏矩陣比較，把運用 
+            multiplyMatrix 計算 <strong><font color="#0000FF">A</font></strong> 
+            和 <font color="#0000FF"><strong>B<sup>T</sup></strong></font> 相乘的矩陣和下面這個 
+            <strong> <font color="#0000FF">C1</font></strong> 代表的稀疏矩陣比較，把運用 multiplyMatrix 
+            計算<strong><font color="#0000FF">A<strong><sup>T</sup></strong></font></strong> 
+            和 <font color="#0000FF"><strong>B</strong></font> 相乘的矩陣和下面這個 <strong><font color="#0000FF">C2</font></strong> 
+            代表的稀疏矩陣比較，運用<font color="#FF0000"> <strong>assert</strong></font> 
+            以及 <font color="#FF0000"><strong>equalMatrix</strong></font> 確認相乘的結果是對的，請編譯並且測試<br>
+            <pre>    struct Entry <font color="#0000FF"><strong>C0</strong></font>[] = {{5,3,7},{0,0,3},{0,1,-1},{0,2,5},{1,0,1},{1,2,2},{3,1,2},{4,2,-1}};
+    struct Entry <font color="#0000FF"><strong>C1</strong></font>[] = {{3,3,7},{0,0,3},{0,1,2},{0,2,6},{1,0,3},{1,1,7},{1,2,5},{2,2,-2}};
+    struct Entry <font color="#0000FF"><strong>C2</strong></font>[] = {{5,5,14}, {0,0,-1},{0,3,2},{1,0,9},{1,1,3},{2,0,-13},
+                                   {2,1,-4},{2,3,6},{2,4,2},{3,0,-1},{3,1,1},
+                                   {3,3,8},{4,0,10},{4,1,4},{4,4,-2}};</pre>
+            </font></li>
+          <li><font face="微軟正黑體"> 在 transposeMatrix 函式裡有一個動態配置的 start 陣列，這個陣列用來暫時存放原本矩陣每一行有幾個元素，也就是轉置過的矩陣每一列有幾個元素，在最後面執行轉置動作的迴圈裡，直接把每一個元素放到新矩陣中正確的位置去，用完以後就釋放掉了，<strong><font color="#0000FF">請使用 
+            vector 類別的物件來取代這個陣列</font></strong>，請編譯並且測試<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">在 multiplyMatrix 函式裡有一個動態配置的陣列 B1，這個陣列是暫時存放轉置的矩陣<font color="#0000FF"><strong> 
+            B<sup>T</sup></strong></font> 的，<font color="#0000FF"><strong>請運用 
+            new[]/delete[] 的語法取代 malloc/free</strong></font><strong></strong> 
+            (其實這裡也可以和上一步驟一樣用 vector 來取代)，請編譯並且測試<br>
+            <br>
+            <font size="+2" color="#0000FF"><strong>C 程式的部份到此告一段落，接下來是 C++ 的部份</strong></font><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 請點選方案總管，以滑鼠右鍵點選「方案 'quiz1' (1 專案)」，在右鍵選單中選擇「加入/新增專案」，在 
+            quiz1 方案中新增一個專案，名稱是 <strong>CPP_Version</strong>，在方案總管或是類別總管中以右鍵點選 
+            CPP_Version，選擇「設定為起始專案」(如下圖，你會看到起始專案的名字變成粗黑字，後面步驟裡建置和執行程式才是執行這個 CPP_Version 
+            專案裡面的 main() 函式，如果起始專案還是 C_Version，建置和執行程式時就一直是執行 C_Version 裡面的 main() 
+            函式)<br>
+            <img src="%E7%A8%80%E7%96%8F%E7%9F%A9%E9%99%A3%E9%A1%9E%E5%88%A5%E8%A8%AD%E8%A8%88_files/fig04.gif" width="263" height="399"><br>
+            </font><font face="微軟正黑體"><br>
+            </font></li>
+          <li><font face="微軟正黑體"> 上面的 C 程式裡用一個陣列來存放稀疏矩陣的所有資料，但是單看這些資料也可能是描述 N 
+            個城市的座標，並不能夠明確代表一個稀疏矩陣，接下來請製作一個 <font color="#0000FF"><strong>SparseMatrix</strong></font> 
+            類別，這個類別的物件需要能夠描述一個稀疏矩陣，</font><font face="微軟正黑體">上面的 struct Entry 
+            的定義還是需要的，在類別裡需要有四個<font color="#0000FF"><strong>私有</strong></font><font color="#FF0000">資料成員</font> 
+            ， m_nRows, m_nCols, m_nElems 是三個整數分別存放稀疏矩陣有幾列、有幾行、有幾個非 0 的元素，struct 
+            Entry 指標 m_A 裡面運用 new[] 動態配置的 m_nElems+2 個 struct Entry 元素 (多出兩個元素，第一個元素 
+            m_A[0] 是完全沒有用到的，只是因為原本程式的陣列侍從 A[1] 開始放資料，考試時間不夠，</font><font face="微軟正黑體">多一個元素的話可以不要修改原本的程式裡陣列使用時的註標，另外最後多一個元素也是配合原來的 
+            multiplyMatrix 裡面的演算法的)，Visual Studio 會替你多定義兩個 SparseMatrix() 建構元函式和 
+            ~SparseMatrix() 解構元函式 (我們還沒有解釋這兩個成員函式，但是它們很重要，先保留不要刪除它們)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 接下來需要製作 <strong><font color="#0000FF">read</font></strong>, 
+            <strong> <font color="#0000FF">equal</font></strong>, <strong><font color="#0000FF">print</font></strong>, 
+            <font color="#0000FF"> <strong>transpose</strong></font>, 和 <strong><font color="#0000FF">multiply</font></strong> 
+            這五個成員函式 (請注意 C 版本函式的名稱都是 xxx<font color="#0000FF">Matrix</font>
+ 來和其它功能的函式區分開來，但是 
+            C++ 版本定義在 SparseMatrix 類別裡，本來就不會和其它功能的函式混淆，所以名字裡的 Matrix 
+可以都拿掉了，例如 
+            void printMatrix(struct Entry matrix[]) 函式改為 void 
+print())，另外函式的參數也需要修改，因為成員函式執行時都有一個目標的稀疏矩陣物件，矩陣物件收到 
+            print 
+訊息時就是列印自己這個物件，不需要再傳入其它參數了，一開始這裡會有點混亂，程式一次改太多、改太急、又沒有逐步測試的話，很容易就把原本程式的機制改
+錯了，以下給你一些步驟提示，就當作重新設計這個類別的功能，逐步設計並且測試每一個實作出來的功能<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 首先請在 SparseMatrix 類別裡製作一個 static 的 void <font color="#0000FF"><strong>unitTest</strong></font>() 
+            成員函式，把剛才步驟 1,2,3,4,5 改好的 C_Version 版本的 main() 函式裡的內容拷貝進來，但是請先註解掉這些程式，另外新增一個 
+            main.cpp，裡面有一個 main() 函式，函式裡呼叫這個 unitTest()，編譯、確定可以執行 (確定執行的是這個新的 
+            main() 函式)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> 在 unitTest 函式裡面原本有存放稀疏矩陣的 Entry 結構陣列 A, At, 
+            B, Bt, C，初始化為 0，現在先改成 SparseMatrix 類別的物件，但是因為類別裡有成員函式，已經沒有辦法用 C 風格的 
+            = {0} 來初始化了，請製作一個 SparseMatrix 類別的成員函式 void <strong><font color="#0000FF">setValue</font></strong>(int 
+            nRows, int nCols, int nElems, struct Entry *A)，函式裡將對應的成員設定為傳入的參數值，並且在定義完稀疏矩陣 
+            A 物件後呼叫 A.setValue(0,0,0,0) 來初始化 A 物件，請定義並初始化其它 At, B, Bt 幾個物件，接下來的 
+            C0, C1 和 C2 物件也是類似的方法處理，請把 unitTest 後面還沒改到的程式註解起來，編譯並且測試<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> readMatrix(A); 需要改成傳送 <font color="#0000FF"><strong>read</strong></font> 
+            訊息給物件 A，也就是 A.read();<br>
+            請在 SparseMatrix 類別裡<font color="#0000FF"><strong>新增 void read() 成員函式</strong></font>，由 
+            C 版本的函式 void readMatrix(struct Entry matrix[]) 的內容拷貝進來，主要需要改的是沒有參數矩陣 
+            matrix 了，你需要把資料讀進自己這個物件的資料成員 m_nRows, m_nCols, m_nElems, ... 裡面，另外請運用 
+            new[] 配置 m_A 陣列，配置前請先刪除原本的 m_A 陣列，請把 unitTest 後面還沒改到的程式註解起來，編譯並且測試<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> unitTest 函式中接下來有個條件判斷敘述 if ((A[0].row != B[0].row)||(A[0].col 
+            != B[0].col)<br>
+            因為 unitTest 是 SparseMatrix 類別的成員函式，所以可以直接存取類別的私有資料成員，這裡只需要改一下資料成員的名稱就可以了，請把 
+            unitTest 後面還沒改到的程式註解起來，編譯並且測試<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> unitTest 函式中接下來是 printMatrix(A) 和 printMatrix(B)，請修改為傳送訊息 
+            <strong> <font color="#0000FF">print</font></strong> 給物件 A 和物件 B<br>
+            請在 SparseMatrix 類別裡<font color="#0000FF"><strong>新增 void print() const 
+            成員函式</strong></font>，拷貝 printMatrix 函式的內容進來，修改方法類似 read 成員函式，修改完成後請把 
+            unitTest 後面還沒改到的程式註解起來，編譯並且測試<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> unitTest 函式中接下來是 transposeMatrix(B, Bt)，請修改為傳送訊息<font color="#0000FF"><strong> 
+            transpose</strong></font> 給物件 Bt，以物件 B 為訊息的參數 (因為物件裡面有很大的陣列，為了避免拷貝，這個參數請用常數的<font color="#0000FF"><strong>參考變數</strong></font>)，這樣設計的原因和前幾個函式製作時的原因是一致的<br>
+            請在 SparseMatrix 類別裡新增 transpose 成員函式，拷貝 transposeMatrix 函式的內容進來，請注意轉置以後的矩陣要放在自己這個物件裡，其它部份的修改主要就是配置正確大小的 
+            m_A 陣列，原本轉置矩陣的欄位 B[i].row, B[i].col, B[i].value 改為自己這個物件的成員 m_A[i].row, 
+            m_A[i].col, m_A[i].value，原本 B[0].row, B[0].col, B[0].value 改為 m_nRows, 
+            m_nCols, m_nElems，原本 A 矩陣的 A[i].row, A[i].col, A[i].value 改為 A 矩陣的資料成員 
+            A.m_A[i].row, A.m_A[i].col, A.m_A[i].value，原本 A[0].row, A[0].col, 
+            A[0].value 改為 A.m_nRows, A.m_nCols, A.m_nElems，在這個函式裡用的 vector，用完以後不需要特別去刪除，會自動完成清除的動作，修改完成後請把 
+            unitTest 後面還沒改到的程式註解起來，編譯並且測試<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">unitTest 函式中接下來是自動測試矩陣轉置結果是否正確的 assert 敘述，需要在 
+            SparseMatrix 類別裡<strong><font color="#0000FF">新增 bool equal(const 
+            SparseMatrix &amp;B) const 成員函式</font></strong>，拷貝 equalMatrix 函式的內容進來，修改方法類似 
+            read 成員函式，修改完成後請把 unitTest 後面還沒改到的程式註解起來，編譯並且測試<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"> unitTest 函式中接下來是運用 multiplyMatrix(A, Bt, C) 
+            以及 multiplyMatrix(At, B, C) 去計算 <strong><font color="#0000FF">A</font></strong> 
+            <font color="#0000FF"><strong>B<sup>T</sup></strong></font> 以及 <strong><font color="#0000FF">A</font></strong><font color="#0000FF"><strong><sup>T</sup></strong></font> 
+            <font color="#0000FF"><strong>B</strong></font>，並且和 <strong><font color="#0000FF">C1</font></strong>, 
+            <strong> <font color="#0000FF">C2</font></strong> 兩個預設的矩陣比較，(請注意由於一個 
+            SparseMatrix 類別的物件中有動態配置的記憶體，使得我們不能夠運用 D = E; 這樣的語法來拷貝物件 E 的內容到物件 
+            D，詳細原因以及解決的方法需要再過幾個星期才會講到)，所以成員函式 <strong><font color="#0000FF">multiply</font></strong> 
+            需要設計配合 A.multiply(Bt) 的使用方法，也就是 void <font color="#0000FF"><strong>multiply</strong></font>(const 
+            SparseMatrix &amp;Bt)，讓矩陣 A 乘上矩陣 Bt，乘積<strong><font color="#0000FF"> 
+            A</font></strong> <font color="#0000FF"><strong>B<sup>T</sup></strong></font> 
+            直接放在矩陣 A 中，也就是矩陣 A 的內容在 A.multiply(Bt) 之後會改變，由於 unitTest 函式計算完 <strong><font color="#0000FF">A</font></strong> 
+            <font color="#0000FF"><strong>B<sup>T</sup></strong></font> 之後還需要計算 
+            <strong><font color="#0000FF">A</font></strong><font color="#0000FF"><strong><sup>T</sup></strong></font> 
+            <font color="#0000FF"><strong>B</strong></font>，所以矩陣 A 如果在計算 <strong><font color="#0000FF">A</font></strong> 
+            <font color="#0000FF"><strong>B<sup>T</sup></strong></font> 時會改變的話，<strong><font color="#0000FF">A</font></strong><font color="#0000FF"><strong><sup>T</sup></strong></font> 
+            就需要在計算 <strong><font color="#0000FF">A</font></strong> <font color="#0000FF"><strong>B<sup>T</sup></strong></font> 
+            之前先呼叫 transpose 計算出來，如此就可以順利測試完兩個稀疏矩陣的相乘，修改的重點應該只是角色的改變: 原本的矩陣 A 變成物件自己，原本的矩陣 
+            Bt 還在，原本的矩陣乘積放在 C 裡面，在這個版本裡並不需要 C，但是乘出來的矩陣元素還是需要放在一個暫存的陣列中，這個陣列有可能是 
+            0 個元素也有可能是 M * L 個元素，其實運用 vector&lt;Entry&gt; 非常適合，最後再將內容拷貝回物件自己的成員 
+            m_A 中，然後是陣列元素 A[0].row, A[0].col, A[0].value, A[i].row, A[i].col, 
+            A[i].value 變成成員 m_nRows, m_nCols, m_nElems, m_A[i].row, m_A[i].col, 
+            m_A[i].value，不要更動演算法的話，程式比較不會出錯，請編譯並且測試。 <br>
+            <br>
+            [<font color="#FF0000"><strong>請注意</strong></font>：如果這一小題你覺得需要比較多時間，先完成其它部份的要求]</font></li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><font face="微軟正黑體">將所完成的 project (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; <font color="#FF0000">刪除掉 .suo, .sdf, .filters, .users, 
+        debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容</font>) 以 zip/rar/7zip 程式將<font color="#FF0000">整個資料匣</font>壓縮起來, 
+        在<a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">作業與實習繳交頁面</a>中，選擇 
+        <font color="#0000FF">「</font></font><font face="微軟正黑體" color="#FF0000"><strong><font color="#FF9900">2018-03-27 
+        2A考試一</font></strong><font color="#0000FF">」</font> </font><font face="微軟正黑體">上傳</font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#FFFFCC"><p><font face="微軟正黑體"> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test1_2A/codes/quiz1_2A.7z">範例程式碼</a><br>
+          </font></font><font face="微軟正黑體"><font face="微軟正黑體"><br>
+          
+不過你也知道其實光看這個程式碼沒有什麼用，就像爬山一樣，會爬山的人珍惜的是怎樣爬上去的方法和經驗，不是一張張踩著三角點的帥氣照片，這個課程需要你
+學一種構思的方法，瞭解撰寫和設計物件的過程，上面的步驟是這堂課到學期末的時候需要你能夠根據程式的需求擬出來的，目前在還不熟悉的狀況下，還不能要求
+那麼多，希望你能夠跟著上面的提示把缺少的步驟細節補上，那些操作細節在平常的實習網頁上是有的，但是怕你不瞭解目的而只是照做，所以上面的提示裡就省略
+了這些細節，希望你在進行的過程中看到哪裡會卡住，如果你對整個程序清楚也有想過的話，看到提示就知道該做什麼操作，希望你平常實習時能夠針對關鍵的步驟
+思考，不能應付應付了事<font face="微軟正黑體"><font face="微軟正黑體">，</font>只要求沒有那些紅色的毛毛虫就好</font>。</font></font></p>
+        <p><font face="微軟正黑體">我把上傳的截止時間重設為 3/28 (三) 21:00 如果你覺得實習課時時間不夠，可以再點加油把它完成。</font></p></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="%E7%A8%80%E7%96%8F%E7%9F%A9%E9%99%A3%E9%A1%9E%E5%88%A5%E8%A8%AD%E8%A8%88_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="%E7%A8%80%E7%96%8F%E7%9F%A9%E9%99%A3%E9%A1%9E%E5%88%A5%E8%A8%AD%E8%A8%88_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Mar 29 2018 13:27:34 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 03/27/2018 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

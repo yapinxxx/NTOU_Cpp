@@ -1,0 +1,222 @@
+<html><head>
+<title>Lab 6-0 StarUML 練習</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+  <h1>
+Lab 6-0: StarUML 練習</h1>
+<center><p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/rainbow.gif"></p></center>
+
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">實習目標</th>
+      <td width="580"> <p>&nbsp;</p>
+        <p>1. 熟悉 StarUML 安裝與基本介面 </p>
+        <p>2. 練習如何運用 StarUML 繪製類別圖</p>
+        <p>3. 練習如何運用 StarUML 產生程式骨架</p>
+        <p>4. 練習如何運用 StarUML 反向擷取類別架構圖</p>
+        <p></p></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟一</th>
+      <td width="580"><p><strong><font size="+1" color="#666699">Visual Studio 2010+ <a href="http://www.visualstudio.com/en-US/products/visual-studio-ultimate-with-MSDN-vs">Ultimate 
+          版本</a></font></strong><font size="+1" color="#666699"> 也有提供 <a href="http://msdn.microsoft.com/zh-tw/library/57b85fsc(v=vs.100).aspx">UML 
+          塑模工具</a> (例如:<a href="http://msdn.microsoft.com/zh-tw/library/dd409445(v=vs.100).aspx">產生類別圖</a>), 
+          但是 Professional 版本並沒有提供, 所以我們練習用下面的工具來繪製 UML 圖形</font></p>
+        <p>&nbsp;</p>
+        <p><strong><font size="+1">StarUML 安裝 </font></strong> </p>
+        <p align="center"><strong>下載 StarUML-5.0.2.1570, <a href="http://squall.cs.ntou.edu.tw/cpp/tools/StarUML-5.0.2.1570-with-cm.exe">安裝版</a> 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/tools/StarUML%205.0%20User%20Guide.chm">使用手冊</a> </strong></p>
+        <p></p>
+        <div align="center"> 
+          <p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig01.gif" width="503" height="397"></p>
+          <p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig02.gif" width="503" height="397"></p>
+          <p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig03.gif" width="503" height="397"></p>
+          <p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig04.gif" width="503" height="397"></p>
+          <p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig05.gif" width="503" height="397"></p>
+          <p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig06.gif" width="503" height="397"></p>
+          <p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig07.gif" width="503" height="397"></p>
+          <p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig08.gif" width="421" height="260"></p>
+        </div></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">步驟二</th>
+      <td width="580"><p>每次應用程式一打開就會看到下面這個畫面，選取 Empty Project 開啟一個可以配合 C++ 設計的專案 
+        </p>
+        <p></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig09.gif" width="489" height="354"></p>
+        <p align="left">進入主畫面</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig091.gif" width="1163" height="797"></p>
+        <p align="left">選單 Model 中選擇 Profiles... 來加入需要的環境</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig10.gif" width="235" height="264"></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig11.gif" width="598" height="353"></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig12.gif" width="598" height="353"></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig13.gif" width="598" height="353"></p>
+        <p align="left">主視窗右下方屬性表裡面設定專案的標題</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig14.gif" width="297" height="294"></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟三</th>
+      <td width="580"><h3><strong>練習繪製類別圖</strong></h3>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig15.gif" width="478" height="441"></p>
+        <p align="left">自己輸入模型的名稱</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig16.gif" width="254" height="127"></p>
+        <p align="left">右鍵點選模型名稱，選取 Add Diagram/Class Diagram 來增加一個類別圖</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig17.gif" width="501" height="221"></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig18.gif" width="489" height="465"></p>
+        <p align="left">左方工具列選取 Class，滑鼠點選視窗中欲增加類別的位置，增加一個類別</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig19.gif" width="411" height="282"></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">步驟四</th>
+      <td width="580"><h3><strong>今天的目標 </strong> </h3>
+        <p></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig20.gif" width="307" height="437"></p>
+        <p align="center"></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟五</th>
+      <td width="580"> <h3><strong>繪製類別內容 (屬性及方法)</strong></h3>
+        <p align="left">右鍵點選要新增屬性 (Attribute) 或是方法 (Operation) 的類別圖示, 選取 Add/Attribute 
+          或是 Add/Operation</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig21.gif" width="575" height="373"></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig22.gif" width="398" height="149"></p><p></p> 
+      </td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">步驟六</th>
+      <td width="580"> <h3><strong>繪製類別關聯</strong>: </h3>
+        <p align="left">左側工具列選取關聯的種類: Association / Aggregation / Composition 
+          / Generalization / Dependency
+        </p><p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig23.gif" width="382" height="347"> 
+        </p><p align="left">右下角屬性視窗裡填入相關端點的屬性
+        </p><p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig24.gif" width="431" height="389"> </p></td>
+    </tr>
+    <tr bgcolor="FFFFCC"> 
+      <th width="75" align="center">步驟七</th>
+      <td width="580"> <h3><strong>由類別圖產生 C++ 程式碼骨幹:</strong></h3>
+        <p align="left">以上面的圖形編輯器繪製好類別圖以後，你可以以右鍵點選剛才加入的類別圖 Class Diagram，選擇 C++ 
+          / Generate Code ... 來產生 C++ 程式碼骨幹 (.h 檔案，類別定義，.cpp 檔案空的函式定義...)</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig30.gif" width="493" height="420"></p>
+        <p align="center">&nbsp;</p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th align="center">步驟八</th>
+      <td> <h3><strong>由 C++ 程式碼反向擷取類別圖:</strong></h3>
+        <p align="left">反過來如果你已經有一個 C++ 的專案 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/3bags4.rar">3Bags</a>，你不想從頭開始慢慢地畫出類別圖來，也可以讓 
+          StarUML 由你的專案中的 .h 檔案裡面的類別定義裡自動擷取出圖形來，操作方法如下： </p>
+        <p align="left">先產生一個專案 3 Bags，新增一個模型 arthitecture design</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig41.gif" width="415" height="463"></p>
+        <p align="left">左上方窗格中選取專案資料匣，挑選右上方窗格中的 .h 檔案，點選 Add 加入</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig42.gif" width="591" height="455"></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig43.gif" width="591" height="455"></p>
+        <p align="left">點選剛才加入的 architecture design 模型</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig44.gif" width="591" height="293"></p>
+        <p align="left">把關聯用的資料成員畫到類別間的連線上</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig45.gif" width="591" height="455"></p>
+        <p align="center">&nbsp;</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig46.gif" width="344" height="126"></p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig47.gif" width="591" height="455"></p>
+        <p align="left">產生出來的類別圖如下：</p>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/fig471.gif" width="576" height="337"></p></td>
+    </tr>
+    <tr bgcolor="FFFFCC"> 
+      <th align="center">其他<br>
+        練習 </th>
+      <td><h3>如果覺得需要的話，你可以再練習做下面的類別圖，或是你可以用 <a href="https://www.google.com.tw/search?q=%E9%A1%9E%E5%88%A5%E5%9C%96&amp;tbm=isch&amp;tbo=u&amp;source=univ&amp;sa=X&amp;ved=0ahUKEwip7e2Mi47aAhVEnZQKHbAOC9sQsAQINQ&amp;biw=861&amp;bih=480">Google 
+          找到許多不同的類別圖</a>: </h3>
+        <p align="center"><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/Completed-Class-Diagram.gif" width="628" height="699"></p></td>
+    </tr>
+  </tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%206-0%20StarUML%20%E7%B7%B4%E7%BF%92_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Wed Mar 28 2018 11:40:07 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 03/18/2009
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+
+</body></html>

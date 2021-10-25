@@ -1,0 +1,111 @@
+<html><head>
+<title>
+前三週 C++ 實習內容回顧說明
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+</head>
+
+<body stylesrc="index.html" bgproperties="fixed" bgcolor="#C8F4F4" background="%E5%89%8D%E4%B8%89%E9%80%B1%20C++%20%E5%AF%A6%E7%BF%92%E5%85%A7%E5%AE%B9%E5%9B%9E%E9%A1%A7%E8%AA%AA%E6%98%8E_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+<center>
+<h1>
+前三週 C++ 實習內容回顧說明
+</h1>
+</center>
+
+前面三個星期的實習內容主要目的是讓大家趕快進入狀況, 
+主要內容包括下列:
+<ol>
+<p></p><li>
+打字, 多檔案編譯, #include 說明, 記憶體檢測工具
+
+<p></p></li><li>
+iostream 練習, string 類別練習, vector 類別練習
+
+<p></p></li><li>
+函式指標
+<ul>
+<li>
+stdlib sort() intCompare()
+</li><li>
+std::find() operator==()
+</li><li>
+SaleItem::print()
+</li></ul>
+</li></ol>
+
+其中前兩者是希望大家趕快回憶起 C 和 Data Structure 
+課程學到的內容, 建立以 C++ 學習物件導向程式製作的基礎。
+<p> 
+也許你覺得這些練習好像都沒有完整地在課堂裡講過, 
+只有提到比較基本的語法和概念, 
+就要你來實習課上機寫了,
+好像不是那麼容易! 
+的確是這樣的, 
+不過換一個角度想,
+如果都只練習你已經比較熟悉的東西, 
+那實習課應該是蠻浪費時間的, 
+好像只是工匠在熟悉技藝一樣,
+再提醒大家一下,
+大學裡你應該學到的不是只有各種技術,
+你應該要學習怎樣找到關鍵的技術,
+怎樣學習關鍵的技術。
+</p><p> 我對實習課的要求是這樣的: 
+</p><blockquote> 我希望在實習課裡提供你足夠份量發揮的內容, 你以自己的進度來學習 (這和課堂上課有很大的差別), 在你動手的同時, 你可以不斷地透過實作驗證自己的認知, 
+  也提供你助教, 同學, 老師來詢問, 修正你自己吸收技術的方法, 讓這個程式設計的課程不會淪於空洞, 當然你很快也就會發現個人學習的動力其實主宰你在實習課學習的內容, 
+  這也是資訊系學生將來成功地面對工作挑戰時很關鍵的心理素質。 </blockquote>
+
+"函式指標的練習" 希望你藉由給你的三個範例體會到一個以前可能沒有練習過的概念: 
+<blockquote> "我們除了可以透過函式的參數把一些<font color="#FF0000">資料</font>傳遞給函式處理之外, 也可以把一些<font color="#FF0000">處理的步驟</font>透過函式的參數傳遞給函式" 
+</blockquote>
+
+同樣的一個函式, 除了可以處理傳入的各種<font color="#FF0000">不同資料</font>之外, 也可以運用傳入的<font color="#FF0000">不同的處理方法</font>來處理資料(而且不需要事先就寫好在函式裡), 
+甚至在第三個練習裡, 你可以發現在傳遞資料給一個函式的同時, 處理這個資料的方法也和資料<font color="#FF0000">綁在一起</font>傳遞給函式, 
+這是 C 語言在支援物件化程式和程序化的程式時一個很大的區別, 你以後還會看到 C++ 中用更方便的方法來實作這種概念, 所以在這裡讓大家重複地練習了三個子單元。 
+<p>
+接下來我們開始要練習基本的物件化程式製作了!!各位加油!!
+
+<!---------------------------------------------------------------->
+</p><center><p><img src="%E5%89%8D%E4%B8%89%E9%80%B1%20C++%20%E5%AF%A6%E7%BF%92%E5%85%A7%E5%AE%B9%E5%9B%9E%E9%A1%A7%E8%AA%AA%E6%98%8E_files/rainbow.gif"></p></center>
+
+<div align="right">
+<p>
+<font size="-1"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 程式設計課程
+</a>
+首頁
+<br>
+<i>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Wed Mar 13 2013 14:29:38 GMT+0800 (Taipei Standard Time)
+<br>
+製作日期: 3/13/2013
+by 丁培毅 (Pei-yih Ting)
+<br>E-mail: <a href="mailto:pyting@cs.ntou.edu.tw">pyting@cs.ntou.edu.tw</a>
+TEL: 02 24622192x6615
+<br><a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a>
+<a href="http://www.ntou.edu.tw/eecs/"><font color="#0000cc">電機資訊學院</font></a><font color="#0000cc">
+<a href="http://www.cse.ntou.edu.tw/">資訊工程學系</a>
+</font></i>
+</i></font></p><font size="-1"><i>
+<img src="%E5%89%8D%E4%B8%89%E9%80%B1%20C++%20%E5%AF%A6%E7%BF%92%E5%85%A7%E5%AE%B9%E5%9B%9E%E9%A1%A7%E8%AA%AA%E6%98%8E_files/albatros80x100.gif" width="80" height="100">
+</i></font></div><font size="-1"><i>
+
+
+
+</i></font></body></html>

@@ -1,0 +1,570 @@
+<html><head>
+<title>
+Lab 14-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2014-1_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+  <h1>
+Lab 14-1: Generic Programming - <br>
+    Template
+of Managed Pointer</h1>
+<center><p><img src="Lab%2014-1_files/rainbow.gif"></p></center>
+
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">實習目標</th>
+      <td width="580"> 練習撰寫 樣板類別 (template class) <br>
+        特別注意 樣板類別 的程式碼<font color="#FF0000"><strong>應該放在 *.h 檔案中</strong></font> 
+        <br>
+        請觀察撰寫 樣板類別 時所出現的語法錯誤 <br>
+        請觀察有 樣板類別 時的執行檔大小 </td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟一</th>
+      <td width="580"> 在這個練習中我們逐步地觀察為什麼需要撰寫 樣板類別, 並且將一個現成的類別改寫為 樣板類別。 首先, 我們先瞭解下面 
+        Fred 和 FredPtr 類別, 以及它們的測試程式: 
+        <pre>    <font color="blue"><b>Fred.h</b></font>
+    #ifndef Fred_H
+    #define Fred_H
+    
+    class Fred
+    {
+    public:
+        Fred();
+        ~Fred();
+        void service();
+    private:
+        static int m_serialID;
+        const int m_objectID;
+    };
+    
+    #endif
+    <p>
+    <font color="blue"><b>Fred.cpp</b></font>
+    #include "Fred.h"
+
+    #include &lt;iostream&gt;
+    using namespace std;
+    
+    int Fred::m_serialID = 0;
+    
+    Fred::Fred():m_objectID(m_serialID++)
+    {
+        cout &lt;&lt; "Fred::ctor ID=" &lt;&lt; m_objectID &lt;&lt; endl; 
+    }
+    
+    Fred::~Fred()
+    {
+        cout &lt;&lt; "Fred::dtor ID=" &lt;&lt; m_objectID &lt;&lt; endl;
+    }
+    
+    void Fred::service()
+    {
+        cout &lt;&lt; "Fred::service() ID=" &lt;&lt; m_objectID &lt;&lt; endl; 
+    }</p></pre>
+        Fred 類別是一個自定的類別, 這個類別目前沒有設計什麼功能在裡面, 目前主要是為了配合 FredPtr 類別來運作, 顯示 FredPtr 
+        類別的用途。 
+        <p> 下面的 FredPtr 類別我們稱為 <font color="red"><strong>Managed pointer</strong></font><strong>,</strong> 
+          基本上把一個 Fred 物件的指標包裝起來, 希望對於寫程式的人來說這個類別的物件的使用方法和 C/C++ 內建的 Fred 指標變數一模一樣, 
+          但是額外增加了<font color="#FF0000"><strong>資源管理</strong></font>的功能, 在解構 FredPtr 
+          物件時, 自動幫程式設計者刪除指標所指到的 Fred 物件。 有的時候寫程式的人動態地配置了一塊記憶體, 但是很容易忘記釋放它; 或是在運用 
+          C++ Exception Handling 時, 由於 Exception 的發生, 執行時跳過了正常釋放的程式碼, 此時若是運用下面這個 
+          FredPtr 類別就能夠自動地釋放所配置的記憶體: 
+        </p><pre>    <font color="blue"><b>FredPtr.h</b></font>
+    #ifndef FredPtr_h
+    #define Fredptr_h
+    
+    #include "Fred.h"
+    
+    class FredPtr
+    {
+    public:
+        FredPtr(Fred* ptr=0);
+        ~FredPtr();
+        void deallocate();
+        FredPtr&amp; operator=(Fred* ptr);
+        Fred* <font color="#FF0000">operator-&gt;</font>();
+        Fred&amp; operator*();
+        Fred* relinguishOwnership();
+    private:
+        Fred* m_ptr;
+        FredPtr&amp; operator=(const FredPtr &amp;); // unimplemented
+        FredPtr(const FredPtr &amp;);            // unimplemented
+    };
+    
+    #endif
+<p>
+    <font color="blue"><b>FredPtr.cpp</b></font>
+    #include "FredPtr.h"
+    #include &lt;assert.h&gt;
+    
+    FredPtr::FredPtr(Fred* ptr)
+        : m_ptr(ptr) 
+    {
+    }
+    
+    FredPtr::~FredPtr()
+    {
+        deallocate();
+    }
+    
+    void FredPtr::deallocate()
+    {
+        delete m_ptr; 
+        m_ptr = 0;
+    }
+    
+    FredPtr&amp; FredPtr::operator=(Fred* ptr)
+    {
+        deallocate();
+        m_ptr = ptr;
+        return *this;
+    }
+    
+    Fred* FredPtr::<font color="#FF0000">operator-&gt;</font>()
+    {
+        assert(m_ptr != 0);
+        return m_ptr;
+    }
+    
+    Fred&amp; FredPtr::operator*()
+    {
+        assert(m_ptr != 0);
+        return *m_ptr;
+    }
+    
+    // 使得 FredPtr 物件不再擁有一 Fred 物件
+    Fred* FredPtr::relinguishOwnership()
+    {
+        Fred* old = m_ptr;
+        m_ptr = 0;
+        return old;
+    }</p></pre>
+        下面是 FredPtr 類別的測試程式: 請注意: 一個 FredPtr 物件可以擁有一個 Fred 物件, 同時在清除這個指標的內容時也必須負責這個物件的刪除, 
+        由這個物件中拷貝指標內容時也必須透過 relinguishOwnership() 這個成員函式順道取得對 Fred 物件的擁有權: 
+        <pre>    <font color="blue"><b>TestFredPtr01.cpp</b></font>
+    #include "Fred.h"
+    #include "FredPtr.h"
+    #include &lt;iostream&gt;
+    using namespace std;
+    
+    void main()
+    {
+        FredPtr ptrFred1, ptrFred2(new Fred);
+        // ptrFred2 擁有一 Fred 物件 (ID=0)
+    
+        ptrFred1 = new Fred; // ptrFred1 擁有該 Fred 物件 (ID=1)
+    
+        ptrFred1 = 0; // 刪除該 Fred 物件 (ID=1)
+    
+        ptrFred2-&gt;service();
+        (*ptrFred2).service();
+    
+        Fred *ptrFred;
+        ptrFred = ptrFred2.relinguishOwnership();
+        delete ptrFred;     // without this line, memory is
+                            //  leaking 刪除 Fred 物件 (ID=0)
+    }</pre>
+        <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab14/TestFredPtr01.exe">範例執行程式</a> <p> 執行結果範例: 
+        </p><pre>    Fred::ctor ID=0
+    Fred::ctor ID=1
+    Fred::dtor ID=1
+    Fred::service() ID=0
+    Fred::service() ID=0
+    Fred::dtor ID=0</pre></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center">步驟二</th>
+      <td width="580"> 注意在步驟一中 FredPtr 類別的 Assignment operator 和 copy ctor 都沒有實作, 
+        同時也把它們設為 private 成員函式, 以避免不小心誤用。 
+        <p> 我們先來嘗試製作這兩個成員函式, 首先是 assignment operator: FredPtr&amp; operator=(const 
+          FredPtr&amp;); 實作這個函式最主要的目的是使物件間可以用下列設定敘述來拷貝, 例如: 
+        </p><pre>    FredPtr ptr1(new Fred), ptr2(new Fred);
+    ...
+    ptr1 = ptr2;</pre>
+        在這個動作中, ptr1 中原來所掌管的 Fred 物件的指標會被覆蓋掉, 所以就應該把這個 Fred 物件刪除掉, 否則就有記憶體的遺漏。現在考量另一個問題, 
+        完成這個設定動作以後 ptr1 和 ptr2 如果是指向相同的 Fred 物件的話, 究竟該由 ptr1 還是 ptr2 來管理 Fred 
+        物件呢? (因為解構 FredPtr 物件時釋放所管理的 Fred 物件, 只能有單一一個物件來管理) 
+        <p> 所以在這裡我們實作的時候乾脆拷貝一份, 各自管理自己的 Fred 物件 (請自己先實作看看): 
+        </p><pre><font color="DDEEFF">
+    FredPtr&amp; FredPtr::operator=(const FredPtr &amp;rhs)
+    {
+        if (&amp;rhs == this) return *this;
+        deallocate();
+        if (rhs.m_ptr)
+            m_ptr = new Fred(*rhs.m_ptr);
+        else
+            m_ptr = 0;
+        return *this;
+    }</font></pre>
+        請注意這個實作和一般的 設定運算 有相當的差異性存在, 這也是為什麼原來的 FredPtr 並不想實作 assignment operator 
+        的原因之一 
+        <p>請把 assignment operator 設為 public 成員函式 
+        </p><p>接下來我們來考量拷貝建構元 (copy ctor), 這個成員函式最主要由一個已經建構好的 FredPtr 物件建構出一個新的物件, 
+          因為需要擁有所管理的 Fred 物件, 所以在這個成員函式中也需要以原來的 FredPtr 物件所管理的 Fred 物件為範本, 建立一個新的 
+          Fred 物件, (請自己先實作看看): 
+        </p><pre><font color="DDEEFF">
+    FredPtr::FredPtr(const FredPtr &amp;src)
+    {
+        if (src.m_ptr)
+            m_ptr = new Fred(*src.m_ptr);
+        else
+            m_ptr = 0;
+    }</font></pre>
+        <p>請把拷貝建構元設為 public 成員函式 
+        </p><p> </p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟三</th>
+      <td width="580"> 完成上一步驟後我們可以用下面的主程式來測試一下: 
+        <pre>    #include "Fred.h"
+    #include "FredPtr.h"
+    #include &lt;iostream&gt;
+    using namespace std;
+    
+    void main()
+    {
+        FredPtr ptrFred1, ptrFred2(new Fred);
+        FredPtr ptrFred3(new Fred);
+    
+        ptrFred1 = new Fred;
+        ptrFred1 = 0;
+    
+        ptrFred1 = new Fred;
+        ptrFred1 = ptrFred3;
+        
+        FredPtr ptrFred4 = ptrFred1;
+    
+        ptrFred2-&gt;service();
+        (*ptrFred2).service();
+    
+        Fred *ptrFred;
+        ptrFred = ptrFred2.relinguishOwnership();
+        delete ptrFred; // without this line, memory is leaking
+    }</pre>
+        <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab14/TestFredPtr02.exe">範例執行程式</a> <p> 測試結果如下: 
+        </p><pre>    Fred::ctor ID=0
+    Fred::ctor ID=1
+    Fred::ctor ID=2
+    Fred::dtor ID=2
+    Fred::ctor ID=3
+    Fred::dtor ID=3
+    Fred::copy ctor ID=4
+    Fred::copy ctor ID=5
+    Fred::service() ID=0
+    Fred::service() ID=0
+    Fred::dtor ID=0</pre></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center">步驟四</th>
+      <td width="580"> 接下來我們來看看對於這種 Managed Pointer 類別的新需求: 
+        <pre><font color="#0000FF"><strong>      假設我們的程式裡有一個 Wilson 的類別, 我們也希望
+      能夠像 FredPtr 一樣有一個 Managed Pointer 類別能夠 
+      包裝 Wilson 物件的指標</strong></font></pre>
+        最簡單的方法當然就是拷貝步驟一、二中的 FredPtr 類別改成 WilsonPtr 類別, 不過如果我們的程式裡還有很多其它的類別也都需要 
+        Managed Pointer 的話, 這個拷貝的動作就造成程式碼的重複 (redundancy), 而顯得很不聰明了, 萬一以後發現 Managed 
+        Pointer 的機制需要修改的話, 需要把每一個重複的地方都改好, 否則就會留下不幸的 bug 在程式裡了!! 
+        <p> 這裡我們要運用<font color="#FF0000"><strong>樣板類別 (template class)</strong></font> 
+          的語法, 修改步驟一、二中的 FredPtr 成為 HeapPtr 類別, 使得編譯器可以根據 HeapPtr 樣板自動幫我們產生新的 
+          Managed Pointer 類別, 就好像我們之前使用 vector&lt;int&gt;, vector&lt;Fred&gt;, 
+          vector&lt;double *&gt; 一樣, 我們可以用 HeapPtr&lt;Fred&gt;, HeapPtr&lt;Wilson&gt;, 
+          HeapPtr&lt;int&gt;, 每次你做一個新的組合 HeapPtr&lt;NewClass&gt;, 編譯器就幫你合成一個新的 
+          Managed Pointer 類別, 最主要的修改步驟如下: 
+        </p><ol>
+          <li> 將類別名稱 FredPtr 改為 HeapPtr 
+          </li><li> 類別宣告前增加 template&lt;class T&gt; 
+          </li><li>類別中使用到 Fred 類別的地方改為參數 T (也可以沿用 Fred, 在上一步就用 template&lt;class Fred&gt;, 
+            比較不夠一般化就是了) 
+          </li><li> <font color="red"><strong>將所有在 FredPtr.cpp 中定義的 FredPtr 類別成員函式都移到 
+            <font size="+2" color="#0000FF">HeapPtr.h</font> 中</strong></font> 
+          </li><li>每一個類別成員函式定義前增加 template&lt;class T&gt; , 函式裡使用到 Fred 的地方改成參數 T
+          </li><li>將 scope operator <font color="blue">FredPtr::</font> 改為 <font color="blue">HeapPtr&lt;T&gt;::</font> 
+          </li><li> 將用到 FredPtr 型態的宣告改為 HeapPtr&lt;T&gt; (VC2010 並沒有要求把每一個 FredPtr 
+            型態都改成 HeapPtr&lt;T&gt;, 也可以是 HeapPtr, 但是我不太確定規則!!! 你也可以在編譯器產生錯誤訊息時再改) 
+        </li></ol></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟五</th>
+      <td width="580"> 
+        <p><font color="#0000FF"><strong>Wilson.h</strong></font></p>
+		<pre>#ifndef Wilson_H
+#define Wilson_H
+
+class Wilson
+{
+public:
+    Wilson();
+    Wilson(Wilson &amp;);
+    ~Wilson();
+    void service();
+private:
+    static int m_serialID;
+    const int m_objectID;
+};
+
+#endif</pre>
+        <p><font color="#0000FF"><strong>Wilson.cpp</strong></font></p>
+		<pre>#include "Wilson.h"
+
+#include &lt;iostream&gt;
+using namespace std;
+
+int Wilson::m_serialID = 0;
+
+Wilson::Wilson():m_objectID(m_serialID++)
+{
+    cout &lt;&lt; "Wilson::ctor ID=" &lt;&lt; m_objectID &lt;&lt; endl; 
+}
+
+Wilson::~Wilson()
+{
+    cout &lt;&lt; "Wilson::dtor ID=" &lt;&lt; m_objectID &lt;&lt; endl;
+}
+
+Wilson::Wilson(Wilson&amp;):m_objectID(m_serialID++)
+{
+    cout &lt;&lt; "Wilson::copy ctor ID=" &lt;&lt; m_objectID &lt;&lt; endl; 
+}
+
+void Wilson::service()
+{
+    cout &lt;&lt; "Wilson::service() ID=" &lt;&lt; m_objectID &lt;&lt; endl; 
+}</pre>
+		<p>我們可以用下面的程式來測試一下上面的樣板類別</p>
+        <pre>    #include "Fred.h"
+    #include "Wilson.h"
+    #include "HeapPtr.h"
+    #include &lt;iostream&gt;
+    using namespace std;
+
+    void main()
+    {
+        <font color="#FF0000"><strong>HeapPtr&lt;Fred&gt;</strong></font> ptrFred1, ptrFred2(new Fred);
+        <font color="#FF0000"><strong>HeapPtr&lt;Fred&gt;</strong></font> ptrFred3(new Fred);
+
+        ptrFred1 = new Fred;
+        ptrFred1 = 0;
+
+        ptrFred1 = new Fred;
+        ptrFred1 = ptrFred3;
+
+        <font color="#FF0000"><strong>HeapPtr&lt;Fred&gt;</strong></font> ptrFred4 = ptrFred1;
+
+        ptrFred2-&gt;service();
+        (*ptrFred2).service();
+
+        Fred *ptrFred;
+        ptrFred = ptrFred2.relinguishOwnership();
+        delete ptrFred; // without this line, memory is leaking
+
+        <strong><font color="#FF0000">HeapPtr&lt;Wilson&gt;</font></strong> ptrWilson(new Wilson);
+        ptrWilson-&gt;service();
+
+        <font color="#FF0000"><strong>HeapPtr&lt;int&gt;</strong></font> ptrIntAry(new int);
+    }</pre>
+        <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab14/TestHeapPtr.exe">範例執行程式</a> <p> 測試結果如下: 
+        </p><pre>    Fred::ctor ID=0
+    Fred::ctor ID=1
+    Fred::ctor ID=2
+    Fred::dtor ID=2
+    Fred::ctor ID=3
+    Fred::dtor ID=3
+    Fred::copy ctor ID=4
+    Fred::copy ctor ID=5
+    Fred::service() ID=0
+    Fred::service() ID=0
+    Fred::dtor ID=0
+    Wilson::ctor ID=0
+    Wilson::service() ID=0</pre></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center">步驟六</th>
+      <td width="580"> <p>你可以用 VC 中<font color="#0000FF">編譯的選項</font>來看看編譯器<font color="#0000FF">自動產生的類別</font>的程式碼, 
+        </p>
+        <ul>
+          <li><font color="#FF0000">VC6</font>: Project / Setting / C/C++ / Category: 
+            Listing Files / Listing File Type: Assembly With Source Code 或是 </li>
+          <li><font color="#FF0000">VC2010</font>: 專案 / xxx 屬性 / 組態屬性 / C/C++ 
+            / 輸出檔 / 組合語言輸出:有原始程式碼的組譯檔, </li>
+        </ul>
+        <p> 重新編譯, 檢視產生出來的組合語言檔案 *.asm, 你應該可以在 TestHeapPtr.asm 中找到編譯器針對 HeapPtr&lt;Fred&gt;, 
+          HeapPtr&lt;Wilson&gt;, 和 HeapPtr&lt;int&gt; 所產生的程式碼, 例如下面的組合語言函式是 HeapPtr&lt;Wilson&gt; 
+          類別的解構元函式 ~HeapPtr&lt;Wilson&gt;() </p>
+        <pre>    ; HeapPtr&lt;Wilson&gt;::~HeapPtr&lt;Wilson&gt;, COMDAT
+    <font color="blue">??1?$HeapPtr@VWilson@@@@QAE@XZ</font> PROC NEAR 
+    ; Line 31
+    	push	ebp
+    	mov	ebp, esp
+    	push	ecx
+    	mov	DWORD PTR _this$[ebp], ecx
+    ; Line 32
+    	mov	ecx, DWORD PTR _this$[ebp]
+        ; HeapPtr&lt;Wilson&gt;::deallocate
+    	call	?deallocate@?$HeapPtr@VWilson@@@@QAEXXZ
+    ; Line 33
+    	mov	esp, ebp
+    	pop	ebp
+    	ret	0
+    ??1?$HeapPtr@VWilson@@@@QAE@XZ ENDP
+    ; HeapPtr&lt;Wilson&gt;::~HeapPtr&lt;Wilson&gt;</pre>
+	<p>請注意: 對於 C++ 來說 template 是一個比較晚才加入的功能, 如果你在兩個模組 (.cpp) 中都使用到 vector&lt;int&gt;, 
+          編譯器其實幫你產生了兩份 vector&lt;int&gt; 的類別, 低階的類別名稱一模一樣, 所以對於這兩個模組來說 vector&lt;int&gt; 
+          是相同的型態, 比較特別的是這兩份的程式碼都給 linker 以後, linker 並不會說它們重複定義, 這兩個 vector&lt;int&gt; 
+          會標示為 <a href="http://blog.copton.net/articles/linker/#templates">Weak 
+          symbols</a> (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab14/C%2B%2B%20and%20the%20linker%20-%20template%20names%20are%20weak%20symbols.pdf">local</a>), 
+          就好像連結 library 時, 如果有重複的函式 linker 也不會說重複定義, 以先找到的為準</p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th align="center">步驟七</th>
+      <td> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, 
+        .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 壓縮起來, 選擇 Lab14-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟八</th>
+      <td width="580"> 有了<a href="http://squall.cs.ntou.edu.tw/cpp/103spring/slides/CPP27-Template.pdf">樣板 
+        (template) 的語法</a>以後, 你除了可以製作<strong>樣板全域函式</strong> (templated toplevel 
+        function) 以及<strong>樣板類別</strong> (templated class)之外, 也可以製作<strong>樣板成員函式</strong> 
+        (templated member function), 例如: 
+        <pre>//------ MyClass.h -----
+class MyClass
+{
+public:
+    MyClass(void);
+    template &lt;class T&gt; void func(T x);
+};
+
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+template &lt;class T&gt; void MyClass::func(T x)
+{
+    std::cout &lt;&lt; "in func(" &lt;&lt; typeid(x).name() &lt;&lt; "): "<br>              &lt;&lt; x &lt;&lt; std::endl;
+}
+//------ end of MyClass.h -----
+</pre> 
+        <p>這樣子的設計比較奇怪的地方是一個物件的介面是可以沒有限定個數的, 如果有兩個客戶都使用相同的 MyClass 類別的物件, 但是使用 
+          x.func(r) 的時候, r 的型態不同, 此時兩個 MyClass 是相同的嗎? 請想辦法測試一下 (<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab14/testTemplate1.rar">testTemplate1.rar</a>), 
+          詳細測試以後會發現 linker 能夠組合各個模組裡面重複的 MyClass::func(T), 如果 T 是相同的, 因為是 Weak 
+          symbol, 所以 linker 隨便挑選一份, 如果 T 不同, 則 linker 會統一組合成 MyClass</p>
+        <p>請參考 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab14/testTemplate.rar">testTemplate.rar</a></p>
+        <p>請注意這個 testTemplate 專案你下載以後是沒有辦法直接建置成功的, 因為我故意把上面 void MyClass::func(T 
+          x){ ... }的定義放在 <font color="#FF0000">MyClass.cpp</font> 裡, 請特別注意<strong>連結器</strong>的錯誤訊息, 
+          請適當修改以後再測試</p>
+        <p>當 template &lt;class T&gt; void MyClass::func(T x) { ... }<br>
+          沒有定義在 MyClass.h 檔案中時, 因為 main() 中使用 x.func(r) 和 x.func(s),<br>
+          編譯器在編譯 main.cpp 時, 只看到 MyClass.h 裡面類別的宣告, <br>
+          沒有看到你寫在 MyClass.cpp 裡的 template &lt;class T&gt; void MyClass::func(T 
+          x) { ... }<br>
+          所以不會幫你產生 func&lt;double&gt;() 和 func&lt;int&gt;() 兩個成員函式, 因此<br>
+          會出現下面兩個連結錯誤:<br>
+          <br>
+          1&gt; LINK : 最後的累加連結找不到或未建置 C:\user\pyting\testTemplate\Debug\testTemplate.exe，正在執行完整連結<br>
+          1&gt;main.obj : error LNK2019: 無法解析的外部符號 "public: void __thiscall 
+          <strong>MyClass::func&lt;double&gt;(double)</strong>" (??$func@N@MyClass@@QAEXN@Z) 
+          在函式 _main 中被參考<br>
+          1&gt;main.obj : error LNK2019: 無法解析的外部符號 "public: void __thiscall 
+          <strong>MyClass::func&lt;int&gt;(int)</strong>" (??$func@H@MyClass@@QAEXH@Z) 
+          在函式 _main 中被參考<br>
+          1&gt;C:\user\pyting\testTemplate\Debug\testTemplate.exe : fatal error 
+          LNK1120: 2 個無法解析的外部符號<br>
+          <br>
+          不過 func&lt;char *&gt;(char *) 因為是在 MyClass() 函式中使用到的,<br>
+          不管你 template &lt;class T&gt; void MyClass::func(T x) <br>
+          是定義在 MyClass.h 或是 MyClass.cpp 中,<br>
+          compiler 在編譯 MyClass.cpp 時是一定會產生的</p>
+        <br>
+      </td>
+    </tr>
+  </tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%2014-1_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%2014-1_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Jun 16 2016 10:18:26 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 05/29/2004
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

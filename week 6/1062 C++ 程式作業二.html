@@ -1,0 +1,463 @@
+<html><head>
+<title>1062 C++ 程式作業二</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+</head>
+
+<body stylesrc="index.html" bgproperties="fixed" bgcolor="#C8F4F4" background="1062%20C++%20%E7%A8%8B%E5%BC%8F%E4%BD%9C%E6%A5%AD%E4%BA%8C_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<h1 align="center">1062 C++ 程式設計<font color="purple">作業二 </font></h1>
+</font>
+<h3 align="center"><font face="微軟正黑體" color="purple">繳交時間</font> <font face="微軟正黑體"><br>
+  <font color="#0000FF">2A</font>: <font color="#FF0000">107/04/12</font> 星期四 
+  21:00<br>
+  <font color="#0000FF">2B</font>: <font color="#FF0000">107/04/13</font> 星期五 
+  21:00</font></h3>
+<center>
+  <h1><font face="微軟正黑體">簡易成績資料庫</font></h1>
+</center>
+<center>
+  <font face="微軟正黑體"><img src="1062%20C++%20%E7%A8%8B%E5%BC%8F%E4%BD%9C%E6%A5%AD%E4%BA%8C_files/rainbow.gif"></font>
+</center>
+<font face="微軟正黑體"> </font>
+<p> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign2/GradeDB2.exe">範例執行程式</a> </font>
+</p><p> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign1/assign1.html">上一次作業</a>中最主要是複習 C 語法，在實習課程和實習的小考裡大家練習完成個別的抽象資料型態的撰寫 
+  Complex 還有 SparseMatrix，以及運用這些 ADT 製作簡單的應用程式。本次作業中你要應用 <strong>C++ 語法</strong>設計基本的類別與物件， 
+  加上<a href="http://squall.cs.ntou.edu.tw/cpp/103spring/slides/CPP13-CtorAndDtor.pdf">建構元、 解構元</a>、 new/delete、 
+  以及類別界面的設計， 製作一個基本的成績資料庫以存放某一科目一學期內學生的所有成績， 並提供操作者進行查詢、增加、修改、刪除、存檔等功能。 你在這一次作業中應該要練習</font></p>
+<ul>
+  <li><font face="微軟正黑體">建構並維護整個程式執行時的物件架構<br>
+    </font></li>
+  <li><font face="微軟正黑體">基於上述物件架構，以及各個不同類別或是相同類別的物件之間的互動， 完成指定的程式功能<br>
+    </font></li>
+  <li><font face="微軟正黑體">熟悉運用 C++ 製作物件導向程式的工具，包括 Visual Studio 提供的一些輔助功能，書簽功能，分檔案編譯連結的基本形式 
+    </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 了解並且練習設計物件導向程式的基本流程 </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 嘗試將系統中的類別/物件描述出來，在軟體裡實作軟體的靜態模型 </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 嘗試以 UML 描述類別及類別之間的關係 (可以用手畫, 用 Powerpoint, Visio, StarUML, 
+    或是 VC2010 的類別圖表 等等) </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 嘗試設計 類別/物件 的介面 </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 小心地封裝所有的實作細節 </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 建構元與解構元的製作 </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 檔案串流的使用 </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 請特別注意識別字(identifier) (包括變數名稱，類別名稱與函式名稱) 的命名，每一個變數的名稱都必須要是有意義的英文字，實在不知道怎樣用英文命名的話可以查詢漢英字典或是同義字 
+    (thesaurus) 辭典或是請教一下 Google，應該可以有一些幫助 </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 請撰寫各個類別獨立測試的函式，你有寫的成員函式或是界面就應該要設計它可以派上用場的環境來呼叫看看，運用 
+    assert 建立自動比對的程式碼，製作 unitTest 的功能 </font>
+    <p> 
+  </p></li><li><font face="微軟正黑體"> 請注意記憶體的配置 new/new[] 與釋放 delete/delete[], 請以 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab02/Lab2-3.html">memory_leak</a> 
+    功能檢查自己的程式是不是有記憶體遺失的問題 </font>
+</li></ul>
+<p><font face="微軟正黑體">這是一個文字介面的程式，以下是範例程式執行時的輸出結果， 請仔細閱讀，可以說明大部分程式的功能</font></p>
+<p>
+</p><hr width="95%" size="5" align="LEFT">
+<font face="微軟正黑體"><p></p> </font>
+<p> 
+</p><center>
+  <table border="0">
+    <tbody><tr> 
+      <td width="40%"><font face="微軟正黑體"> c:&gt;GradeDB1<br>
+        <br>
+        ---<br>
+        請選擇下列功能：<br>
+        1：輸入資料庫檔案名稱<br>
+        2：結束操作<br>
+        1<br>
+        請輸入檔案名稱：class1062.dat<br>
+        ---<br>
+        &lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        6<br>
+        &gt;&gt;資料庫內沒有任何資料<br>
+        ---<br>
+        &lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        1<br>
+        請輸入學生姓名：張三<br>
+        請輸入學生學號：B001 
+        <p><br>
+          ---<br>
+          &lt;class1062.dat&gt;請選擇下列功能：<br>
+          1：增加一新學生<br>
+          2：對一學生增加一新成績<br>
+          3：查詢一學生之所有成績<br>
+          4：更改一學生之成績<br>
+          5：刪除某一學生<br>
+          6：列印顯示所有資料庫中之資料<br>
+          7：存檔並關閉 class1062.dat 檔案<br>
+          8：結束操作<br>
+          2<br>
+          請輸入學生姓名：張三<br>
+          請輸入成績：76<br>
+          ---<br>
+          &lt;class1062.dat&gt;請選擇下列功能：<br>
+          1：增加一新學生<br>
+          2：對一學生增加一新成績<br>
+          3：查詢一學生之所有成績<br>
+          4：更改一學生之成績<br>
+          5：刪除某一學生<br>
+          6：列印顯示所有資料庫中之資料<br>
+          7：存檔並關閉 class1062.dat 檔案<br>
+          8：結束操作<br>
+          2<br>
+          請輸入學生姓名：張三<br>
+          請輸入成績：96<br>
+          ---<br>
+          &lt;class1062.dat&gt;請選擇下列功能：<br>
+          1：增加一新學生<br>
+          2：對一學生增加一新成績<br>
+          3：查詢一學生之所有成績<br>
+          4：更改一學生之成績<br>
+          5：刪除某一學生<br>
+          6：列印顯示所有資料庫中之資料<br>
+          7：存檔並關閉 class1062.dat 檔案<br>
+          8：結束操作<br>
+          3<br>
+          請輸入學生姓名：張三<br>
+          &gt;&gt;姓名：張三<br>
+          &gt;&gt;學號：B001 <br>
+          &gt;&gt;成績：76 96 <br>
+          &gt;&gt;平均成績是：86<br>
+          ---<br>
+          &lt;class1062.dat&gt;請選擇下列功能：<br>
+          1：增加一新學生<br>
+          2：對一學生增加一新成績<br>
+          3：查詢一學生之所有成績<br>
+          4：更改一學生之成績<br>
+          5：刪除某一學生<br>
+          6：列印顯示所有資料庫中之資料<br>
+          7：存檔並關閉 class1062.dat 檔案<br>
+          8：結束操作<br>
+          1<br>
+          請輸入學生姓名：李四<br>
+          請輸入學生學號：B002<br>
+          ---<br>
+          &lt;class1062.dat&gt;請選擇下列功能：<br>
+          1：增加一新學生<br>
+          2：對一學生增加一新成績<br>
+          3：查詢一學生之所有成績<br>
+          4：更改一學生之成績<br>
+          5：刪除某一學生<br>
+          6：列印顯示所有資料庫中之資料<br>
+          7：存檔並關閉 class1062.dat 檔案<br>
+          8：結束操作<br>
+          3<br>
+          請輸入學生姓名：李四<br>
+          &gt;&gt;姓名：李四<br>
+          &gt;&gt;目前沒有記錄任何資料<br>
+          ---<br>
+        </p>
+        </font></td>
+      <td width="40%"> <font face="微軟正黑體">&lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        2<br>
+        請輸入學生姓名：李四<br>
+        請輸入成績：80<br>
+        ---<br>
+        &lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        3<br>
+        請輸入學生姓名：王五<br>
+        &gt;&gt;資料庫內找不到此學生<br>
+        ---<br>
+        &lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        4<br>
+        請輸入學生姓名：張三<br>
+        &gt;&gt;姓名：張三<br>
+        &gt;&gt;學號：B001 <br>
+        &gt;&gt;成績：76 96 <br>
+        請問要修改第幾筆成績：2<br>
+        請輸入成績：98<br>
+        ---<br>
+        &lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        6<br>
+        &gt;&gt;姓名：張三<br>
+        &gt;&gt;學號：B001 <br>
+        &gt;&gt;成績：76 98<br>
+        &gt;&gt;平均成績是：87<br>
+        &gt;&gt;姓名：李四<br>
+        &gt;&gt;學號：B002<br>
+        &gt;&gt;成績：80 <br>
+        &gt;&gt;平均成績是：80<br>
+        ---<br>
+        &lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        5<br>
+        請輸入學生姓名：李四<br>
+        ---<br>
+        &lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        1<br>
+        請輸入學生姓名：張三<br>
+        &gt;&gt;資料庫內已經有此一學生<br>
+        ---<br>
+        &lt;class1062.dat&gt;請選擇下列功能：<br>
+        1：增加一新學生<br>
+        2：對一學生增加一新成績<br>
+        3：查詢一學生之所有成績<br>
+        4：更改一學生之成績<br>
+        5：刪除某一學生<br>
+        6：列印顯示所有資料庫中之資料<br>
+        7：存檔並關閉 class1062.dat 檔案<br>
+        8：結束操作<br>
+        7<br>
+        ---<br>
+        請選擇下列功能：<br>
+        1：輸入資料庫檔案名稱<br>
+        2：結束操作<br>
+        2<br>
+        </font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體"><p></p> 
+<p>　</p>
+</font>
+<p>
+</p><hr width="93%" size="5" align="LEFT">
+<font face="微軟正黑體"><p></p> 
+</font><p><font face="微軟正黑體">請注意：</font>
+</p><p> 
+</p><p><font face="微軟正黑體"> 請依照下列提示製作你的類別：</font></p>
+<ol>
+  <p> 
+  </p><li><font face="微軟正黑體">請製作 Grade 類別以存放同一個學生該科目本學期的所有成績， 本作業中限定最多可輸入 6 個成績， 如果使用者打算存入第七個成績時系統會列印出下列錯誤訊息：<br>
+    <font color="red">&gt;&gt;超過個人最多成績筆數無法加入資料庫內</font></font></li>
+  <p> 
+  </p><li><font face="微軟正黑體">請製作 Student 類別以存放某一學生之個人資料， 在此類別中需<font color="#0000FF">動態配置陣列</font>存放學生之姓名與學號， 
+    此外你必須假設學生姓名不超過 10 個字元 (合理的中文姓名)，學號為 4 個字元，如此你可以將鍵盤輸入的字元暫時存放在一個固定長度的記憶體陣列內， 
+    另外此類別內需以一個 Grade 類別的私有物件來存放此學生的成績。</font></li>
+  <p> 
+  </p><li><font face="微軟正黑體">製作一 Class 的類別來存放所有學生的資料， 並且處理輸入命令的解譯工作， 此類別內要用一個 Student 
+    *[100] 指標陣列來存放<font color="red">動態配置</font>的學生物件， 系統最多可存放 100 個學生的資料， 如果使用者要求存入第 
+    101 個學生， 系統會印出如下的錯誤訊息：<br>
+    <font color="red">&gt;&gt;本資料庫只能容納 100 名學生，目前人數已滿</font><br>
+    輸入命令解譯工作由 Class 類別的成員函式 query() 來負責， 此函式為一無窮迴圈， 一直執行到使用者選擇 "結束操作" 為止， 程式的主函式 
+    main 的內容應該如下<br>
+    void main()<br>
+    {<br>
+    <ul>
+      Class myClass;<br>
+      myClass.query(); 
+    </ul>
+    }<br>
+    此函式為本程式中唯一不屬於任何物件的函式。</font></li>
+  <p> 
+  </p><li><font face="微軟正黑體"> 讀檔/寫檔請運用<strong>二進位</strong> <strong>(Binary)</strong> 
+    的方法完成 (例如記憶體裡面的一個 int 型態資料存放到檔案裡就是用 sizeof(int) 個位元組來存放, 不需要轉換為十進位之文字格式, 請參考 
+    <a href="http://squall.cs.ntou.edu.tw/cpp/103spring/slides/CPP04-FileIO.pdf">C++ File I/O</a> page 7 或是<a href="http://squall.cs.ntou.edu.tw/cprog/Materials/FileInputOutput.html#binaryIO"> 
+    C 檔案輸入與輸出:如何將變數內資料以二進位格式寫入檔案</a>, <a href="http://www.cplusplus.com/reference/istream/istream/read/">istream::read</a>, 
+    <a href="http://www.cplusplus.com/reference/ostream/ostream/write/">ostream::write</a>)， 
+    請特別注意在資料存檔時不要破壞了每一個物件的封裝特性。 如果想要看輸出的二進位檔案的內容, 你可以用 linux 上常用的工具程式 <a href="http://squall.cs.ntou.edu.tw/cpp/tools/od.exe">od.exe</a> 
+    在命令列視窗中打 od -x class1062.dat , 就可以看到以 16 進位的格式列印出來的資料, 例如下面這個檔案裡有 32 個位元組:<br>
+    <font color="#FF0000">0000000</font> 0100 0302 0504 0706 0908 0b0a 0d0c 0f0e<br>
+    <font color="#FF0000">0000020</font> 1110 1312 1514 1716 1918 1b1a 1d1c 1f1e<br>
+    上面</font><font face="微軟正黑體">顯示的資料裡, 每一列最左邊是那一列由檔案的第幾個位元組開始, 第一列開始顯示的資料代表檔案裡面第一個位元組是 
+    00, 第二個位元組是 01, 第三個位元組是 02, 第四個位元組是 03 ... 第 32 個位元組是 1f<br>
+    <br>
+    </font> 
+  </li><li><font face="微軟正黑體">程式請由一開始就撰寫測試程式開始測試, 請以單元測試/assert 的方式來作基礎的測試 </font> 
+</li></ol>
+<p><font face="微軟正黑體">請注意: 如果沒有頭緒的話可以參考實習中 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/Lab6-1.html">3Bags 
+  程式的設計</a> 、實習考試稀疏矩陣類別的設計與實作 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test1_2A/SparseMatrix.html">2A</a>, 
+  <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test1_2B/SparseMatrix.html">2B</a> 以及 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/Lab6-2.html"> 
+  學校課程資料庫</a> 的設計</font></p>
+<p><font face="微軟正黑體">除了以上要求與說明外， 你必須自己設計其它需要的資料成員與成員函式 (例如在設計 Class 類別的 addGrade() 
+  函式時，需要 Student 類別也提供 addGrade() 介面，需要在 Class 類別中設計記錄所有班級中學生的指標陣列資料成員，...)， 程式撰寫時請注意下列各項 
+  C++ 程式設計的一般要點：</font></p>
+<ol>
+  <li><font face="微軟正黑體">如果成員函式不會更改物件狀態與內容的話，請使用 const 成員函式<br>
+    </font></li>
+  <li><font face="微軟正黑體"> 函式如果不會修改參考變數或是陣列參數的話，請使用 const 的參數<br>
+    </font></li>
+  <li><font face="微軟正黑體">儘量運用初始化串列 (initialization list) 來撰寫類別的建構元<br>
+    </font></li>
+  <li><font face="微軟正黑體">不要讓你的資料成員成為 public，也不要讓不需公開的輔助成員函式成為 public<br>
+    </font></li>
+  <li><font face="微軟正黑體">物件所有成員的初始值要在建構元中一併設定完成<br>
+    </font></li>
+  <li><font face="微軟正黑體">請替有<strong>動態配置記憶體</strong>的類別撰寫解構元，拷貝建構元，與設定運算子 <br>
+    </font></li>
+  <li><font face="微軟正黑體">變數及函式名稱請務必使用有意義的英文或是縮寫<br>
+    </font></li>
+  <li><font face="微軟正黑體">每一個成員函式內請務必只放相關的程式碼，不要把不相干的東西都擠在同一個函式內<br>
+    </font></li>
+  <li><font face="微軟正黑體">另外，<font color="#FF0000"><strong>請<font color="#0000FF">不要</font>使用全域變數 
+    (global variable) </strong></font>在函式之間傳遞資料，這不只是程序化程式設計時的<font color="#FF0000"><strong>大敵</strong></font>，也是物件化程式設計的大敵 
+    </font></li>
+</ol>
+<p></p>
+<p><font face="微軟正黑體">額外功能：</font></p>
+<ol>
+  <li><font face="微軟正黑體">老師在某一次考試之後輸入成績時，會依照學號逐一輸入學生的成績，但是如果輸入時需要不斷地輸入學生姓名，會非常地不方便，請新增一個功能 
+    9，老師可以選擇 "輸入全班成績"，程式會把所有的學生依照學號排序後一一提示學生的姓名並要求輸入其成績<br>
+    </font></li>
+  <li><font face="微軟正黑體">老師在考試之後除了記錄成績之外，也會希望記錄考試相關的資料，例如第一個成績是小考的成績，第二次
+是期中考的成績...，這些資訊希望能夠記錄在一個物件裡面，也希望能夠有一個介面讓老師可以增修這些資訊，也希望能夠在查詢或是列印時將這些資訊一起印
+出。如果你有製作這個功能的話，請特別說明你的設計 
+    (類別的設計還有與其它類別關係的設計)</font></li>
+</ol>
+<p> 
+</p><center>
+  <p><font face="微軟正黑體"><img src="1062%20C++%20%E7%A8%8B%E5%BC%8F%E4%BD%9C%E6%A5%AD%E4%BA%8C_files/greenline.gif" width="300" height="5"></font>
+</p></center>
+<p> 
+</p><h3><font face="微軟正黑體"> 程式繳交說明： </font></h3>
+<ol>
+  <li><font face="微軟正黑體">請於時限內 (2A <font color="#FF0000"><strong>107/04/12 (四) 
+    21:00</strong></font>, <font color="#FF0000"> <strong>2B 107/04/13 (五) 21:00</strong></font>) 
+    上傳程式檔案以及文件檔案 (逾時無法上傳), <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳網頁</a> 
+    <br>
+    </font>
+  </li><li><font face="微軟正黑體">請編輯一個 report.docx (report.doc) 檔案, 說明你的演算法高階的模型, 概念上的作法, 
+    資料結構, <b>你所完成的功能</b>, 測試結果,... 以及對於此次作業各個部份的問題? (提出問題時請盡量整理你所知道的, 與你所懷疑的, 
+    你所不認同的..., 如此會比空洞的 "我不懂 xxx?", "yyy 是什麼?" 要容易回答, 相對的你也比較容易得到你想要的答案) <br>
+    </font>
+  </li><li><font face="微軟正黑體">請運用 <strong><a href="https://msdn.microsoft.com/zh-tw/library/33864ckt(v=vs.100).aspx">VC2010 
+    類別圖表 </a> 或是 </strong><a href="http://squall.cs.ntou.edu.tw/cpp/98spring/StarUML/Lab6-0.html"><strong>StarUML</strong></a> 
+    繪製 <font color="#FF0000">類別圖</font> 將圖片匯入 report.docx (或是 report.doc) 報告檔中, 
+    並且繳交 .cd 或是 .uml 檔案<br>
+    </font>
+  </li><li><font face="微軟正黑體">report.docx 中請說明你的心得 (心得可以包括你覺得你獲得的觀念, 你 debug 時發現的問題, 
+    你 debug 的心得, 作業的感想, 你自己覺得比較好或是比較特別的設計...) </font>
+</li></ol>
+<center>
+  <p><font face="微軟正黑體"><img src="1062%20C++%20%E7%A8%8B%E5%BC%8F%E4%BD%9C%E6%A5%AD%E4%BA%8C_files/greenline.gif" width="300" height="5"></font>
+</p></center>
+<p> 
+</p><h3><font face="微軟正黑體"> 程式 Demo 說明： </font></h3>
+<ol>
+  <li><font face="微軟正黑體"> 程式 demo 時以所上傳的檔案為基準, 必須能夠現場編譯沒有錯誤<br>
+    </font>
+  </li><li><font face="微軟正黑體"> 請說明你的測試方法與測試資料，並操作測試， 請將你要測試的資料先打好，例如 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/assign2/GradeDB2Input.dat">GradeDB2Input.dat</a>， 
+    利用 DOS 的重新導向來測試，例如 GradeDB2.exe &lt; GradeDB2Input.dat &gt; result.log <br>
+    </font>
+  </li><li><font face="微軟正黑體">執行助教指定的測試資料 <br>
+    </font>
+  </li><li><font face="微軟正黑體"> 請回答你的程式在設計上的相關問題 </font>
+</li></ol>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="1062%20C++%20%E7%A8%8B%E5%BC%8F%E4%BD%9C%E6%A5%AD%E4%BA%8C_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="1062%20C++%20%E7%A8%8B%E5%BC%8F%E4%BD%9C%E6%A5%AD%E4%BA%8C_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Apr 12 2018 23:23:54 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 107/03/26 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

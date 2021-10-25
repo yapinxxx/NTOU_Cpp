@@ -1,0 +1,595 @@
+<html><head>
+<title>物件導向的停車塔自動化管理系統設計</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/cyan_diffuse.html">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體">1062 Quiz#3 物件導向的停車塔自動化管理系統</font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/rainbow.gif"> </font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <th width="700" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><p><font face="微軟正黑體"><b><font size="+1" color="#666699">C++ 實習測試: 物件導向的</font><font face="微軟正黑體"><b><font size="+1" color="#666699">停車塔</font></b></font><font size="+1" color="#666699">自動化管理系統設計</font></b></font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><font face="微軟正黑體">時間: <strong>180</strong>分鐘 (<strong>107/06/25 星期一</strong> 
+        <strong><font size="+1" color="#FF0000">18:00</font></strong> ~ <strong><font size="+1" color="#FF0000">21:00</font></strong> 
+        上傳時間截止)</font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <th align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="7466" bgcolor="#DDEEBB"> <p><font face="微軟正黑體">在這個測試裡, 我們要寫一個<font color="#0000FF"><strong><font size="+1">簡化過的</font></strong></font><font size="+1"><strong>停車塔自動化管理系統的核心</strong></font>，</font><font face="微軟正黑體">後續你有興趣可以進一步設計比較完整的功能，你需要在編譯器的協助下克服所有的語法問題。可以看書，可以看講義，可以 
+          google，可以線上查參考資料，不過拜託不要跟同學討論，不要線上跟別人求救，只要你沒有放棄，說不定自己今天就有一些體會，突破自己的盲點，不要老是被成績弄到<font color="#FF0000">憑白放棄一次自己思考、自己嘗試的機會，特別是不要繳交別人寫好的 
+          code</font>，對於題目的描述有疑問覺得有模稜兩可的請一定要直接提問，不過應該不會問為什麼有紅色蚯蚓線? 為什麼編譯不成功? 為什麼會程式會當掉? 
+          ... 經過了這麼一段時間的練習，這樣的問題你可以保留給自己，調整一下語法，調整一下程式架構，你一定可以找到解答的。</font></p>
+        <p align="center"><img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/ParkingTower.jpg" width="263" height="347"></p>
+        <p><font face="微軟正黑體">上圖是這裡說的停車塔，你把車子開到一樓的升降梯上停好，剩下所有的事情都是由機器自動幫你處理的，拿好給你的領車憑證(多半是一個RFID的小圓牌)，領車的時候按停車時間長短繳款然後等系統將車子調出來。</font></p>
+        <p><font face="微軟正黑體">今天我們要寫的東西只是上面講的一小部份底層架構，上面這一段甚至都還沒有描述到，我們要設計的是『<font size="+1" color="#FF0000"><strong>停車塔裡面停車位的組織、哪些停車位上停了車子、哪些是空的，一輛車子進到停車塔以後，系統幫忙找到這輛車該停在第幾層的哪一個空位上，車主來領車時把車子從停車位上移出</strong></font>』的這一部份。</font></p>
+        <p><font face="微軟正黑體">先看一下<font color="#0000FF"><strong>基本的<u>車位架構</u>以及<u>車位運用</u>規則</strong></font>：</font></p>
+        <ol>
+          <li><font face="微軟正黑體">停車塔有多層，每層有多列並排的停車位<br>
+            </font></li>
+          <li><font face="微軟正黑體"> 停車塔可以停摩托車 (Motocycle)、小轎車 (Car)、和小型巴士 (Van)<br>
+            </font></li>
+          <li><font face="微軟正黑體"> 停車塔有摩托車位 (Bike)、小車位 (Compact)、和大車位 (Large)，每一樓層所有車位的 
+            1/6 (取不大於的整數) 為 Bike 車位, 1/4 (取不大於的整數) 為 Large 車位, 剩下的為 Compact 車位<br>
+            </font></li>
+          <li><font face="微軟正黑體">每一個車位上最多只能停一輛車 <br>
+            </font></li>
+          <li><font face="微軟正黑體">摩托車可以停在任何種類的車位上<br>
+            </font></li>
+          <li><font face="微軟正黑體"> 小轎車可以停在小車位和大車位上<br>
+            </font></li>
+          <li><font face="微軟正黑體">小型巴士只能停在<font color="#FF0000"><strong>同一列</strong></font>中<font color="#0000FF"><strong>連續的兩個</strong></font>大車位上</font></li>
+        </ol>
+        <p>程式<font color="#0000FF"><strong>主要的要求</strong></font>是：</p>
+        <ol>
+          <li>對於每一輛光臨的車輛，自動地找到停車塔中<font color="#0000FF"><strong>可以停放它的位置</strong></font> 
+            (任意一個滿足使用規則的位置都可以)，或是當停車塔已幾乎停滿，<font color="#0000FF"><strong>無法停放的訊息</strong></font> 
+            (這個問題已經簡化過，不需要根據升降梯的位置找尋最快出入車輛的停放位置，呼，還好)<br>
+          </li>
+          <li> 每一個車主要領車時，找到那輛車停放的位置，<font color="#0000FF"><strong>把車子移出，停車位標示為空位</strong></font></li>
+        </ol>
+        <p>因為要在很短的時間裡讓你思考這個問題，下面先給你一些類別架構以及測試程式，你可以基於這個架構開始設計你的程式，但是並不限於這個類別架構 
+          (注意：不接受程序化的程式)，你還是可以修改你覺得不好的地方，如果你覺得上面問題很直覺，其實也可以完全自己設計，常常大家就是會在這個由零開始的建構過程中卡住一段時間。 
+        </p>
+        <p>目前可以在 VC2010 中編譯執行<font face="微軟正黑體">，請製作專案並且測試編譯，<a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test3/ParkingTower(empty).7z">想偷懶的話就下載這個壓縮檔吧</a></font><font face="微軟正黑體">，當然你還沒有增加任何程式碼之前它不會印出任何結果。</font><font face="微軟正黑體" color="#FF0000">紅色的註解</font><font face="微軟正黑體">標記的是基本上需要你設計的功能，你在設計時可以自由多增加其它需要的部份，請參考下一步驟說明完成相關的設計</font></p>
+        <pre><font face="微軟正黑體">
+
+// <strong><font size="+2" color="#FF0000">main.cpp</font></strong>
+
+
+#include "ParkingTower.h"
+#include "Car.h"
+#include "Motorcycle.h"
+#include "Van.h"
+
+void failMessage1(Vehicle *v)
+{
+<font color="#FF0000"><strong>// ...</strong></font>
+}
+
+void failMessage2(Vehicle *v)
+{
+<font color="#FF0000"><strong>// ...</strong></font>
+}
+
+int main()
+{
+    int i;
+    ParkingTower parkingTower(2,3,6);  // 例如: 2 層, 3 列, 每列 6 個車位, 每一層總共有 18 個車位 
+     							      // 其中 3 個 Bike 車位, 4 個 為 Large 車位, 剩下的 11 個為 Compact 車位
+
+    Car cars[17];
+    Motorcycle bikes[18];
+    Van vans[10];
+
+    for (i=0; i&lt;5; i++) 
+        if (!parkingTower.park(&amp;cars[i])) failMessage1(&amp;cars[i]);
+    for (i=0; i&lt;10; i++) 
+        if (!parkingTower.park(&amp;bikes[i])) failMessage1(&amp;bikes[i]);
+    for (i=0; i&lt;5; i++)
+        if (!parkingTower.park(&amp;vans[i])) failMessage1(&amp;vans[i]);
+    for (i=5; i&lt;16; i++) 
+        if (!parkingTower.park(&amp;cars[i])) failMessage1(&amp;cars[i]);
+    if (!parkingTower.pickup(&amp;vans[1])) failMessage2(&amp;vans[1]);
+    if (!parkingTower.pickup(&amp;cars[12])) failMessage2(&amp;cars[12]);
+    for (i=10; i&lt;18; i++) 
+        if (!parkingTower.park(&amp;bikes[i])) failMessage1(&amp;bikes[i]);
+    for (i=16; i&lt;17; i++) 
+        if (!parkingTower.park(&amp;cars[i])) failMessage1(&amp;cars[i]);
+    for (i=5; i&lt;10; i++)
+        if (!parkingTower.park(&amp;vans[i])) failMessage1(&amp;vans[i]);
+    if (!parkingTower.pickup(&amp;cars[12])) failMessage2(&amp;cars[12]);
+
+    return 0;
+}
+
+/*
+
+每一輛車都有唯一的編號 (這個例子裡 Car 由 0 到 16，Motorcycle 由 17 到 34，
+Van 由 35 到 44)，下面第一列說明 Car 編號 0, 停到第 0 層，第 0 列，編號 3 的
+停車位上 (每一層所有車位依序由 0 開始編號，這個例子裡就是由 0 到 17)，那個
+車位是可以停放 Compact 大小的車子的車位
+
+上面這個例子在 36 號 Van 離開之前，兩層的車位停放位置如下圖，
+<img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/fig1.gif" width="484" height="257">
+停車格大小以顏色標示如下
+<img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/fig4.gif" width="177" height="137">
+車輛種類以車輛編號數字的顏色表示如下
+<img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/fig5.gif" width="175" height="128">
+<br>測試結果範例如下： 
+               Car:   0 parks at floor:0  row:0  PSnum:  3  size:Compact
+               Car:   1 parks at floor:0  row:0  PSnum:  4  size:Compact
+               Car:   2 parks at floor:0  row:0  PSnum:  5  size:Compact
+               Car:   3 parks at floor:0  row:1  PSnum:  6  size:Compact
+               Car:   4 parks at floor:0  row:1  PSnum:  7  size:Compact
+Motorcycle:  17 parks at floor:0  row:0  PSnum:  0  size:Bike
+Motorcycle:  18 parks at floor:0  row:0  PSnum:  1  size:Bike
+Motorcycle:  19 parks at floor:0  row:0  PSnum:  2  size:Bike
+Motorcycle:  20 parks at floor:0  row:1  PSnum:  8  size:Compact
+Motorcycle:  21 parks at floor:0  row:1  PSnum:  9  size:Compact
+Motorcycle:  22 parks at floor:0  row:1  PSnum: 10  size:Compact
+Motorcycle:  23 parks at floor:0  row:1  PSnum: 11  size:Compact
+Motorcycle:  24 parks at floor:0  row:2  PSnum: 12  size:Compact
+Motorcycle:  25 parks at floor:0  row:2  PSnum: 13  size:Compact
+Motorcycle:  26 parks at floor:0  row:2  PSnum: 14  size:Large
+              Van:  35 parks at floor:0  row:2  PSnum: 15  size:Large
+              Van:  35 parks at floor:0  row:2  PSnum: 16  size:Large
+              Van:  36 parks at floor:1  row:2  PSnum: 14  size:Large
+              Van:  36 parks at floor:1  row:2  PSnum: 15  size:Large
+              Van:  37 parks at floor:1  row:2  PSnum: 16  size:Large
+              Van:  37 parks at floor:1  row:2  PSnum: 17  size:Large
+              Van:  38 failed to park!
+              Van:  39 failed to park!
+               Car:   5 parks at floor:0  row:2  PSnum: 17  size:Large
+               Car:   6 parks at floor:1  row:0  PSnum:  3  size:Compact
+               Car:   7 parks at floor:1  row:0  PSnum:  4  size:Compact
+               Car:   8 parks at floor:1  row:0  PSnum:  5  size:Compact
+               Car:   9 parks at floor:1  row:1  PSnum:  6  size:Compact
+               Car:  10 parks at floor:1  row:1  PSnum:  7  size:Compact
+               Car:  11 parks at floor:1  row:1  PSnum:  8  size:Compact
+               Car:  12 parks at floor:1  row:1  PSnum:  9  size:Compact
+               Car:  13 parks at floor:1  row:1  PSnum: 10  size:Compact
+               Car:  14 parks at floor:1  row:1  PSnum: 11  size:Compact
+               Car:  15 parks at floor:1  row:2  PSnum: 12  size:Compact
+              <strong><font color="#0000FF">Van:  36</font></strong> picked up from floor:1  row:2  PSnum: 14  size:Large
+                                                           floor:1  row:2  PSnum: 15  size:Large
+               <strong><font color="#0000FF">Car:  12</font></strong> picked up from floor:1  row:1  PSnum:  9  size:Compact
+Motorcycle:  27 parks at floor:1  row:0  PSnum:  0  size:Bike
+Motorcycle:  28 parks at floor:1  row:0  PSnum:  1  size:Bike
+Motorcycle:  29 parks at floor:1  row:0  PSnum:  2  size:Bike
+Motorcycle:  30 parks at floor:1  row:1  PSnum:  9  size:Compact
+Motorcycle:  31 parks at floor:1  row:2  PSnum: 13  size:Compact
+Motorcycle:  32 parks at floor:1  row:2  PSnum: 14  size:Large
+Motorcycle:  33 parks at floor:1  row:2  PSnum: 15  size:Large
+Motorcycle:  34 failed to park!
+               Car:  16 failed to park!
+              Van:  40 failed to park!
+              Van:  41 failed to park!
+              Van:  42 failed to park!
+              Van:  43 failed to park!
+              Van:  44 failed to park!
+               Car:  12 failed at picking up!
+
+<strong><font color="#0000FF">編號 36 的 Van 和編號 12 的 Car</font></strong> 離開以後，停車位上的車子如下圖
+<img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/fig2.gif" width="486" height="264">
+編號 27 到 33 的 Motorcycle 停進去以後，停車位上的車子如下圖
+<img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/fig3.gif" width="488" height="276">
+
+*/
+
+研究完這個很重要的測試程式之後，下面的類別我只給最少的部份，
+也不多說明了，免得影響你太多 (雖然類別的架構已經透漏了很多很多
+資訊)
+
+
+<strong><font size="+2" color="#FF0000">// Vehicle.h</font></strong>
+
+
+#pragma once
+
+class Vehicle {
+public:
+    Vehicle();
+    virtual ~Vehicle();
+};
+
+
+<strong><font size="+2" color="#FF0000">// Vehicle.cpp</font></strong>
+
+
+#include "Vehicle.h"
+
+Vehicle::Vehicle() {
+}
+
+Vehicle::~Vehicle() {
+}
+<font size="+2" color="#FF0000">
+
+<strong>// Motorcycle.h</strong></font>
+
+
+#pragma once
+#include "Vehicle.h"
+#include "VehicleSize.h"
+
+class Motorcycle: public Vehicle {
+public:
+    Motorcycle();
+    ~Motorcycle();
+private:
+    const int m_nSpotsNeeded;
+    VehicleSize m_size;
+};
+因為有些車子需要兩個以上的停車位，所以多設計一個整數常數 
+m_nSpotsNeeded 來記錄這個資料<strong></strong><strong></strong>
+
+
+<font size="+2" color="#FF0000"><strong>// VehicleSize.h</strong></font>
+
+
+請注意 VehicleSize 是一個 enum 的自訂型態，主要有三個數值
+
+enum VehicleSize {Bike, Compact, Large};
+
+代表停車位的大小
+
+
+<font size="+2" color="#FF0000"><strong>// Motorcycle.cpp</strong></font>
+
+
+#include "Motorcycle.h"
+#include "VehicleSize.h"
+
+Motorcycle::Motorcycle(): m_nSpotsNeeded(1), m_size(Bike) {
+}
+
+Motorcycle::~Motorcycle() {
+}
+
+<font size="+2" color="#FF0000">
+<strong>// Car.h</strong></font>
+
+
+#pragma once
+#include "Vehicle.h"
+#include "VehicleSize.h"
+
+class Car: public Vehicle {
+public:
+    Car();
+    ~Car();
+private:
+    const int m_nSpotsNeeded;
+    VehicleSize m_size;
+};
+
+
+<font size="+2" color="#FF0000"><strong>// Car.cpp</strong></font>
+
+
+#include "Car.h"
+#include "VehicleSize.h"
+
+Car::Car(): m_nSpotsNeeded(1), m_size(Compact) {
+}
+
+Car::~Car() {
+}
+
+<font size="+2" color="#FF0000">
+<strong>// Van.h</strong></font>
+
+
+#pragma once
+#include "Vehicle.h"
+#include "VehicleSize.h"
+
+class Van: public Vehicle {
+public:
+    Van();
+    ~Van();
+private:
+    const int m_nSpotsNeeded;
+    VehicleSize m_size;
+};
+
+
+<font size="+2" color="#FF0000"><strong>// Van.cpp</strong></font>
+
+
+#include "Van.h"
+#include "VehicleSize.h"
+
+Van::Van(): m_nSpotsNeeded(2), m_size(Large) {
+}
+
+Van::~Van() {
+}
+
+<font size="+2" color="#FF0000">
+<strong>// ParkingTower.h</strong></font>
+
+
+#pragma once
+class Vehicle;
+
+class ParkingTower {
+public:
+    ParkingTower(int nfloors, int nrows, int nspots);
+    ~ParkingTower();
+<font color="#FF0000"><strong>    bool park(Vehicle *vehicle); 
+    bool pickup(Vehicle *vehicle);</strong></font>
+private:
+    const int num_floors;
+    // 記住所有的停車樓層 Floor 型態的物件
+};
+
+
+<font size="+2" color="#FF0000"><strong>// ParkingTower.cpp</strong></font>
+
+
+#include "ParkingTower.h"
+#include "Vehicle.h"
+
+ParkingTower::ParkingTower(int nfloors, int nrows, int nspots)
+    : num_floors(nfloors) {
+    for (int i=0; i&lt;nfloors; i++)
+        // 需要在類別裡設計一個容器，能夠存放一層一層的停車場
+		// 資訊，還有停在上面的車子 
+}
+
+ParkingTower::~ParkingTower() {
+    // 刪除所有停車樓層物件
+}
+
+bool ParkingTower::park(Vehicle *vehicle) {
+    // 每一樓層尋找可停放的車位
+    return true; // 如果停好
+}
+
+bool ParkingTower::pickup(Vehicle *vehicle) {
+    return false; // 如果要取的車子不在停車塔裡
+}<font size="+2" color="#FF0000">
+
+
+<strong>// Floor.h</strong></font>
+
+
+#pragma once
+
+class Floor {
+public:
+    Floor(int nRows, int nSpotsPerRow, int ithFloor);
+    ~Floor();
+private:
+    const int num_spots;
+    // 記住這一層有哪些停車位
+    int m_ithFloor;
+};
+
+
+<font size="+2" color="#FF0000"><strong>// Floor.cpp</strong></font>
+
+
+#include "Floor.h"
+
+Floor::Floor(int nRows, int nSpotsPerRow, int ithFloor)
+    : num_spots(nRows*nSpotsPerRow),
+      m_ithFloor(ithFloor) {
+// 配置每一個停車位 ParkingSpot 的物件, 設定好每一個停車位的大小
+}
+
+Floor::~Floor() {
+// 刪除停車位的物件
+}
+
+
+<font size="+2" color="#FF0000"><strong>// ParkingSpot.h</strong></font>
+
+
+#pragma once
+
+class ParkingSpot {
+public:
+    ParkingSpot(int id, int row, int ithFloor, VehicleSize s);
+    ~ParkingSpot();
+private:
+    // 停車位編號、列、層、停車位大小、停放的車子物件指標
+};
+
+
+<font size="+2" color="#FF0000"><strong>// ParkingSpot.cpp</strong></font>
+
+
+#include "ParkingSpot.h"
+
+ParkingSpot::ParkingSpot(int id, int row, int ithFloor, VehicleSize s) {
+}
+
+ParkingSpot::~ParkingSpot() {
+}</font></pre></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="1332" bgcolor="#FFFFCC"> 
+        <p><font face="微軟正黑體">上面的程式碼雖然還不能執行出需要的結果，但是你看到了 Vehicle - 
+Motorcycle 
+          - Car -Van 這一組類別，其中 Vehicle 
+是一個抽象類別，系統裡沒有這種型態的物件，當然這樣子設計的目的在於多型的操作，你希望停車塔 
+          ParkingTower - Floor - ParkingSpot 
+在處理這些物件的時候都能夠不管是哪一種車輛，用一致的方法來處理，讓程式碼盡量簡化，致於停車位有三種大小，有沒有需要把不同大小的停車位分開來成三個
+類別，基本上這要看三種大小的車位是不是有很多不一樣的表現，如果不多的話，可能就用同一個類別來描述，反之就可以考慮拆開成獨立的類別。</font></p>
+		  
+		  
+		  
+		  
+        <p><font face="微軟正黑體"><strong>請根據下列步驟說明配合上面給你的程式碼完成這個線上測試</strong>:<br>
+          </font> </p>
+        <ol>
+          <li><font face="微軟正黑體">在 Visual Studio 中產生 C++ 的空專案，把上面的程式碼放到適當的檔案裡，或是下載 
+            <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test3/ParkingTower(empty).7z">ParkingTower(empty).7z</a>，請確定可以編譯，可以執行</font> 
+            (不會印出結果，所以應該不會有錯誤) <br>
+            <br>
+          </li>
+          <li><font face="微軟正黑體">請下載 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test3/memory_leak.h">memory_leak.h</a> 
+            以及 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test3/memory_leak.cpp">memory_leak.cpp</a>，在正確的地方加入檢測記憶體遺漏的機制，並且檢查上面的程式是否有記憶體的遺漏 
+            (注意專案屬性的設定) <br>
+            <br>
+            </font></li>
+          <li>在 Vehicle 抽象類別中加入物件序號的設計，所有三種衍生類別 Motorcycle, Car, 和 Van 一起編號，在 
+            Car 衍生類別裡面實作 void print() 函式，列印 Car: 然後呼叫基礎類別的 Vehicle::print() 列印序號到螢幕上，如下圖：<br>
+            <img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/fig6.gif" width="172" height="194"><br>
+            <br>
+          </li>
+          <li><font face="微軟正黑體">在 ParkingTower 類別裡面設計一個容器，在建構元裡產生每一個停車樓層 Floor 
+            型態的物件，並且存放起來，有動態配置物件的話記得要在解構元中刪除，此時可以把 park 界面運用委託的機制委由每一個停車樓層物件來完成功能，也就是 
+            Floor 類別須要有 bool park(Vehicle *vehicle) 的界面<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">Floor 類別裡需要設計一個容器來記錄所有的車位 ParkingSpot 型態的物件，建構元裡面需要依照 
+            1/6, 1/4 的規則產生每一個停車位的物件，建構這些物件起來，記錄在容器內，有動態配置物件的話記得要在解構元中刪除，接下來是關鍵的 
+            park 界面的實作，如果這個應用裡面每一輛車都只會停放在單一的一個車位上的話，其實這裡只要委託每一個車位物件去看看是不是已經停別的車了，是不是可以停得下就好，前面的 
+            VehicleSize 這種 enum 的型態其實內部是用整數來實作的，所以可以比較順序，Bike &lt; Compact &lt; 
+            Large，可以很容易檢查是不是停得下。</font><font face="微軟正黑體"><br>
+            <br>
+            這個應用裡稍微囉唆一點，主要是因為 Van 會需要停放在兩個連續的 Large 車位上，這不是個別車位的物件可以檢查的事情，所以需要提到上層的 
+            Floor 物件來處理，只有 Floor 物件可以看到相鄰的車位物件。要在 ParkingSpot 物件外面檢查是否可以停得下某一種車輛，ParkingSpot 
+            物件需要設計一些檢查的界面，例如 bool ParkingSpot::fit(Vehicle *v)，但是 ParkingSpot 
+            物件沒辦法看到Vehicle 類別指標 v 到底是什麼物件，所以這裡需要替 Vehicle 類別訂定抽象的界面 int Vehicle::getNSpotsNeeded() 
+            const 來回傳某一種車輛需要幾個停車位，另外也需要設計 bool Vehicle::fit(VehicleSize size) 
+            const 來檢查車位大小是否足夠，這些抽象界面在Motorcycle, Car, 和 Van 類別裡都很容易實作出來。最後設計 bool 
+            ParkingSpot::isDifferentRow(ParkingSpot *rhs) 來檢查是不是兩個車位在同一列，Floor::park(Vehicle 
+            *) 界面就可以用兩層的迴圈順利完成了。<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">Floor::park(Vehicle *) 裡面檢查能夠停得下以後，應該要呼叫 void 
+            ParkingSpot::park(Vehicle *vehicle)來把停在這個車位上的車輛記錄下來，後續在檢查某一車位是否有空時才能夠判斷，為了快速地實作出車的機制，也可以在Vehicle 
+            類別裡加上一個容器，記錄某一個Vehicle物件是停在哪一個車位上，如果停在多個車位上的話，把多個車位記錄下來，所以可以在Vehicle裡面設計 
+            void Vehicle::park(ParkingSpot*)的界面，在void ParkingSpot::park(Vehicle 
+            *vehicle)函式執行的時候倒過來呼叫 vehicle-&gt;park(ParkingSpot *)<br>
+            <br>
+            </font></li>
+          <li>要看到上面的輸出<font face="微軟正黑體">，需要實作 void ParkingSpot::print() 的界面，把樓層、第幾列、車位號碼、車位大小印到螢幕上，在void 
+            Vehicle::park(ParkingSpot*)界面中呼叫衍生類別的 print() 以及ParkingSpot::print() 
+            來印出下圖的結果</font><br>
+            <br>
+            <img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/fig7.gif" width="553" height="255"><br>
+            <br>
+          </li>
+          <li>failed to park! 是 main() 裡面呼叫全域的 failMessage1() 函式在停車時發現沒有位子可停時印出簡單的錯誤訊息<font face="微軟正黑體">，failMessage</font>2() 
+            函式則是在取車時發現車子不在停車塔時列印一些訊息<br>
+            <br>
+          </li>
+          <li> 最後實作取車的兩個界面<font face="微軟正黑體">，第一是 bool ParkingTower::pickup(Vehicle 
+            *v)，這個界面在目前的測試裡面有用到，一種實作方法是一層樓一層樓每一個停車位去找指定的車輛，這樣子很慢，另外一種則是上面在</font>步驟 
+            6 中如果替 Vehicle 類別設計一個容器<font face="微軟正黑體">，例如 vector&lt;ParkingSpot 
+            *&gt;來存放 v 所指到的車子的停車位，這時只需要再替Vehicle類別製作bool Vehicle::leave() 界面，替ParkingSpot 
+            類別 製作 void ParkingSpot::leave() 界面，在Vehicle::leave()裡</font><font face="微軟正黑體">請每一個停放位置的ParkingSpot物件把記錄的停放車輛清掉即可完成取車的動作</font><br>
+          </li>
+        </ol> 
+		有沒有覺得上面的文字都浮起來了，沒有畫一個<a href="http://squall.cs.ntou.edu.tw/cpp/1062/labtest/test3/fig8.gif" target="_blank">類別圖</a>來幫忙嗎? </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><p><font face="微軟正黑體">考試時間: <strong>180</strong>分鐘 
+          (<strong><font size="+1" color="#FF0000">18:00</font></strong> ~ <strong><font size="+1" color="#FF0000">21:00</font></strong><font color="#000000"> 
+          上傳時間截止)</font></font></p>
+        <font face="微軟正黑體">將所完成的 project (只需保留 .cpp， .h， .sln 以及 .vcxproj 檔案即可; 
+        <font color="#FF0000">刪除掉 .suo， .sdf， .filters， .users， debug\ 資料匣， 以及 
+        ipch\ 資料匣下的所有內容</font>) 以 zip/rar/7zip 程式將<font color="#FF0000">整個資料匣</font>壓縮起來， 
+        在「考試作業」繳交區選擇 <strong><font color="#FF0000">2018-06-25 2A考試三</font></strong> 
+        或是 <strong><font color="#FF0000">2018-06-25 2B考試三 </font></strong><a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a> 
+        </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td height="299" bgcolor="#FFFFCC"> 
+        <p><font face="微軟正黑體"><strong>後續</strong>:</font></p>
+        <p><font face="微軟正黑體">後半學期最主要練習的是在物件導向程式設計中<u>最強大也最難掌握設計方法</u>的 <strong><font color="#FF0000">繼承</font> 
+          和<font color="#FF0000"> 多型</font></strong>，從課堂講解的問題、實習、作業、和考試的
+題目裡你應該看到了很多繼承的應用，以及前人整理出來的法則，每一次的練習除了最後的結果之外，設計過程中所考量的因素非常重要，沒有一個設計是沒有原因
+的，一次一次地解釋每一個設計的原因，只希望你遇見類似狀況時能夠看到可以解釋的考量點，雖然上課的情況顯示你也許有其它更重要的事情要忙，但是還是希望
+你有機會多瞭解一些，考慮一下盡量不要用『吃到飽』的心態來修課吧，也許當你覺得沒有學到東西時，其實是你修了太多學分了，不能夠自由運用的話其實都只會
+讓你對未來失去信心，你現在的每一分鐘時間都是你自己要很珍惜的，眼前的這一分鐘沒有表現的話，其實『未來』就只是個很快會看到、也很快會過去了的名詞而
+已，沒有太多需要期待的，這一個階段中沒有想要掌握來讓自己好好表現的話，相信未來也不會有任何一個學習環境會讓你滿意的。</font></p>
+        <p><font face="微軟正黑體">這一個考試的內容曾經在 Amazon, Apple, Google 
+的面試裡出現過，只是在面試時那個題目其實很短，只有簡單地說要設計一個停車場而已，沒有像上面一樣的分析，你的壓力更大，時間更短，你要考量的事情很可
+能都混混沌沌地攪和在一起，平常沒有一直訓練自己設計、訓練和別人溝通，訓練自己問問題，訓練自己表達的話，表現一定很難預期，往好處想，至少看得懂題
+目，也不過是這樣的物件化設計而已，沒有什麼了不起的，而且其實沒有標準答案，你敢嘗試，就有機會，對吧?</font></p>
+        <p><font face="微軟正黑體"></font><font face="微軟正黑體">記得再看一下 <a href="http://squall.cs.ntou.edu.tw/cpp/1062/Epilogue.html">尾聲</a> 
+          (如果你還是沒有機會讀一下的話, 尤其是別再跨越馬路啦!!) </font></p>
+        <p><font face="微軟正黑體">有機會多花一些時間看相關的資料的話，隨時歡迎討論，有討論才有進步，很多抽象的概念才有機會沈澱下來成為可以應用的知識。</font></p>
+        </td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+</font>
+<center>
+  <p><font face="微軟正黑體"><img src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/rainbow.gif"> </font>
+</p></center>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="%E7%89%A9%E4%BB%B6%E5%B0%8E%E5%90%91%E7%9A%84%E5%81%9C%E8%BB%8A%E5%A1%94%E8%87%AA%E5%8B%95%E5%8C%96%E7%AE%A1%E7%90%86%E7%B3%BB%E7%B5%B1%E8%A8%AD%E8%A8%88_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Tue Jun 26 2018 23:57:42 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 06/25/2018 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+
+</body></html>

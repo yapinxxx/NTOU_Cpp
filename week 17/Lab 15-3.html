@@ -1,0 +1,331 @@
+<html><head>
+<title>
+Lab 15-3
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2015-3_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+<h1>
+Lab 15-3: Exception - automatically destruct variables on the intermediate stack frame
+</h1>
+<center><p><img src="Lab%2015-3_files/rainbow.gif"></p></center>
+
+<table width="700" cellspacing="10" cellpadding="6" border="0">
+  <tbody><tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bgcolor="#DDEEBB">
+    <th width="75" align="center">實習目標</th>
+    <td width="580">
+    練習使用 C++ 例外狀況 (exception) 的處理機制
+    <br>
+    　　　利用例外發生時自動解構堆疊上物件的性質釋放動態記憶體
+    </td>
+  </tr>
+
+  <tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟一</th>
+    <td width="580">
+    下面程式片段中如果在 func3() 函式執行時出現例外狀況,
+    動態配置的 ptr 並不會自動釋放,
+    因此除了正常流程中結束時需要釋放 ptr 的記憶體外,
+    在 catch 敘述中也需要做 delete[] ptr; 的動作
+    <pre>    void main()
+    {
+        cout &lt;&lt; "Entering main()\n";
+        srand(time(0));
+        int *ptr=0;
+        try
+        {
+            <font color="red">ptr = new int[200];</font>
+            <font color="blue">fun3();</font>
+            // using ptr
+            delete[] ptr;
+            ptr = 0;
+        }
+        catch (int)
+        {
+            <font color="red">delete[] ptr;
+            ptr = 0;</font>
+            cout &lt;&lt; "    main() deleting all resources\n";
+            cout &lt;&lt; "    main() exception catched\n";
+        }
+        cout &lt;&lt; "Leaving main()\n";
+    }</pre>
+    </td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟二</th>
+    <td width="580">
+    下面函式中由於逐步地配置 ptr1 及 ptr2 的記憶體,
+    所以當執行 fun1() 發生例外狀況時,
+    有可能只需要刪除 ptr1,
+    也有可能需要刪除 ptr1 及 ptr2, 
+    判斷的方法很多種,
+    但是例外處理的邏輯會變得比較複雜
+    <pre>    void fun1(int id)
+    {
+        cout &lt;&lt; "Entering fun1(" &lt;&lt; id &lt;&lt; ")\n";
+        if (rand()%2 == 0)
+        {
+            cout &lt;&lt; "    fun1() exception occurs\n";
+            throw id;
+        }
+        cout &lt;&lt; "Leaving fun1() normally\n";
+    }
+
+    void fun2()
+    {
+        cout &lt;&lt; "Entering fun2()\n";
+        int *ptr1, *ptr2;
+        try
+        {
+            ptr1 = new int[100];
+            <font color="blue">fun1(1);</font>
+            ptr2 = new int[200];
+            <font color="blue">fun1(2);</font>
+            // using ptr1 and ptr2
+            delete[] ptr1;
+            ptr1 = 0;
+            delete[] ptr2;
+            ptr2 = 0;
+        }
+        catch (int id)
+        {
+            if ((id==1)||(id==2))
+            {
+                delete[] ptr1; 
+                ptr1 = 0;
+            }
+            if (id==2)
+            {
+                delete[] ptr2; 
+                ptr2 = 0;
+            }
+            cout &lt;&lt; "    fun2() exception catched\n";
+            cout &lt;&lt; "    fun2() deleting all resources\n";
+            cout &lt;&lt; "    Leaving fun2() with exception rethrowed\n";
+            throw;
+        }
+        cout &lt;&lt; "Leaving fun2() normally\n";
+    }
+
+    void fun3()
+    {
+        cout &lt;&lt; "Entering fun3()\n";
+        int *iary = new int[300];
+        <font color="blue">fun2();</font>
+        iary[1] = 10;
+        delete[] iary;
+        cout &lt;&lt; "Leaving fun3() normally\n";
+    }</pre>
+
+    在執行 fun1() 發生例外狀況時, 
+    由於 main() 函式也沒辦法繼續執行下去, 
+    所以需要把例外狀況透過
+    throw; 敘述繼續傳出去,
+    強迫所有在 call stack 上的函式順序處理例外狀況
+    <p>
+    請注意在執行 fun1() 發生例外狀況時,
+    fun3() 裡的 iary 會沒有釋放掉,
+    所以會有 memory leakage,
+    請用 MFC 的 DLL 來觀察這個記憶體錯誤
+    </p></td>
+  </tr>
+  
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟三</th>
+      <td width="580"> 由上面的 fun2() 和 fun3() 我們知道動態配置的記憶體在例外狀況發生時, 處理起來是比較麻煩的, 
+        如果能夠改由堆疊上配置的話, C++ 例外處理的機制可以自動幫我們解構, 如下例, 我們製作一個 IntArray 的類別, 以它取代 int 
+        *iary = new int[100];, 觀察是否在例外發生時會自動解構 
+        <pre>    void fun3()
+    {
+        cout &lt;&lt; "Entering fun3()\n";
+        IntArray iary(100);
+        fun2();
+        iary[1] = 10;
+        cout &lt;&lt; "Leaving fun3() normally\n";
+    }
+
+    <font color="white">class IntArray
+    {
+    public:
+        IntArray(int size):data(0)
+        {
+            assert(size&gt;0);
+            data = new int[size];
+        }
+        ~IntArray() 
+        { 
+            delete[] data; 
+        }
+        int &amp;operator[](int index)
+        {
+            return data[index];
+        }
+    private:
+        int *data;
+    };</font></pre>
+    
+    請在建構元及解構元中列印訊息出來觀察物件解構的時間點
+    </td>
+  </tr>
+
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟四</th>
+    <td width="580">
+    <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab15/exception3.exe">範例執行程式</a>
+    </td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟五</th>
+    <td width="580">
+    正常執行結果:
+    <pre>    Entering main()
+    Entering fun3()
+        ManagedIntArray(100)
+    Entering fun2()
+    Entering fun1(1)
+    Leaving fun1() normally
+    Entering fun1(2)
+    Leaving fun1() normally
+    Leaving fun2() normally
+    Leaving fun3() normally
+        <font color="blue">~ManagedIntArray()</font>
+    Leaving main()</pre>
+
+    在第一次呼叫 fun1() 發生例外之執行結果
+    <pre>    Entering main()
+    Entering fun3()
+        ManagedIntArray(100)
+    Entering fun2()
+    Entering fun1(1)
+        fun1() exception occurs
+        fun2() exception catched
+        fun2() deleting all resources
+        Leaving fun2() with exception rethrowed
+        <font color="blue">~ManagedIntArray()</font>
+        main() deleting all resources
+        main() exception catched
+    Leaving main()</pre>
+
+    在第二次呼叫 fun1() 發生例外之執行結果
+    <pre>    Entering main()
+    Entering fun3()
+        ManagedIntArray(100)
+    Entering fun2()
+    Entering fun1(1)
+    Leaving fun1() normally
+    Entering fun1(2)
+        fun1() exception occurs
+        fun2() exception catched
+        fun2() deleting all resources
+        Leaving fun2() with exception rethrowed
+        <font color="blue">~ManagedIntArray()</font>
+        main() deleting all resources
+        main() exception catched
+    Leaving main()</pre>
+    </td>
+  </tr>
+
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟六</th>
+      <td width="580"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 刪除掉 
+        .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 壓縮起來, 選擇 
+        Lab15-3 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </td>
+  </tr>
+
+</tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%2015-3_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%2015-3_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Jun 12 2014 11:23:48 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 06/01/2004
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

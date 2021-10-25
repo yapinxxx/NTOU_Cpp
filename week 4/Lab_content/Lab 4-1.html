@@ -1,0 +1,183 @@
+<html><head>
+<title>
+Lab 4-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%204-1_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab4-1: Process an array of complex numbers </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%204-1_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 由檔案讀取複數資料 <br>
+        使用 vector 物件記錄讀入的資料 <br>
+        使用 iterator 存取容器物件內資料物件 <br>
+        使用 sort 來依照每一個複數的大小 (絕對值) 來排序列印 </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 請另外產生一個 專案 (步驟請參考<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/Lab3-1.html">上一個實習</a>的步驟二), 
+        請 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">下載</a><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/Lab3-1.html"> 
+        實習 3-1</a>, 把上次做的 Complex 類別拷貝過來, 就是把 Complex.h 和 Complex.cpp 兩個檔案拷貝過來, 
+        然後請將這兩個檔案加入專案中。 </font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 在 main() 函式中宣告一個 vector&lt;Complex&gt; 
+        的容器物件, 寫一個 <br>
+        <pre>void readFile(vector&lt;Complex&gt; *pVector)
+{
+    ...
+}</pre>
+        的函式由檔案 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab04/complex.dat">complex.dat</a> 中讀取複數資料, complex.dat 中資料格式如下: 
+        <pre>    2 3.2
+    4.1 5
+    6 7
+    ...
+    </pre>
+        </font> <p><font face="微軟正黑體">每一列代表一個複數, 例如第一列代表 2 + 3.2 <font color="#0000FF"><strong>i</strong></font></font></p>
+        <p><font face="微軟正黑體">如果你讀檔案時發現奇怪的最後一列好像多讀一次的錯誤... <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab04/ifstream.eof.html">請參閱</a></font></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 讀到的資料請設定到 Complex 類別的物件內, 並且存放到 vector<ccomplex> 
+        的容器物件中 </ccomplex></font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 在 main() 中 請使用 vector&lt;...&gt;::iterator 
+        將所有的複數資料全部乘起來， 並且將結果列印出來 
+        <p> 下面的範例是使用 vector 物件的 iterator 將<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab02/Lab2-2.html">先前實習</a>的 
+          DataRecord 裡的 value 欄位資料加起來的範例 
+        </p><pre>    ...
+    vector&lt;DataRecord&gt; dataContainer;
+    vector&lt;DataRecord&gt;::iterator iter;
+    ...
+    int sum=0;
+    for (iter=dataContainer.begin(); 
+         iter&lt;dataContainer.end(); iter++)
+        sum += iter-&gt;value;
+    ....
+    </pre>
+        iterator 使用起來像是一個指標, 可以用 ++, &lt;, &gt;, =, *, -&gt; 等等運算去移動, 擷取資料, 你可以抽象地把它想像成是指標, 
+        目前內部實作也是指標, 但是請<font color="#FF0000">不要</font>去把它真的轉型為指標, 
+        <pre>    DataRecord *ptr = (DataRecord *)iter; // 錯誤
+    </pre>
+        compiler 廠商並不保證它的實作一定是指標 
+        </font><p><font face="微軟正黑體"> 參考<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab04/vectorIterator.html">範例程式</a> </font></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體"> 上一個步驟的結果是 -8.96419 + -3.24387 i, 請寫一個 
+        assert 敘述來自動確認這個結果。 </font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 請撰寫一個比較複數點到原點距離大小的函式 greater() 以供 sort 
+        使用來比較兩個複數的大小, 然後請在 main 函式中呼叫 sort 由小到大排序 (sort 的用法請參考 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab02/Lab2-2.html">前次實習</a> 
+        步驟三)</font></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 請用陣列的存取方式 (ex. dataContainer<font color="#FF0000"><strong>[i]</strong></font>.value) 
+        寫一個迴圈依序將所有的複數資料列印出來 </font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td><font face="微軟正黑體">請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 
+        檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 
+        壓縮起來, 選擇 Lab4-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">偵錯</font></th>
+      <td width="580"><font face="微軟正黑體">有的時候同學在做這個實習的時後, 會遇見不太容易找的 bug, 比如說發現 
+        最後結果有一些誤差, 例如 -8.96419 + -3.24<font color="#FF0000">251</font> i, 到底是哪裡錯了, 
+        是 Complex 裡面寫錯了? 還是 testComplex 這裡的運算寫錯了? 因為計算過程中都是浮點數, 常常看到了有錯誤的東西也不容易察覺出來, 
+        這是很討厭的狀況。<br>
+        <br>
+        不過因為我們現在是建立封裝良好的物件, 物件如果你懷疑它的功能有問題, 例如 Complex 物件, 最簡單的方法就是<font color="#0000FF"><strong>換一個相同規格的物件</strong></font>來測試比對一下 
+        (就好像你如果發現電視遙控器電池好像沒電了, 怎麼辦? 當然是拿一個新的把原來的換掉測試一下囉), 例如你可以下載 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/ComplexObj.rar">ComplexObj.rar</a>, 
+        建立一個新的專案, 把你的 <font color="#FF00FF"><strong>testComplex.cpp</strong></font> 
+        還有 ComplexObj.rar 裡面的 <font color="#FF00FF"><strong>Complex.h</strong> 
+        </font>和 <font color="#FF00FF"><strong>Complex.obj</strong></font> 三個檔案, 
+        運用 "加入現有項目" 把它加到專案裡面, 稍微調整一下介面函式的名稱, 然後編譯測試, 看看結果是不是對的, 如果是對的, 
+        就表示你原來用的 Complex 裡面的功能有一些問題...</font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%204-1_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%204-1_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Wed Mar 21 2018 19:26:33 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 03/13/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

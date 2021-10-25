@@ -1,0 +1,571 @@
+<html><head>
+<title>
+Lab 5
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%205_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+  <h1> Lab 5: A note on pointers <br>
+搶救指標大作戰
+</h1>
+<center><p><img src="Lab%205_files/rainbow.gif"></p></center>
+
+<table width="700" cellspacing="10" cellpadding="6" border="0">
+  <tbody><tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+  <tr bgcolor="#DDEEBB">
+    <th width="75" align="center">實習目標</th>
+      <td width="580"> 
+<p>
+這個實習裡請大家暫時放下 C++ 中各種新的語法, 物件, 類別, iostream 中新的用法, 成員函式, 
+函式覆載, 公開的/私有的... 今天我們要來和<font size="+1" color="red">指標</font>奮戰一下, 大家都接觸指標至少一年了, 
+也都知道指標的能耐, 至少知道程式裡指標對你的影響, 常常會讓你花很多很多的時間在抓一些會到處跑的 bug, 
+常常讓你覺得如果在程式裡能夠不用指標, 千萬不要去用, 以往都會收到很多同學用陣列實作堆疊, 實作串列, 實作樹狀結構的程式, 
+覺得有一點因噎廢食的感覺。 </p>
+        <p> 這裡我們再一次說明指標的用法, 對於已經很清楚的同學來說, 可以稍微輕鬆一點, 有的時候看到另外一種說明方法也可以讓自己更深入了解一些, 
+          對於不太清楚指標的用法, 看到指標還有點畏懼的同學來說, 請把握機會, 儘量在實作中提出問題, 指標並不是無法學習的東西, 你的概念有錯誤, 
+          實作時又沒有注意指標的陷阱, 才會留下許多許多隱藏的問題。 
+        </p><p> 運算子 <strong><font color="#FF0000">&amp;</font></strong> 以及 <font color="#FF0000"><strong>*</strong></font> 
+          的確使得語法產生相當的變化, 但是我相信各位可以藉由這個實習使得你對於 C/C++ 指標的認識更上一層, 使得指標不再是你的惡夢, 當然也不要變成你放棄資工的藉口。 
+        </p><p> 請注意, 這個實習的內容並沒有包括記憶體配置, 只包含了指標型態的變化, 關於記憶體配置所衍生的記憶體問題, 在課堂裡會另外談到 <eng today,="" we="" are="" going="" to="" forget="" c++="" for="" a="" while.="" no="" more="" objects,="" iostream,="" member="" functions,="" overloading="" or="" public="" private.="" fight="" against="" pointer,="" which="" some="" of="" you="" terrified="" by="" its="" power="" and="" keep="" avoiding="" it.="" review="" definition="" usages="" you.="" already="" have="" got="" clear="" picture="" it="" might="" take="" this="" class="" easily.="" those="" not,="" focus,="" thinking,="" trying,="" asking="" the="" best="" policy="" learn.="" simple="" syntaxes="" semantics="" *="" &="" make="" many="" hate="" programming.="" let's="" try="" get="" rid="" nightmare.="" i="" am="" not="" promising="" that="" pointer="" is="" easy.="" indeed="" invokes="" complicated="" c="" but="" sure="" most="" guys="" can="" handle="" better="" than="" do="" now.=""> </eng></p></td>
+  </tr>
+
+  <tr bgcolor="#6633DD" align="center"> 
+    <td width="75" align="center"><font color="white">&nbsp;</font></td>
+    <th width="580" align="center"><font color="white"></font></th>
+  </tr>
+
+
+  <tr bgcolor="#FFFFCC"> 
+    <th width="75" align="center">步驟一</th>
+      <td width="580"> <font size="+1">認識指標 (pointer)</font>: 參考資料: <a href="http://squall.cs.ntou.edu.tw/cprog/Materials/Pointers.html">1</a>, 
+        <a href="http://squall.cs.ntou.edu.tw/cprog/Materials/Pointers2.html">2</a>, 
+        <a href="http://squall.cs.ntou.edu.tw/cprog/Materials/DynamicMemoryAllocation.html">3</a>, 
+        <a href="http://squall.cs.ntou.edu.tw/cprog/Materials/AdvancedArray.html">4</a>, 
+        <a href="http://squall.cs.ntou.edu.tw/cprog/Materials/FunctionDetails.html#FunctionPointers">5</a> 
+        (class86) 
+        <ol>
+          <p> 
+          </p><li> 在 C/C++ 中指標就是記憶體位址, 在其他語言中並不見得如此, 在 C/C++ 中以這種方式來實現指標是為了效率和操作低階裝置的考量 
+            <p> 
+          </p></li><li> 請定義如下的指標變數, 並用 C printf() 中的 %p 格式印出它們的數值 (十六進位) 
+            <pre>    整數指標變數
+       int *ptrInt; // 雖然 int 和 * 中間有空格, 但是請把 int* 當成是一種型態名稱
+    倍精準浮點指標變數
+       double *ptrDouble; // double * 是一種型態名稱
+    結構指標變數
+        struct Record  // Record * 是一種型態名稱
+        {
+            int iData;
+            double dData;
+        } *ptrRecord;</pre>
+            ptrInt, ptrDouble, ptrRecord 都是可以存放資料的變數, 你要先在裡面放一點資料才會想要用 printf() 
+            來列印這些變數的 內容, 可是放什麼好呢? (自己決定一下囉!) 
+            <p> 另外你還可以嘗試用 iostream 印這三個變數裡面存放的記憶體位址! 
+            </p><p> 
+          </p></li><li> 在上一部份中你有沒有發現: 雖然 ptrInt, ptrDouble, 和 ptrRecord 是三個型態不同的變數, 可是 
+            printf() 卻只用單一的格式轉換字元 %p 來處理就好了? (在 C 裡還有其它的資料型態是這樣的嗎?) 
+            <p> <font color="white">最主要的原因是它們雖然型態不同, 但是在記憶體內所佔的大小相同, 格式也相同。</font> 
+            </p><p> 接下來請用 printf() 或是 cout 印出 sizeof(ptrInt), sizeof(int *), sizeof(int), 
+              sizeof(ptrDouble), sizeof(double *), sizeof(double), sizeof(ptrRecord), 
+              sizeof(Record *), sizeof(Record) 的數值, 看到的數值和你預期的相同嗎? 
+            </p><p> 請注意各種指標型態變數所佔的記憶體大小都一樣, 那麼為什麼要分為各種不同型態的指標呢? 不是都是存放記憶體的位置資料嗎? <br>
+              <font color="white">最主要的原因是間接存取資料時編譯器需要知道透過這個記憶體位址要取得的資料有幾個位元組, 例如 
+              *ptrDouble 是 8 個位元組，取得的資料參與運算時, 例如 *ptrDouble + 1, 1 需要轉換為 double, 
+              加號 + 代表倍精準浮點數的加法 </font> <br>
+          </p></li><li> <b>C/C++ 記憶體模型</b>: C/C++ 沒有自己的抽象記憶體模型, 如下圖, 它們直接用機器的記憶體模型來運作: 
+            <center>
+              <img src="Lab%205_files/vonNeumann.gif" width="560"> 
+            </center>
+            請注意程式本身放在記憶體裡, 所處理的資料也都放在記憶體裡 </li></ol>
+    </td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟二</th>
+      <td width="580"> <font size="+1">指標變數的用法</font> <p> 指標變數是個變數, 也就是說可以把一個記憶體位址的資料存放在這個變數裡面, 
+          當然也可以把先前存放的記憶體位址資料再拿出來使用, 例如: 
+        </p><pre>    int x, y;
+    int *ptr1, *ptr2;
+    ptr1 = &amp;x; // 存放資料到 ptr1 變數內
+    printf("%p", ptr1); // 以十六進位格式列印出 ptr1 內所存放的資料
+    ptr2 = ptr1+1; // 把存放在 ptr1 變數內的記憶體位址資料取出, 
+                   //執行整數指標變數的加法, 加 1 以後實際記憶體位址增加 4</pre>
+        上面這樣當然是指標變數的基本用法, 但是指標變數更重要的用法如下: 
+        <pre>    ptr1 = &amp;x;  // 在 ptr1 變數中記錄變數 x 的記憶體位置
+    <font color="red">*ptr1</font> = 10; // *ptr1 代表變數 x, 將資料存放到變數 x 中
+                // (透過 ptr1 指標變數間接存取變數 x)
+    printf("%d", <font color="red">*ptr1</font>); // *ptr1 代表變數 x, 由 變數 x 中取得資料
+    y = <font color="red">*ptr1</font>;</pre>
+        在程式任何地方只要 ptr1 變數內有存放適當的記憶體位址資料, 你就可以把 <b>*ptr1</b> 當成是一個變數來使用 (什麼是一個變數? 
+        就是一個可以記錄資料的地方, 可以自由地更改資料, 可以再把資料拿出來運算或使用) 
+        <p> 老實說, 如果你希望 "會用" 指標變數就好了, 那你看到這裡就夠了, 把你以前看過和指標相關的範例都拿出來好好解釋一下, 應該就可以有一些心得了, 
+          不過因為你是資訊系的, 你還是應該嘗試了解接下來比較 "進階" 的解釋... 
+        </p><p>基本概念也是下面定理的應用
+        </p><p><strong>軟體工程的基本定理 (Fundamental Theorem of Software Engineering, FTSE) 
+          by Andrew Koenig</strong>
+        </p><blockquote>
+          <p><strong>Any problem can be solved by introducing an extra level of 
+            indirection.</strong></p>
+        </blockquote></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟三</th>
+    <td width="580">
+    為什麼要像上一個步驟中一樣, 
+    用 *ptr1 來代表變數 x 呢?
+    是不是有一點在找自己麻煩,
+    直接用 x 就好了, 不是嗎????
+	<br>
+    <center><font size="+2" color="white">這是為了增加程式的"彈性"</font></center>
+	<br>
+    假設我的程式中有 5 個變數如下:
+    <pre>    int x=123;
+    int y=456;
+    int z=789;
+    int r=135;
+    int s=246;</pre>
+        請用單一不重複的一段程式來計算這 5 個變數所存放數值的平方減一, 並且把算出的結果存放回原來的變數裡 <font color="white"> 
+        <pre>    int *ptr;
+    ptr = &amp;x;
+    
+    *ptr = *ptr * *ptr - 1;</pre></font>
+    <p>
+    請注意要用"單一不重複的一段"程式碼來完成,
+    不要把幾列程式拷貝好幾次,
+    然後更改變數名稱來完成,
+    否則如果有 10000 個變數那該怎麼辦?
+    </p></td>
+  </tr>
+  
+  <tr bbgcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center"></th>
+      <td width="580"> 這不是我們平常在使用的 "函式" 嗎? <font color="#DDEEFF">
+<pre>    void squareMinusOne(int *x)
+    {
+        *x = *x * *x - 1;
+    }</pre></font>
+    <p> 函式就是用 "相同程式碼" 來處理 "不同資料變數" 的機制, 如果函式裡希望更改所處理的資料的話, 就不能不依靠指標變數了 
+        </p><p>
+    我們平常說指標是一種間接的存取 (indirection), 
+    最主要的目的其實就是允許你的程式用 "單一一段" 的程式碼處理 "不同的資料變數"
+        </p><p> 你在生活中常常用同樣的方法去應付很多不一樣的人與事, 以不變應萬變才會省力, 在程式中也是這樣而已, 這樣子程式就有 "彈性" 了, 否則如果有一萬種資料變數就要寫一萬段雷同的程式來處理了, 
+          不會吧! 你能夠想像沒有指標變數的日子嗎? 也是可以過的, 只是有一點雷而已 </p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟四</th>
+      <td width="580"> 在 C/C++ 語言中, 我們常用的陣列其實也是透過指標來實作, 使得相同的一段程式碼可以處理多個變數 x[i] 
+        裡的資料 (i 值不同時 x[i] 就是不同的變數), 語法變得簡潔一點了, 而且變數名稱簡化了。 例如: 
+        <pre>    int x[1000];
+    ...
+    for (i=0; i&lt;1000; i++)
+    {
+        x[i] = i;
+        printf("%d\n", x[i]);
+        x[i] = x[i] * x[i] * x[i] * x[i] * x[i] - 1;
+    }</pre>
+    
+    你能夠不用陣列的語法, 
+    而用一個整數的指標變數來完成上面的 for 迴圈裡所有的動作嗎?
+    請寫一段程式完成!
+    <font color="#DDEEBB">
+    <pre>    for (i=0; i&lt;1000; i++)
+    {
+        *(x+i) = i;
+        printf("%d\n", *(x+i));
+        *(x+i) = *(x+i) * *(x+i) * *(x+i) * *(x+i) * *(x+i) - 1;
+    }</pre>
+    </font>
+    </td>
+  </tr>
+
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center"></th>
+      <td width="580"> 在 C/C++ 中, 陣列是由編譯器翻譯成指標在運作的, 
+        <pre>    int x[1000]; // 請注意 x 在程式中代表陣列 <font color="red">第一個元素的位址</font>
+                 // 它的型態是一個整數的常數指標 int * const 
+    ...
+    x[50] = 10;  // *(x+50) = 10;
+    z = x[i];    // z = *(x+i);
+    printf("%d\n", x[x[3]]); // *(x+*(x+3))</pre>
+        既然編譯器如此翻譯, 所以下面的敘述也有可能對囉?! 
+        <pre>    50[x] = 10; // *(50+x) = 10;</pre>
+        如果編譯器沒有特別去限制的話, 這個敘述是對的, 而且和 x[50] = 10; 有相同的效果, 試試看 VC 如何做吧! </td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟五</th>
+    <td width="580">
+    <font size="+1">指標變數的運算困擾你嗎?</font>
+    <pre>    int x[2], *xptr=x;
+    printf("xptr=%p\n", xptr);
+    printf("xptr+1=%p\n", xptr+1);
+    printf("&amp;x[0]=%p\n", &amp;x[0]);
+    printf("&amp;x[1]=%p\n", &amp;x[1]);</pre>
+        請執行上述程式並且觀察印出的數值, 請注意 xptr+1 與 xptr 的數值差是 1 嗎? 還是 sizeof(int)? 再試試看下面的程式 
+        <pre>    double y[2], *yptr=y;
+    printf("yptr=%p\n", yptr);
+    printf("yptr+1=%p\n", yptr+1);
+    printf("&amp;y[0]=%p\n", &amp;y[0]);
+    printf("&amp;y[1]=%p\n", &amp;y[1]);</pre>
+        請執行上述程式並且觀察印出的數值, yptr+1 與 yptr 的數值差是 1 嗎? 請問明明加的是 1, 為什麼印出來都不是加 1? 對於不同的指標也有不同的作用? 
+        (這又是一個為什麼 <font color="red">都一樣是記憶體位址可是卻要分不同指標變數型態</font>的原因了) 
+        <p>
+    <font color="white">請注意 *xptr 是一個整數, CPU 執行到這裡的時候需要去記憶體中取出 4 個位元組,
+    *yptr 是一個倍精準浮點數, CPU 執行到這裡的時候需要去記憶體中取出 8 個位元組,
+    因此對於 xptr 和 yptr 的加 1 會有不同的結果</font>
+    </p><p>
+    你可以試試下面的加法:
+    </p><pre>    double x[10];
+    double *x0ptr = &amp;x[0];
+    double *x5ptr = &amp;x[5];
+    printf("%x\n", x0ptr+x5ptr);</pre>
+        編譯器會發出錯誤訊息嗎? 你覺得是什麼原因? 
+        <p>
+    <font color="white">一般來說兩個指標變數的內容加起來一定<b>不是</b>一個合理的記憶體位址,
+    所以 compiler 不會接受</font>
+    </p><p>
+    再試試
+    </p><pre>    printf("%p %p\n", x5ptr, x0ptr);
+    printf("%d\n", x5ptr-x0ptr);</pre>
+        這個結果對嗎? 為什麼不是兩個指標變數內的記憶體位址的差值呢? 編譯器為什麼要額外做一些轉換呢? </td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center"></th>
+    <td width="580">
+    再試試下面的指標運算
+    <pre>    int x[10][3];
+    printf("%p\n", x);
+    printf("%p\n", x+1);</pre>
+    
+    看到 x+1 是多少了嗎? 可以猜猜看 x 這個指標常數的型態是什麼嗎?
+    <p>
+    <font color="#DDEEEE">x 和 x+1 之間差了 12, 是三個整數所需要的記憶體大小,
+    x 這個指標常數的型態和它這個(一維)陣列的第一個元素的指標是一樣的,
+    也就是 <b>int (*)[3]</b> 的型態</font>
+    </p><pre>    int *ptr1;
+    ptr1 = x;</pre>
+        上面這個敘述有錯嗎? 為什麼編譯器不讓你做這樣的設定呢? 為什麼不能幫你進行資料型態的轉換呢? VC 的編譯器應該會告訴你 
+        <p>
+    <font color="#DDEEEE">沒有辦法將 int (*)[3] 的型態的資料轉換為 int * 型態的資料</font>
+    </p><p>
+    先看一個簡單的例子:
+    </p><pre>    double *ptr1;
+    int *ptr2;
+    ptr1 = ptr2;</pre>
+        編譯器也不允許你做這樣的轉換, 最主要是因為 *ptr1 和 *ptr2 的型態完全不同, 如果編譯器允許你將原本是 *ptr2 的型態的變數的位址 
+        放在 ptr1 內, 以後用 *ptr1 的型態來處理它, 通常都會造成程式的錯誤, 所以編譯器才不允許你做, 真的要這麼做的話, 你必須加上強制型態轉換的敘述 
+        <pre>    ptr1 = (double *) ptr2;</pre>
+        基本上這個敘述的意思是由寫程式的人跟編譯器保證說請將 ptr2 內所存放的記憶體位址直接放入 ptr1 變數內, 有什麼問題由寫程式的人自己負責!! 
+        <p> 再回到剛才有問題的敘述 
+        </p><pre>    ptr1 = x; // compilation error</pre>
+        所以 x 的型態不是 (int *), 那究竟是什麼? 你應該從編譯器的錯誤訊息裡可以得到答案, 是 int (*)[3], 這到底是什麼? 
+        和 int[3], int *[3] 有什麼不一樣? 
+        <pre>    int *ptrInt;
+    int (*ptrAry)[3];</pre>
+    
+    ptrAry 是一個存放 int[3] 型態資料的記憶體位址的變數,
+    要了解這個東西, 我們先看類似但是簡單一點的敘述:
+    <pre>    int 型態在記憶體內佔了 4 個 byte, 可以存放一個整數,
+    int[3] 型態在記憶體內佔了 12 個 byte, 可以存放三個整數</pre>
+    
+    運用這兩個型態在宣告變數來使用時最大的差別是在於 int 
+    型態的變數可以直接設定資料, int[3] 卻不行, 
+    <pre>    int x;
+    x = 10; // correct
+    int y[3], z[3];
+    y = z; // error</pre>
+    
+    int[3] 型態的變數如果要存取其內任何元素的資料的話必須靠 [] 運算子的幫忙,
+    (或是藉由 dereferencing operator * 的幫忙)
+    <pre>    y[2] = 10;
+    *(y+2) = 10;</pre>
+    
+    如果定義 int *ptrInt; 的話, *ptrInt 就代表一個整數, 如果宣告
+    int (*ptrAry)[3]; 的話, *ptrAry 就代表三個整數的陣列,
+    *ptrAry 的型態是 int[3], 也可以看成是陣列中任意一個元素的位址的型態,
+    就是 int * 型態,
+    當然去存取這個陣列裡個別元素的話同樣需要透過 [] 或是 * 的幫忙,
+    例如:
+    <pre>    (*ptrAry)[2] = 10; // 代表設定陣列中的第三個元素為 10
+    *((*ptrAry)+2) = 10;</pre>
+        請注意, ptrAry[1] 或是 *ptrAry[1] 都是編譯器在檢查語法時認為是正確的敘述, 但是意義上和 (*ptrAry)[1] 
+        完全不一樣 <br>
+        <img src="Lab%205_files/arrayMem1.gif" width="370" height="211"><br>
+    ptrAry[1] 就是 *(ptrAry+1), 代表上圖中藍色框框裡的 3 個整數的陣列,
+    (型態和 *ptrAry 一樣是 int[3], 也就是陣列中一個元素的位址型態 int *);
+    ptrAry[1][0] 代表上圖中標明 4 的那一個整數變數:
+    <p>
+    *ptrAry[1] 就是 *(*(ptrAry+1)) 也是 ptrAry[1][0]
+    </p><p>
+    (*ptrAry)[0] 就是 **ptrAry, 代表上圖中標示 1 的那個整數變數
+    </p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center"></th>
+    <td width="580">
+    再回來看簡單的一維陣列 
+    <pre>    int x[10];</pre>
+        你能夠說明 x 和 &amp;x 的差別嗎? <font color="#DDEEBB">如果你用 %p 列印資料內容的話, 你會發現列印出來的記憶體位址是一樣的, 
+        可是對 compiler 來說這兩個是不一樣的</font> 下面這個程式為什麼編譯時會有錯誤? 
+        <pre>    int x[10];
+    int (*ptr)[10]; // ptr 可以放 "10 個整數的陣列" 
+                    //     的記憶體位址
+    ptr = x;</pre>
+    
+    該如何修改呢?
+    <font color="white">
+    <pre>    ptr = &amp;x;</pre></font>
+    <p>
+    下面這個程式是把上面的概念應用到二維陣列上
+     </p><pre>    int x[10][3];
+    int *ptr1 = &amp;x[0][0];
+    int (*ptr2)[3] = &amp;x[0]; // x[0] 代表 3 個整數的陣列
+    int *ptr3 = x[0]; // x[0] 也代表陣列裡第一個元素的位址
+    int (*ptr4)[10][3] = &amp;x; // x 代表 10 個 3 個整數的陣列
+    int (*ptr5)[3] = x; // x 也代表陣列中第一個元素的位址
+                        //   這代表 3 個整數的陣列
+    
+    有了上面 ptr1 到 ptr5 這些指標, 該怎樣使用呢?
+    *ptr1 是一個整數
+    *ptr2 是一個三個元素的陣列, 可以用下列存取個別元素
+       (*ptr2)[0]   (*ptr2)[1]    (*ptr2)[2]   或是
+      **ptr2       *((*ptr2)+1)   *((*ptr2)+2)
+    *ptr3 是一個整數
+    *ptr4 是一個大的陣列, 有 10 * 3 個整數, 用法比較多
+       (*ptr4)[0] (*ptr4)[1] ... (*ptr4)[9] 
+                             分別代表 3 個整數的陣列
+       (*ptr4)[5][2] 代表一個整數
+           或是上述等效的純指標用法 *(*(*ptr4+5)+2)
+    *ptr5 是一個三個元素的陣列, 可以用下列存取個別元素
+       (*ptr5)[0]   (*ptr5)[1]    (*ptr5)[2]</pre>
+    </td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟六</th>
+    <td width="580">
+    請問你能夠分辨下面的兩個指標的差異嗎?
+    <pre>    int **ptr1;
+    int (*ptr2)[3];</pre>
+    
+    <img src="Lab%205_files/arrayMem2.gif">
+    <br>
+    你能夠指出下面這四個敘述分別是指上圖中哪一個圖形嗎?
+    <pre>    1. (*ptr2)[1]
+    2. (*ptr1)[1]
+    3. (*(ptr2+1))[1]
+    4. (*(ptr1+1))[1]
+    </pre></td>
+  </tr>
+
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟七</th>
+    <td width="580">
+    <font size="+1">接下來看看指標變數的第二大功能</font>
+    <p>
+    你能夠寫一段程式, 視資料的內容來決定怎麼處理它嗎? 
+    直覺看來這個問題並不困難, 可以用下面的 switch 敘述來完成,
+    </p><pre>    int x;
+    ...    // 設定 x 的內容
+    switch (x)
+    {
+    case 1:
+        fun1(y, z); break;
+    case 2:
+        fun2(y, z); break;
+    ...
+    case 5:
+        fun5(y, z); break;
+    }</pre>
+    
+    不過這段程式很難看, 重複又多, 
+    我們只是希望讓不同的函式來處理相同的資料 (y, z) 而已,
+    有沒有一種像步驟二中使用指標指到不同變數的方法呢?
+    只是這次要指到不同的函式去了。
+    (函式也放在記憶體內, 
+    函式的起始點記憶體位址就是函式指標的內容了,
+    <pre>    typedef void (*PF)(int, int);
+    
+    PF funAry[5] = {fun1, fun2, fun3, fun4, fun5};
+    // 或是 void (*funAry[5])(int, int)={fun1, fun2, ...};
+    
+    (*funAry[x])(y, z); // 取代上面整個 switch 敘述</pre>
+        這是同樣的一列程式碼視 x 資料內容不同而執行不同程式的範例, 處理程式碼是執行時可以更換的, 不見得是寫好就定死了的, 永遠作固定事情的。 
+        <p>
+    比較實際的函式指標範例其實就是 
+    <a href="http://squall.cs.ntou.edu.tw/cpp/93spring/lab01/Lab1-2.html">Lab 1-2 步驟七</a>
+    的 qsort() 和 
+    <a href="http://squall.cs.ntou.edu.tw/cpp/93spring/lab02/Lab2-2.html">Lab 2-2 步驟三, 四</a>
+    sort() 和 find()
+    </p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    <th width="75" align="center">步驟八</th>
+      <td width="580"> <p>假設我們希望將下面程式中 data 這個結構變數在記憶體中的內容一個 byte 一個 byte 用十六進位列印出來, 
+          例如:</p>
+        <pre>00: 77
+01: be
+02: 9f
+03: 1a
+04: 2f
+05: dd
+06: 5e
+07: 40
+08: 7b
+09: 00
+10: 00
+11: 00
+12: 7c
+13: 00
+14: 00
+15: 00
+16: 7d
+17: 00
+18: 00
+19: 00
+20: 7e
+21: 00
+22: 00
+23: 00
+24: 61
+25: 62
+26: 63
+27: 64
+28: 65
+29: 20
+30: 40
+31: 00</pre>
+        <p>請寫一個函式來做這件事: </p>
+        <pre>    void printContent(void *ptr, int length)
+    {
+<font color="#FFFFCC">        int i;
+        unsigned char *dataArray = (unsigned char *) ptr;
+        for (i=0; i&lt;length; i++)
+            printf("%d: %2x\n", i, dataArray[i]);</font>
+    }
+    
+    struct DataRecord
+    {
+        double x;
+        int y[4];
+        char z[5];
+    };
+    
+    void main()
+    {
+        DataRecord data;
+        int i;
+
+        data.x = 123.456;
+        for (i=0; i&lt;4; i++)
+            data.y[i] = 123+i;
+        for (i=0; i&lt;5; i++)
+             data.z[i] = 'a'+i;
+        ...
+        printContent(&amp;data, sizeof(data));
+    }</pre>
+        Hint: <font color="#FFFFCC">在printContent()函式中你不要去管各個欄位究竟是什麼型態, 請你寫一個迴圈, 
+        一率用 unsigned char * 型態的指標去依序存取每一個位元組的資料, 並且以 printf() 函式的 %x 格式列印</font></td>
+  </tr>
+
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟九</th>
+      <td width="580"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 
+        刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) ) 壓縮起來, 
+        選擇 Lab5 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </td>
+  </tr>
+
+</tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%205_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%205_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Sun Apr 10 2016 21:18:30 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 03/14/2004
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

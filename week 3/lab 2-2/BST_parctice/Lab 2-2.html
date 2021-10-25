@@ -1,0 +1,215 @@
+<html><head>
+<title>
+Lab 2-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%202-2_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+  <h1> Using <font color="#0000FF">binary_search</font> with <font color="#0000FF">vector</font> 
+    container </h1>
+<center><p><img src="Lab%202-2_files/rainbow.gif"></p></center>
+
+  <table width="709" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">實習目標</th>
+      <td width="580"> 先前練習過 <strong><font size="+2">vector</font> 類別</strong>的使用, 
+        這裡介紹如何運用 <strong><font size="+2" color="#0000FF">&lt;algorithm&gt;</font></strong> 
+        中配合的 <strong><font size="+2">sort</font></strong> 以及 <font size="+2"><strong>binary_search</strong></font> 
+        演算法</td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><p>一</p></th>
+      <td width="580"> <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+        的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+        <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx"></a>中提供多種方便的 
+        <a href="http://msdn.microsoft.com/en-us/library/1fe2x6kt(v=vs.100).aspx">容器</a> 
+        類別, 以及對應的演算法, 因為物件化的系統中你除了實作很多的物件之外, 有方便好用的物件提供給你的時候你也要盡量去使用它, 如此才能夠提昇撰寫軟體的效率</td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">二</th>
+      <td width="580" bgcolor="#DDEEBB"> <h2>binary_search</h2>
+        <p>在 <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+          的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+          中, <a href="http://msdn.microsoft.com/en-us/library/af0b55bw(v=vs.100).aspx">binary_search</a> 
+          (<a href="http://www.cplusplus.com/reference/algorithm/binary_search/">cplusplus</a>) 
+          是一個配合排序過的容器物件很方便的演算法, 你可以直接使用而不需要自己實作, 可以省掉你一點時間 </p>
+        <p><strong>binary_search</strong> 的使用方法如下: </p>
+        <blockquote> 
+          <p><strong>template &lt;class ForwardIterator, class T&gt;<br>
+            bool binary_search (ForwardIterator first, ForwardIterator last, const 
+            T&amp; val);<br>
+            <br>
+            template &lt;class ForwardIterator, class T, class Compare&gt;<br>
+            bool binary_search (ForwardIterator first, ForwardIterator last, const 
+            T&amp; val, <br>
+            Compare comp);</strong></p>
+        </blockquote>
+        <p> 例如: </p>
+        <blockquote> 
+          <pre>#include &lt;iostream&gt;     // cout
+#include &lt;algorithm&gt;    // binary_search, std::sort
+#include &lt;vector&gt;       // vector
+#include &lt;cstdlib&gt;      // system()
+using namespace std;
+
+struct MyClass <br>{<br>    bool operator()(int i, int j) { return (i&lt;j);}<br>} myLessObject;
+
+bool myCompare(int i, int j) 
+{ 
+    return (i&lt;j); 
+}
+
+struct StudentRecord
+{
+    StudentRecord(int id1, int score1):id(id1), score(score1) {}
+    bool operator&lt;(const StudentRecord rhs) const
+    {
+        return id &lt; rhs.id;
+    }
+    int id;
+    int score;
+};
+
+int main() 
+{
+    int myints[] = {1,2,3,4,5,4,3,2,1};
+    vector&lt;int&gt; v(myints, myints+9);  // 1 2 3 4 5 4 3 2 1
+   
+// using default comparison:
+    sort(v.begin(), v.end());
+   
+    cout &lt;&lt; "looking for a 3... ";
+    if (binary_search(v.begin(), v.end(), 3))
+        cout &lt;&lt; "found!\n"; 
+    else 
+        cout &lt;&lt; "not found.\n";
+
+// using myCompare as comp:
+    sort(v.begin(), v.end(), myCompare);
+   
+    cout &lt;&lt; "looking for a 6... ";
+    if (binary_search(v.begin(), v.end(), 6, myCompare))
+        cout &lt;&lt; "found!\n"; 
+    else 
+        cout &lt;&lt; "not found.\n";
+
+// using myLessObject as comp:
+    sort(v.begin(), v.end(), myLessObject);
+   
+    cout &lt;&lt; "looking for a 5... ";
+    if (binary_search(v.begin(), v.end(), 5, myLessObject))
+        cout &lt;&lt; "found!\n"; 
+    else 
+        cout &lt;&lt; "not found.\n";
+
+    StudentRecord mysr[] = {StudentRecord(15, 91), 
+                            StudentRecord(5, 75), 
+                            StudentRecord(19, 81), 
+                            StudentRecord(3, 90), 
+                            StudentRecord(7, 83)};
+    vector&lt;StudentRecord&gt; vs(mysr, mysr+5);
+    stable_sort(vs.begin(), vs.end());
+    cout &lt;&lt; "looking for a 19... ";
+
+// use StudentRecord::operator&lt;()
+    if (binary_search(vs.begin(), vs.end(), StudentRecord(19,20)))
+        cout &lt;&lt; "found!\n"; 
+    else 
+        cout &lt;&lt; "not found.\n";
+
+    system("pause");
+}</pre>
+        </blockquote></td>
+    </tr>
+  </tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%202-2_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%202-2_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon Nov 30 2015 21:02:30 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 04/09/2014
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

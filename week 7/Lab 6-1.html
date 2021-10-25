@@ -1,0 +1,303 @@
+<html><head>
+<title>
+Lab 6-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%206-1_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 6-1: Object Design Practice - <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/3bags4.rar">3 
+    bags program</a> modification </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%206-1_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"> <ol>
+          <li><font face="微軟正黑體"> 練習修改一個物件導向的程式 (真正在設計物件導向程式時, 其實我們會避免去修改已經設計好的類別, 
+            盡量重用已經設計好的類別, 目前因為我們教過的語法還不夠多, 所以才希望你直接去修改類別的內容, 同時也是因為修改一個已經有適當架構的程式, 
+            可以讓你快一點熟悉如何建構物件導向程式中各種物件的靜態架構) <br>
+            <br>
+            </font>
+          </li><li><font face="微軟正黑體"> 修改物件的模型, 物件模型因為已經用很清楚的圖形表示出來了, 所以是很容易修改的。 <br>
+            <br>
+            </font> 
+          </li><li><font face="微軟正黑體"> 進一步了解 UML 的類別圖的用途 </font></li></ol></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"> <p><font face="微軟正黑體">先下載原來的 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/3bags4.rar">3 bags</a> 
+          程式, 這個程式的類別圖 (Class Diagram) 如下: <br>
+          <img src="Lab%206-1_files/3bags1.gif"> </font></p>
+        <p><font face="微軟正黑體">先</font><font face="微軟正黑體">回憶一下這張圖上面符號的意義</font></p>
+        <p><font face="微軟正黑體">(<a href="http://squall.cs.ntou.edu.tw/cpp/98spring/StarUML/Lab6-0.html">參考實習 
+          6-0 StarUML 練習</a>)</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 我們希望把原來的程式修改成有<font color="#FF0000">四個袋子</font>, 
+        每個袋子裡有<font color="#FF0000">三個球</font>, 球的顏色分別是 (紅, 紅, 紅), (紅, 紅, 白), 
+        (紅, 白, 白), (白, 白, 白), 我們希望去算出 "<font color="#FF0000">任選一個袋子, 如果前兩個抽出的球都是紅球的話, 
+        第三個球是紅球的機率</font>" 是多少? </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 我們由底層的類別來開始修改, 不過 Ball 類別似乎已經符合要求, 不需要修改了 
+        <p> Bag 類別需要由原來放兩個球改為放三個球, 所以類別定義裡指標陣列 Ball *m_balls[2]; 的元素個數需要改為 3, 
+          建構元 Bag::Bag(...) 函式的參數要改為三個, 初始化串列 : m_numberOfBalls(2) 也要更改數值為 3, 
+          函式內容需要多增加一個 new 的記憶體配置敘述, 解構元 Bag::~Bag() 裡要釋放的記憶體也相對地增加一個 
+        </p><p> Ball *Bag::getABall() 函式裡需要增加袋中有三個球的可能性, 如果你有時間的話, 邏輯可以改一下, 讓程式看起來簡潔一點 
+        </p><p> void Bag::putBallsBack(); 函式很容易改, 在設計這個 Bag 類別的時候所有產生的 Ball 物件都由它來管理, 
+          所以在 Bag 物件銷毀的時候必須負責把所有管理的 Ball 物件都刪除掉。 
+        </p></font><p><font face="微軟正黑體">另外你也可以思考一下: getABall() 和 putBallsBack() 原來在實作時雖然會透過 getABall() 回傳一個 
+          Ball 物件的指標, 但是基本上所有的 Ball 物件還是由 Bag 物件來管理, 它們的指標還是記錄在 Bag::m_balls 陣列中, 
+          這樣的邏輯和實際實驗時差距比較大, 實際上每次由 Bag 中拿出一個球的時候, 這個 Ball 物件應該要由 Bag 物件中移掉, 而由 
+          main() 函式來管理, 直到 putBallsBack() 被呼叫時, 先前抽出的球再透過這個函式的參數傳回 Bag 物件中, 這樣的運作模式比較直覺。 
+        </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"> <p><font face="微軟正黑體"> Game 類別需要由原來三個袋子改為四個袋子, 所以類別定義裡指標陣列 
+          Bag *m_bags[3]; 的元素需要改為 4, 同時我們也練習一下替這個類別增加一個常數資料成員, const int m_numberOfBags; 
+          </font>
+        </p><p><font face="微軟正黑體"> 建構元 Game::Game() 函式必須使用初始化串列來設定 m_numberOfBags 
+          整數常數的數值: </font> 
+        </p><pre><font face="微軟正黑體">    Game::Game():m_numberOfBags(3)</font></pre>
+        <font face="微軟正黑體"> 函式內容需要多增加一個 new 的記憶體配置敘述, 記得 Bag 的建構元已經修改過了, 所以 new 
+        Bag(Ball::White, Ball::White) 的參數是錯的, 解構元 Game::~Game() 裡要釋放的記憶體也相對地增加一個, 
+        請盡量利用 m_numberOfBags 這個變數來改寫程式, 讓程式裡出現的常數數字 (literal) 越少越好 
+        </font><p><font face="微軟正黑體"> Game *Game::getABag() 函式裡需要由三個袋子改為四個袋子 邏輯可能要改一下 </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體"> 最後要修改 main 函式, 原來是抽出一顆球, 檢查是不是紅球, 是的話再抽一顆球, 
+        現在抽出第二個球的時候要再檢查一次, 如果是紅球才再抽第三個球, 然後累計結果 , 估計在前兩個球為紅球的情況下第三個也是紅球的機率是多少? 
+        (你可以推導一下, 理論上機率應該是 0.75, 因為我們是用 relative frequency 來估計這個機率, 所以實際上計算出來的數值接近 
+        0.75, 如果樣本數越多的話, 例如你迴圈執行 100000次的話, 得到的數值就越接近 0.75, 與 0.75 的誤差可以用 Chebyshev 
+        Inequality 來估計, 基本上離開 0.75 k 倍標準差的機率和 k<sup>2</sup>n 成反比) </font>
+        <p> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/3bags2.exe">範例執行程式</a>(請下載後執行) </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 進一步修改程式, 我們覺得現在放在 main() 函式裡的實驗步驟其實應該寫到 
+        Game 類別裡成為一個成員函式, 這樣子的話, Game 可以有好多個不同的實驗, 比方說還可以有另外一個實驗試看看如果抽第一個球是紅球, 
+        第二個球是白球的機率有多少... 
+        <p>在修改程式之前我們有一些準備的工作: 
+        </p><p>我們知道如果在 srand() 函式中傳入一個固定的數字, 例如 srand(0), 不管什麼時候執行它, 產生的亂數序列應該是完全一樣的。 
+        </p><p> 在這個步驟中打算作的修改基本上不會改變程式的結果, 所以在修改程式前, 請先在原來主程式<font color="#FF0000">結束前</font>加上 
+          assert 的敘述, 例如 
+        </p><pre>    assert(thirdIsAlsoRed == 2477);</pre>
+        </font> <p><font face="微軟正黑體">其中 2477 這個數字要在<font color="#FF0000">程式還沒修改前</font>利用原來的程式列印出來 
+          cout &lt;&lt; thirdIsAlsoRed &lt;&lt; endl;, 加上這個敘述的目的是要保證修改過程中的程式一直都能夠得到一樣的結果。 
+          </font></p>
+        <p><font face="微軟正黑體">接下來就可以進行程式的修改了, <font color="#0000FF">把 main() 中實驗的部份抽出來到一個 
+          Game 類別的成員函式中, 傳回一個機率值到主程式來列印</font>。 </font></p>
+        <p><font face="微軟正黑體"> 這樣子的修改方法是防止你在更動程式架構時不小心造成結果的錯誤, 物件導向程式中有很多程式架構的彈性, 
+          例如說某一個成員函式可以放在某一個類別中或是另外一個類別中, 某一個資料成員可以放在這個類別或是另外一個類別中, 這些都是可以一步一步調整的, 
+          很可能各有各的好處, 需要視實際狀況來調整, 所以常常我們會更改必要的程式, 但是不需要更改的部份一定完全不動, 而需要更改的程式會藉由一些 
+          assert 敘述來保證它沒有被改錯 </font>
+        </p><p><font face="微軟正黑體">在繼續其他的練習之前, 請注意一下 VS2010 開發環境提供給你的兩個適合寫物件導向程式的編輯功能: 
+          </font>
+        </p><ol>
+          <li> 
+            <div align="left"><font size="+2" face="微軟正黑體" color="#FF0000"><strong>類別檢視</strong></font><font face="微軟正黑體">: 
+              一直提醒大家, 你先前在用 Visual Studio IDE 環境寫 <strong>C 程式</strong>的時後, 可能只需要用到方案總管, 
+              能夠看到專案裡有哪些檔案就好了, 不過在<strong>用 C++ 寫物件化程式</strong>的時候, 你設計的類別放在不同的檔案裡面, 
+              類別裡頭成員函式變多了, 你需要使用<font color="#FF0000">類別檢視</font>, 在上方視窗點選類別, 
+              在下方視窗點選成員函式或是資料成員, 直接跳到定義的地方 (直接用滑鼠右鍵點變數或是函式, 選「移至定義」, 也可以直接跳到定義的 
+              .cpp 或是 .h 檔案裡直接顯示)<br>
+              <img src="Lab%206-1_files/classview.gif" width="535" height="502"></font></div>
+          </li>
+          <li> 
+            <div align="left"><font face="微軟正黑體"><strong><font size="+2" color="#FF0000">書簽</font></strong>: 
+              這是另外一個用來寫物件化程式很方便的工具, 我們在設計應用程式功能的時候, 或是在調整程式架構 (refactoring) 的時候, 
+              常常會需要一次更動好幾個類別裡面的程式碼, 可是正常人通常都只能一個類別一個類別地更改, 於是有的時候改了東忘了西, 這個狀況很討厭。Visual 
+              Studio 提供給你很方便的書簽功能, 在設計某些功能的時候, 你很快地想到要更改程式裡頭哪些地方, 很快地透過類別檢視, 一個一個找到所有要改的地方, 
+              一個一個先設定好書簽 (如下圖點選工具列上面的圖示, 或是按 <strong>Ctrl-K</strong>, <strong>Ctrl-K</strong>), 
+              然後再慢慢來修改程式, 運用 <strong>F2</strong> 或是 <strong>Shift-F2</strong> 
+              可以循環地跳到每一個書簽的地方, 改完以後可以用 <strong>Ctrl-K</strong>, <strong>Ctrl-K</strong> 
+              刪除單一書簽, 也可以用 <strong>Ctrl-K</strong>, <strong>Ctrl-L</strong> 一次刪除所有書簽 
+              <br>
+              <div align="center"><img src="Lab%206-1_files/bookmark.gif" width="359" height="219"></div>
+              </font></div>
+          </li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 接下來我們要再增加這個程式一點功能, 我們先來做一個骰子 Dice 的類別, 
+        這個骰子不見得是公平的, 我們可以視實際需要來設定這個骰子各個點數出現的機率, 例如: {1/4, 1/6, 1/12, 1/12, 1/6, 
+        1/4} 代表 1 點和 6 點出現的機率最大各為 1/4, 其次是 2 點和 5 點, 機率各為 1/6, 出現最少的是 3 點和 4 點, 
+        機率各是 1/12。 
+        <p> 也就是說這個類別需要有一個建構元 
+        </p><pre>    Dice::Dice(double probability[])
+    {
+        ...
+    }</pre>
+        </font> <p><font face="微軟正黑體">來設定六個機率值, 傳進去一個六個元素的浮點陣列, 記得用 assert 敘述檢查一下總和是不是 
+          1.0 (目前還沒有學到使用 exception, 所以如果檢查失敗了, 還沒有辦法處理) </font>
+        </p><p><font face="微軟正黑體"> 我們可以在任何時候丟這個骰子, 來看到它出現的點數, 所以這個類別會有一個公開的成員界面, </font> 
+        </p><pre><font face="微軟正黑體">    int Dice::randomThrow();</font></pre>
+        <font face="微軟正黑體"> 每次呼叫都會根據這個骰子預設的機率值 傳一個點數回來 
+        <p>這個 randomThrow() 函式裡應該要實作類似丟銅板決定正反面的程式</p>
+        <pre>int x;
+x = rand();
+if (x &lt; RAND_MAX/2)
+    return 0; // 正面
+else
+    return 1; // 反面</pre>
+        </font> <p><font face="微軟正黑體">只是現在有六個可能的輸出數值 {1, 2, 3, 4, 5, 6}, 而且決定的邊界不見得是均勻地平分 
+          RAND_MAX, 而是根據建構這個骰子物件時設定的機率 probability[6] 來設定邊界, 例如</font></p>
+        <pre><font face="微軟正黑體" color="#FFFFDD">int i;
+int boundary[6];
+double cumulativeProbability = 0;
+for (i=0; i&lt;6; i++)
+{
+    cumulativeProbability += probability[i];
+    boundary[i] = cumulativeProbability * RAND_MAX;
+}</font></pre> <p><font face="微軟正黑體">在 
+          randomThrow() 函式中決定骰子點數的程式片段如下:</font></p>
+        <pre><font face="微軟正黑體" color="#FFFFDD">int x, i;
+x = rand();
+for (i=0; i&lt;6; i++)
+    if (x &lt; boundary[i])
+        return i+1;</font></pre> </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td width="580"><font face="微軟正黑體"> 在我們的 Game 的類別裡現在需要有兩顆骰子, 一顆是公平的 {1/6, 
+        1/6, 1/6, 1/6, 1/6, 1/6}, 另外一顆骰子是不公平的 {1/4, 1/6, 1/6, 1/6, 1/6, 1/12} 
+        </font><font color="#DDEEFF">
+        <pre><font face="微軟正黑體">
+    初始化及銷毀其中一個骰子的程式可以如下
+    Dice  *dice[2];
+    double prob1[]={1.0/6, 1.0/6, 1.0/6, 1.0/6, 1.0/6, 1.0/6};
+    dice[0] = new Dice(prob1);
+    ...
+    delete dice[0];</font></pre>
+        </font> <p><font face="微軟正黑體"> 現在請再寫一個 Game 的成員函式來做一個新的實驗, </font> 
+        </p><pre><font face="微軟正黑體">    1. 請由四個袋子中任意挑選一袋<br>
+    2. 請由袋子中選一顆球出來, 如果是紅球的話, 把球放回去, 重新執行步驟 1 <br>
+    3. 如果在步驟 2 中挑到白球, 請隨機挑一顆骰子丟, 如果是奇數的話, 
+       不做任何事, 如果是偶數的話再挑一顆球, 把球留在外面<br>
+    4. 最後再由袋子裡挑一顆球,請計算這樣子挑到白球的機率</font></pre>
+        <font face="微軟正黑體"> 請計算執行第四步驟時白球出現的機率是多少? (第四步驟可能出現紅球或是白球,兩個機率的和是 1) </font>
+        <p> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/3bags3.exe">範例執行程式</a>(請下載後執行) </font>
+        </p><p><font face="微軟正黑體">請注意: 在撰寫上述程式時你可能會產生一個疑問, 就是 Dice 物件到底該定義在哪裡? 雖然這個問題看起來好像不是很難處理, 
+          總共只有幾個選擇, 你隨便挑一個都可以應付目前的程式功能需求, 不過這個狀況你在後續的程式裡面會不斷地遇見, 不好的選擇會使得你的程式的可讀性, 
+          可擴充性都受到影響, 可以說後續影響很深遠。首先可能的選擇有 </font>
+        </p><ol>
+          <li><font face="微軟正黑體">最上層的全域變數<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">類別中的資料成員<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">函式裡的區域變數</font></li>
+        </ol>
+        <p><font face="微軟正黑體">最上層的全域變數是最不需要考量的, 除非有萬不得已的情形才會使用的, 基本上是我們盡量想辦法避免的。類別中的資料成員是物件的狀態變數, 
+          通常是物件所提供各種功能共通需要使用的才會放在這裡, 在我們的 Game 物件中並不是每一個實驗都需要使用 Dice 物件, 也不見得都需要這種機率分佈的 
+          "不公平骰子", 所以初步可以排除放在類別中成為資料成員; 所以剩下的地方其實就是在 函式裡宣告成為區域變數。 </font>
+        </p><p><font face="微軟正黑體">這樣的思考邏輯是你設計每一個變數時都需要考量的, 一般情形下優先順序是 區域變數 &gt;= 類別資料成員 
+          &gt;= 全域變數, 真的無法判斷時其實就先設定為區域變數, 將來有比較大的效能考量時再加以調整。 </font>
+        </p><p><font face="微軟正黑體">第二個可以特別留意的事情是你仔細想一下, 也許會發現上面這個實驗其實和底下這個實驗是等效的 </font> 
+        </p><pre><font face="微軟正黑體">    1. 請由四個袋子中任意挑選一袋<br>
+    2. 請由袋子中選一顆球出來, 如果是紅球的話, 把球放回去, 重新執行步驟 1 <br>
+    3. 如果在步驟 2 中挑到白球, 由剩下兩個球中任意挑選一個球, 是白球的機率</font></pre>
+        <p><font face="微軟正黑體">那麼是不是就實作比較簡單的就好了呢? 
+          可能不是這樣的, 你現在需要把<strong>規劃實驗的人</strong>和<strong>撰寫程式的人</strong>這兩個角色區分出來, 
+          在這裡規劃實驗的人基本上是提出程式規格的使用者, 撰寫程式的是軟體工程師, 軟體工程師當然不隨便更改使用者的要求, 有可能使用者以後還會根據現在這個實驗繼續修改下去, 
+          你所看到的還不是最後的要求, 你現在去修改他的實驗就是越俎代庖了, 會造成以後修改的問題, 這是找自己麻煩的事, 別想太多! </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟九</font></th>
+      <td width="580"><font face="微軟正黑體"> 參考 <a href="http://squall.cs.ntou.edu.tw/cpp/98spring/StarUML/Lab6-0.html">實習6-0</a> 
+        運用 StarUML, 嘗試修改上面的類別圖, 加上新的類別, 畫上它和其他類別的關係 </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟十</font></th>
+      <td width="580"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 
+        資料匣下的所有內容) ) 壓縮起來, 選擇 Lab6-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+  </tbody></table>
+  <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/UsingDebuggerToDetermineErrorPosition.html">如何運用 
+    VC6 debugger 了解程式錯誤的位置</a></font></p>
+  <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/3bags4_error_VC2008/UsingDebuggerToDetermineErrorPositionVC2008.html">如何運用 
+    VC2008 debugger 了解程式錯誤的位置</a></font></p>
+  <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/3bags4_error_VC2010/UsingDebuggerToDetermineErrorPositionVC2010.html">如何運用 
+    VC2010 debugger 了解程式錯誤的位置</a></font></p>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%206-1_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%206-1_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Tue Apr 10 2018 12:38:50 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 04/11/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

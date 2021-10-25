@@ -1,0 +1,255 @@
+<html><head>
+<title>
+Lab 6-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%206-2_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 6-2: Coding the UML spcification<br>
+    　　　ctor and dtor practicing </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%206-2_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 練習依照 UML 的類別圖實作類別, 製作類別間靜態的連結, 練習撰寫建構元與解構元 
+        </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 請參考下面 UML 的類別圖, 製作所需要的類別 <br>
+        <img src="Lab%206-2_files/Univ1.gif"> <br>
+        這是一個描述類似海洋大學這樣子的組織的「課程」資訊系統, 所以我們針對所有開設的課程來描述對應的組織架構, 首先學校裡面有好幾個學院, 每一個學院裡面又有不同的系所, 
+        每一個系所每個學期都會開設許多的課程, 系所也有許多的老師, 假設每個課程都有一個老師在負責授課。 
+        </font><p><font face="微軟正黑體"> 在這個實習中我們針對紅色的部份來製作, 下一個實習中我們實作整個架構, 也探討這個架構有什麼樣的問題存在 </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 請定義 University, College 和 Department 
+        這三個類別, 其中的資料部份先用你覺得最方便的型態, 例如 m_name 可以用 string 類別或是字元陣列 char [] 來實作, 
+        所有類別內的資料成員基本上都是 private 的 </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 接下來要建構<font color="#FF0000">類別間的關係</font>, 
+        例如我們學校裡有七個學院, 所以在 University 類別中要有一個容器物件, m_colleges, 你可以用 vector&lt;College&gt; 
+        來製作, 如此在 University 解構時, 所有的 m_colleges 也都會一起解構; 如果考量效率的話, 你也可以用物件指標的 
+        vector 來製作, 例如 vector&lt;College *&gt;, 但是下層的 College 物件的解構就需要由 University 
+        物件來負責了。 
+        <p> 請注意: 如果你選擇使用 vector&lt;College&gt; 來製作, 每一個元素都是一個 College 型態的物件, vector&lt;College&gt;::push_back(College) 
+          函式需要傳入一個 College 型態的物件, 此時會呼叫拷貝建構元 (copy constructor) 來處理參數的拷貝, 請注意<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab08/Lab8-1.html">拷貝建構元的寫法和使用的時機</a>, 
+          每一種關連性都可以考慮用物件的 vector 來實作, 例如 vector&lt;Department&gt;, vector&lt;Institute&gt;, 
+          vector&lt;Teacher&gt;, vector&lt;Course&gt; 來實作, 如此實作除了效率會造成一些小問題之外, 
+          真正的問題在於雙向的連結 (例如 Course - Teacher 間的連結), 另外會有問題的是重複的關聯性, 例如 A - C 以及 
+          B - C。 
+        </p><p> 如果你覺得每個學校的學院變化不大, 不需要用 vector 那麼一般化的容器物件來製作, 你也可以像 3bags 程式那樣子用<font color="#FF0000">陣列</font>來實作, 
+          例如 College colleges[4]; 
+        </p><p>在 C++ 中你也可以選擇用<font color="#FF0000">指標陣列</font>來實作, 如此可以省掉許多不必要的資料拷貝的動作, 
+          例如 College *colleges[4]; 只是記得要在 University 物件 中透過 new 和 delete 來配置/釋放那些 
+          College 物件
+        </p><p> 在 College 中有 Department, 你可以用 vector&lt;Department *&gt; 來定義, 如此在解構 
+          College 時, Department 不會自動被解構, 你可以把 Department 物件紀錄到別的地方去, 你可以自行掌握所有物件的生命週期 
+        </p></font><p><font face="微軟正黑體"> 注意什麼時候用 vector, 什麼時候用 C/C++ 語法裡原本的陣列, 完全是效率和程式碼大小的考量, 你可以斟酌程式的複雜度, 
+          可讀性和效率來使用 </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 接下來我們要定義建構元, 建構元主要將每一個資料成員適當地初始化, 除了紀錄狀態的資料成員之外, 
+        也包括架構物件間連結的所有資料成員, 所以上層物件 (例如 University 類別的物件) 的建構元執行完畢之後, 通常整個系統物件的架構都已經建立好了。 
+        (因為它間接地會讓每一個物件的建構元都執行過。) 
+        <p> 相對地解構元除了釋放自己類別內使用的記憶體外, 常常也會將整個物件架構摧毀。 
+        </p><p> 有些建構元可以有預設的數值, 有些則需要在建構時將資料當做參數傳遞進去, 我們這個應用程式的資料量有點大, 如果為了兼顧彈性, 也不適合將所有資料物件用預設的方式建立起來, 
+          所以我們打算由檔案串流中讀取資料。 
+        </p></font><p><font face="微軟正黑體">還是有同學沒有辦法接受一個<font color="#FF0000">『物件生成的時候需要把裡面所有的成員都初始化』</font>, 
+          覺得這和以前記憶體的使用概念相當不同, 記憶體不就是用來存放資料的, 安排好了記憶體的大小, 要不要存放資料不是寫程式的人的自由嗎? 的確是, 
+          也因為這麼多的自由, 所以用程序化方式寫的程式很難擴充, 很難長大... 這是一開學一直跟大家溝通的概念, 現在你看到的<font color="#FF0000">物件</font>不只是存放資料的地方而已, 
+          它們需要對軟體的其他部份<font color="#FF0000">提供服務</font>, 而且要提供不容易出錯的服務, 如果有一個物件, 
+          把它做出來以後, 因為所有內部的資料都還沒有設定, 所以沒有辦法提供服務, 想要用它的人還要顧及它裡面所有的資料有沒有一一設定, 是不是沒有衝突, 
+          還要顧及它是不是心情很好, 然後才能請求它的服務, 那到底是你在服務它? 還是它在服務你? 當你一個人需要控管所有細節的時候, 真好, 
+          可以滿足那種一夫當關任你操縱的權力慾望, 可是別忘了一個人的能力有限, 當你需要把注意力放在很多很多地方的時候, 就會開始東忘西漏的了, 
+          bug 很快地就會是你的好朋友了
+        </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"> <p><font face="微軟正黑體"> 我們把資料放在 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/ntou1.txt">ntou1.txt</a> 
+          檔案內, 資料如下: </font>
+        </p><pre><font face="微軟正黑體">    海洋大學                 // 學校名稱
+    7                              // 學院個數
+    海運暨管理學院    // 第一個學院名稱
+    4                              // 此學院內學系個數
+    商船學系                 // 第一個學系名稱
+    航運管理學系         // 第二個學系名稱
+    運輸科學系             // 第三個學系名稱
+    輪機工程學系          // 第四個學系名稱
+    生命科學院             // 第二個學院名稱
+    5
+    食品科學系
+    水產養殖系
+    生命科學暨生物科技學系
+    海洋生物研究所
+    海洋生物科技博士學位學程
+    海洋科學與資源學院    // 第三個學院名稱
+    6
+    環境生物與漁業科學學系
+    ...
+    工學院                       // 第四個學院名稱
+    5
+    機械與機電工程學系
+    系統工程暨造船學系
+    ...
+    電機資訊學院              // 第五個學院名稱
+    5
+    電機工程學系
+    資訊工程學系
+    ...
+    人文社會科學院           // 第六個學院名稱
+    5
+    應用經濟研究所
+    ...
+    海洋法律與政策學院        // 第七個學院名稱
+    3
+    海洋法政學士學位學程
+    ...</font></pre>
+        <font face="微軟正黑體"> 此檔案內每一筆資料代表意義以及讀取方法請參考 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/campusCourse1/testRead1.cpp">testRead1.cpp</a>, 
+        以及 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/testRead1.exe">testRead1.exe</a> (請下載後執行) 
+        <p> 請設計各個建構元函式, 依據此資料檔案內容建構各個物件, 例如: College 類別的建構元如下: 
+        </p><pre>    College::College(ifstream &amp;infile)
+    {
+        char buf[50];
+        getline(infile, m_name, '\n'); // string m_name; 學院名稱
+
+        int numberOfDepartments;
+        infile &gt;&gt; numberOfDepartments;
+        infile.getline(buf, 50, '\n');
+
+        int iDept;
+        for (iDept=0; iDept&lt;numberOfDepartments; iDept++)
+            m_departments.push_back(new Department(infile)); 
+    }</pre>
+        請注意, 由於在建構元中產生了這些 Department 物件, 一般來說在解構元中會對稱地把它們釋放掉, 否則就會有記憶體的遺失 
+        <pre>    College::~College()
+    {
+        std::vector&lt;Department *&gt;::iterator iter;
+        for (iter=m_departments.begin();
+             iter&lt;m_departments.end();
+             iter++)
+            delete *iter;
+    }</pre>
+        </font> </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 為了作基本的測試, 我們在 University, College, 和 
+        Department 類別內都增加一個 print(ostream &amp;) 的公開成員函式, 各自將自己物件的內容印出在輸出串流中, 例如: 
+        <pre>    void University::print(std::ostream &amp;os)
+    {
+        os &lt;&lt; "學校名稱:" &lt;&lt; m_name &lt;&lt; std::endl;
+        std::vector&lt;College *&gt;::iterator iter;
+        for (iter=m_colleges.begin();
+             iter&lt;m_colleges.end();
+             iter++)
+            (*iter)-&gt;print(os);
+    }</pre>
+        注意 ostream 參數必須使用<font color="#FF0000">參考變數</font>或是指標變數, 以避免解構全域串流物件 
+        </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 你可以在 University 類別中寫一個 static 的 unitTest 
+        成員函式來測試看看目前所寫的功能: 
+        <pre>    void University::unitTest()
+    {
+        ifstream infile("ntou1.txt");
+        if (!infile)
+            std::cout &lt;&lt; "Cannot open ntou1.txt!!\n";
+        else
+        {
+            University ntou(infile);
+            ntou.print(std::cout);
+        }
+    }</pre>
+        範例執行程式 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab06/campusCourse1.exe">campusCourse1.exe</a> (請下載後執行) </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td width="580"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 
+        資料匣下的所有內容) ) 壓縮起來, 選擇 Lab6-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程需要使用這裡所完成的程式 </font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%206-2_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%206-2_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Wed Apr 12 2017 21:53:00 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 06/12/2008 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

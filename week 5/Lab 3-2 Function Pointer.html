@@ -1,0 +1,393 @@
+<html><head>
+<title>Lab 3-2 Function Pointer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%203-2%20Function%20Pointer_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 3-2: 函式指標 (Function Pointer)</font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%203-2%20Function%20Pointer_files/rainbow.gif"></font></p>
+  </center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"> <p><font face="微軟正黑體">1. 瞭解什麼是 C/C++ 中的函式指標 (Function pointer)<br>
+          <br>
+          2. 為什麼需要函式指標這種語法<br>
+          <br>
+          3. 使用 C/C++ 中函式指標 (Function pointer) 的語法<br>
+          <br>
+          4. <font color="#000000">多型的概念</font></font> </p></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" height="33" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">說明一</font></th>
+      <td width="580"><h3><font face="微軟正黑體">什麼是函式指標？</font></h3>
+        <p><font face="微軟正黑體">在 C 程式中資料存放在記憶體中，因此任何一筆資料都有它的起始記憶體位址，不論是字串常數、自動配置的變數 
+          / 陣列、或是動態配置的變數都一樣，例如：</font></p>
+        <pre><font face="微軟正黑體">  char *addr1 = "Constant String";
+  int *addr2 = &amp;x;  /* int x; */
+  double *addr3 = y;  /* double y[100]; */
+  char *addr4 = (char *) malloc(sizeof(char)*200);</font></pre> <p><font face="微軟正黑體">上述四個變數都是用來存放記憶體位址的變數，你可以用 
+          </font>
+        </p><pre><font face="微軟正黑體">  printf("%p", addr);</font></pre> <p><font face="微軟正黑體">來看到變數裡放的的實際位址數值。</font></p>
+        <p><font face="微軟正黑體">在 von Neuman 計算機架構中，可以執行的程式碼 (例如函式)，當然也需要放在記憶體中才能夠執行，因此函式也會有記憶體位址，它基本上是函式載入記憶體後的起始位址，例如：</font></p>
+        <pre><font face="微軟正黑體">  #include &lt;cstdio&gt;
+	
+  double square(double x)
+  {
+    return x * x;
+  }
+
+  void main()
+  {
+    printf("address of square = %p(%p)\n", square, &amp;square);
+    printf("address of main = %p(%p)\n", main, &amp;main);
+  }</font></pre> <p><font face="微軟正黑體">在上面這個程式中，不論是 
+          square 或是 &amp;square 都沒有呼叫 square 函式， 這樣的寫法只是代表 square 函式的起始位址的常數而已，如果要執行函式呼叫的話，必須寫成：</font></p>
+        <pre><font face="微軟正黑體">	square(x);</font></pre>
+        <font face="微軟正黑體"> 所謂的<font color="#FF0000">函式指標變數</font>就是<font color="#0000FF">可以存放函式起始位址的變數</font>，例如，我們定義一個可以存放上述 
+        square 函式位址的指標變數 <strong>fp</strong>，其使用方法如下： 
+        <pre>  double (*<font color="#3300FF"><strong>fp</strong></font>)(double);
+  ...
+  fp = square;  // 設定變數內容
+  ...
+  (*fp)(x); // 呼叫 square() 函式</pre>
+        </font> <p><font face="微軟正黑體">函式指標變數的宣告必須包含函式的回傳值型態、參數個數、與參數的型態，如此在透過這個指標變數進行函式呼叫時，編譯器才知道如何處理其參數及回傳值。 
+          </font>
+        </p><p><font face="微軟正黑體">函式指標變數 fp 的宣告看起來有點不像是個變數，你可以用 typedef 敘述來簡化上面的宣告 
+          </font>
+        </p><pre><font face="微軟正黑體">
+typedef double (*<font color="red">FuncPtr_t</font>)(double);
+FuncPtr_t <font color="blue">fp</font>; // 比較像是一個變數了吧
+...
+fp = square;
+...
+(*fp)(x);</font></pre> 
+        <p><font face="微軟正黑體">函式指標變數的宣告可以非常複雜，以後有機會再詳細解釋。</font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">說明二</font></th>
+      <td width="580"><h3><font face="微軟正黑體">以函式指標實現抽象的動作 (一般化的動作)</font></h3>
+        <p><font face="微軟正黑體">我們在第一節課堂中有談到<font color="#990000">抽象化 (abstraction)</font> 
+          的概念，基本上<font color="#990000">抽象化</font>是我們在日常生活中<font color="#0000FF">簡化</font>事情處理方法的祕訣。</font></p>
+        <p><font face="微軟正黑體">例如開車，不管是開什麼樣的車，都有<strong> 前進</strong> / <strong>後退</strong> 
+          / <strong>停止</strong> / <strong>轉向</strong> 的基本控制功能，當你不去看各種車子的細部差異 (比如說方向盤的材質, 
+          高低, 大小) 而只專注於上面這幾種基本控制功能時 (方向盤可以轉動, 往右轉的時候車子也會往右轉...)，開車就很簡單了。</font></p>
+        <p><font face="微軟正黑體">另一個例子是寫<font color="#FF0000">程序化</font>的程式：我們知道可以選擇不同的程式語言來撰寫程序化的程式，例如可以用組合語言、BASIC、FORTRAN、C、PASCAL、COBEL、Perl、PHP 
+          等等，那麼會用很多種語言寫程式的人很了不起囉!? 其實好像不然，程序化的語言基本上都只是在描述如何控制 CPU, Memory, I/O 
+          這三大組件而已，所以除了動作的高階 / 低階之外，其實差別不大，主要只有三大類敘述：<font color="#0000FF">資料移轉</font> 
+          (Data Transfer), <font color="#0000FF">流程控制</font> (Control Flow Transfer), 
+          和<font color="#0000FF">算術邏輯運算</font> (Arithmetic / Logic Operations)。　</font></p>
+        <p><font face="微軟正黑體">運用這三大類基本敘述，可以控制底層 von Neuman 架構的計算機硬體，如果你會用一種語言來寫，基本上就應該能夠用其它語言寫，只是格式和名稱的轉換而已，就算以後再有新的語言出現，也脫不出這個範疇，這也是一個抽象化的範例。</font></p>
+        <p><font face="微軟正黑體">以下面程式片段來說:</font></p>
+        <pre><font face="微軟正黑體">int data[5]={5,3,9,2,8}, ndata=sizeof(data)/sizeof(int);
+bubblesort(data, ndata);</font></pre>
+        <font face="微軟正黑體"> bubblesort(data, ndata); 固定呼叫特定的 bubblesort 函式, 可是如果改成 
+        <pre>int data[5]={5,3,9,2,8}, ndata=sizeof(data)/sizeof(int);
+void (*fp)(int [], int);
+...
+<font color="#0000FF">(*fp)(data, ndata);</font></pre>
+        (*fp)(data, ndata); 呼叫的可以是任意一個 sort 函式, 要看 fp 設定為哪一個函式的指標, 如果在呼叫之前有一列 
+        fp = bubblesort; 那麼 (*fp)(data, ndata); 就呼叫到 bubblesort, 如果在呼叫之前有一列 fp 
+        = selectionsort; 那麼 (*fp)(data, ndata); 就呼叫到 selectionsort, 所以(*fp)(data, 
+        ndata); 就變成是一般性的動作了, 程式可以依據不同的需求來使用不同的排序演算法, 但是上面那個資料陣列 data 在執行完 (*fp)(data, 
+        ndata) 之後就是會依照順序排列</font></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">說明三</font></th>
+      <td width="580"><p><font face="微軟正黑體">寫程式時我們常常需要<font color="#0000FF">運用其它模組提供的功能來完成指定的功能</font>，下圖中顯示在一個綜合書店中，一個資料列印的模組，需要將書籍、雜誌、VCD 
+          等等資料模組所描述的資料取出，以便完成列印不同資料的功能，<u><font color="#FF0000">呼叫端模組</font></u>(資料列印)如果能夠把其它模組提供的功能<font color="#FF0000">抽象化</font>(<strong>用共通的概念去描述</strong>)，那麼這個程式一定也會<font color="#0000FF">簡化</font>一點，未來擴充程式功能列印其它種類資料的時候也能夠順利一點。</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="Lab%203-2%20Function%20Pointer_files/Abstraction.gif" width="267" height="268"></font></p>
+        <p><font face="微軟正黑體">現在讓我們逐步運用 C/C++ 語言中的函式指標來完成這個程式</font></p>
+        <p><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/polyFunPtr.exe">範例執行程式</a></font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體">首先我們知道不同商品所需要記錄的資料欄位與資料格式是不同的，因此資料列印模組中列印不同商品的方法似乎也需要是不一樣的。 
+        <p>為了作<font color="#0000FF">適當的抽象化</font>，我們先定義一種<font color="#0066FF">一般化的資料結構</font>如下：</p>
+        <pre>  struct SaleItem
+  {
+    int size;
+    void (*print)(struct SaleItem *);
+    unsigned char data[1];
+  };</pre>
+        </font> <p><font face="微軟正黑體">這個 SaleItem 結構其實只是各種不同商品的資料結構的<font color="#FF0000"><strong>共同部份</strong></font>，其中 
+          </font>
+        </p><ol>
+          <li><font face="微軟正黑體" color="#FF0000">size</font><font face="微軟正黑體"> 
+            欄位打算放的是整個資料結構的大小 (單位是位元組)，</font></li>
+          <li><font face="微軟正黑體" color="#FF0000"> print</font><font face="微軟正黑體"> 
+            欄位為函式指標變數，打算放各個列印不同資料的函式位址，</font></li>
+          <li><font face="微軟正黑體" color="#FF0000"> data</font><font face="微軟正黑體"> 
+            陣列欄位基本上只是代表結構裡所有其它資料的<font color="#FF0000">起始位址</font>而已，陣列的元素個數設為 
+            1 並不代表只有一個位元組，只是各種資料的大小不一樣，不管寫多少都無法滿足所有的需求 (有些編譯器允許 unsigned char 
+            data[0] 的寫法)</font></li>
+        </ol>
+        <font face="微軟正黑體">我們並不打算透過這樣子的 SaleItem 結構來配置記憶體存放資料，我們只是打算<font color="#996600">用這樣的資料型態的指標</font>來<font color="#0000FF"><strong>泛指所有不同商品的資料結構</strong></font>。</font></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體">接下來我們定義存放個別商品資訊的資料結構 (Book, Magzine, 
+        與 VCD)，並且撰寫列印不同商品的列印程式 (printBook(struct SaleItem *item), printMagzine(struct 
+        SaleItem *item), 與 printVCD(struct SaleItem *item))，例如： 
+        <pre>  struct <strong>Book</strong>
+  {
+    int size;
+    void (*print)(struct SaleItem *);
+    char title[80];
+    char author[30];
+    char publisher[30];
+    char year[5];
+    double price;
+  };
+  
+  void <strong>printBook</strong>(struct SaleItem *book)
+  {
+    struct Book *bPtr = (struct Book *)book;
+  
+    printf("Book name is %s\n", bPtr-&gt;title);
+    printf("     author is %s\n", bPtr-&gt;author);
+    printf("     publisher is %s\n", bPtr-&gt;publisher);
+    printf("     price is %f\n\n", bPtr-&gt;price);
+  }
+  
+  struct <strong>Magazine</strong>
+  {
+    int size;
+    void (*print)(struct SaleItem *);
+    char title[80];
+    char issue[10];
+    char year[5];
+    char month[3];
+    char publisher[30];
+    double price;
+  };
+  
+  void <strong>printMagazine</strong>(struct SaleItem *magazine)
+  {
+    struct Magazine *mPtr = (struct Magazine *)magazine;
+
+    printf("Magazine name is %s\n", mPtr-&gt;title);
+    printf("         issue is %s\n", mPtr-&gt;issue);
+    printf("         month/year is %s/%s\n", 
+            mPtr-&gt;month, mPtr-&gt;year);
+    printf("         publisher is %s\n", mPtr-&gt;publisher);
+    printf("         price is %f\n\n", mPtr-&gt;price);
+  }
+  
+  struct <strong>VCD</strong>
+  {
+    int size;
+    void (*print)(struct SaleItem *);
+    char title[80];
+    char seriesTitle[80];
+    char casts[60];
+    char year[5];
+    char producer[30];
+    double price;
+  };</pre>
+        </font> <p><font face="微軟正黑體">請參考上述程式範例以及<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/polyFunPtr.exe">範例執行程式</a>的輸出，使用 
+          stdio 函式庫的 printf() 函式製作 <strong>printVCD()</strong> 函式的內容。</font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體">接下來我們要運用上一步驟定義的 struct Book, struct Magzine, 
+        和 struct VCD 資料結構來配置記憶體存放各種不同的商品，並且設定它們的內容： 
+        <pre>  void initialize(int *nItems, <strong>struct SaleItem *items[]</strong>)
+  {
+    struct Book *bPtr;
+    struct Magazine *mPtr;
+    struct VCD *vPtr;
+  
+    bPtr = (struct Book*) malloc(sizeof(struct Book)); // 配置
+    <strong><font color="#0000FF">items[0] = (struct SaleItem *) bPtr</font></strong>; // 強制型態轉換
+    bPtr-&gt;size = sizeof(struct Book);  // 結構佔記憶體大小
+    bPtr-&gt;print = printBook;  // 指向列印本結構之函式
+    strcpy(bPtr-&gt;title, 
+	    "Harry Potter and the Prisoner of Azkaban ");
+    strcpy(bPtr-&gt;author, "J.K. Rowling ");
+    strcpy(bPtr-&gt;publisher, "Bloomsbury");
+    strcpy(bPtr-&gt;year, "2000");
+    bPtr-&gt;price = 7.99;
+
+    mPtr = (struct Magazine*) 
+        malloc(sizeof(struct Magazine));
+    <font color="#0000FF"><strong>items[1] = (struct SaleItem *) mPtr</strong></font><strong>;</strong>
+    mPtr-&gt;size = sizeof(struct Magazine);
+    mPtr-&gt;print = printMagazine;
+    strcpy(mPtr-&gt;title, "Reader's Digest");
+    strcpy(mPtr-&gt;issue, "---");
+    strcpy(mPtr-&gt;year, "2005");
+    strcpy(mPtr-&gt;month, "03");
+    strcpy(mPtr-&gt;publisher, 
+	    "The Reader's Digest Association, Inc.");
+    mPtr-&gt;price = 13.5;
+
+    vPtr = (struct VCD*) malloc(sizeof(struct VCD));
+    <strong><font color="#0000FF">items[2] = (struct SaleItem *) vPtr</font>;</strong>
+    vPtr-&gt;print = printVCD;
+    strcpy(vPtr-&gt;title, "The Two Towers");
+    strcpy(vPtr-&gt;seriesTitle, "Lord of the Rings");
+    strcpy(vPtr-&gt;casts, "Elijah Wood, Ian Mackellen");
+    strcpy(vPtr-&gt;year, "2003");
+    strcpy(vPtr-&gt;producer, "Entertainment in Video");
+    vPtr-&gt;price = 70;
+
+    *nItems = 3;
+  }</pre>
+        </font> <p><font face="微軟正黑體"> 請注意上面程式中存放這三種商品的資料結構是不一樣的，但是我們嘗試把它們<font color="#0000FF">抽象化</font>，<font color="#FF0000">只看它們相同的部份</font> 
+          (<font color="#0000FF">把它們看成是相同的東西</font>)，所以我們將指向各個資料結構的指標轉換為指向通用資料結構 
+          struct SaleItem 的指標。請注意上面的程式中強制的指標型態轉換其實並沒有修改指標變數的內容，所存放的記憶體位置並沒有改變，但是運用繼承語法以後，強制的指標型態轉換有可能改變指標變數裡的記憶體位址。 
+          </font>
+        </p><p><font face="微軟正黑體">另外在這個範例裡我們只簡單地設定三件商品的內容，以便測試程式的功能。 </font></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體">接下來我們來撰寫主程式以及資料列印的程式碼，其架構如下： 
+        <pre>  void main()
+  {
+    int nItems;
+    struct SaleItem *items[100];
+    int i;
+    
+    initialize(&amp;nItems, items);
+ 
+<font size="+1" color="#0000FF">  // 請在此處撰寫一個迴圈來列印所有 nItems 個商品
+  // 的內容，這個迴圈的內容應該<font color="#FF0000">只有一個簡單的函式</font>
+  // <font color="#FF0000">呼叫</font>，通通透過欄位 print 這個函式指標變數來呼叫，
+  // 因為此時已經將所有商品抽象化看成是一致的 SaleItem 
+  // 的東西了</font>
+
+    for (i=0; i&lt;nItems; i++)
+      free(items[i]); // 請注意此處也<font color="#FF0000"><strong>不需要</strong></font>區分資料的種類
+
+    printf("Press enter to continue...");
+    getchar();
+  }
+</pre>
+        </font> <p><font face="微軟正黑體">Hint: </font>
+        </p><pre><font face="微軟正黑體" color="#FFFFCC">for (i=0; i&lt;nItems; i++)
+   (*items[i]-&gt;print)(items[i]);</font></pre> <p><font face="微軟正黑體">試看看是不是已經達成<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab03/polyFunPtr.exe">範例執行程式</a>的功能了呢? 
+          你覺得這個 <strong><font color="#FF0000">main() 函式的內容有因為抽象化而簡化嗎?</font></strong> 
+          萬一以後還要增加其它種類的商品時，你覺得這個 main() 函式需要修改嗎? 這是很重要的<strong>多型</strong>概念, 
+          後續我們在 C++ 中有很方便的語法可以實作這種多型。 </font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td><font face="微軟正黑體">請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 
+        檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 
+        壓縮起來, 選擇 Lab3-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">&nbsp;</th>
+      <td width="580"><font face="微軟正黑體">在 C++ 語法中還有<font color="#0000FF"><strong>另外一種</strong></font>函式指標, 
+        就是<strong><font color="#0000FF">成員函式的指標</font></strong>, 和上面所談到的函式指標型態不同, 
+        <font color="#FF0000"> <strong>不能夠混用</strong></font>, 以下面的範例來說明: 
+        <pre>class IntStack {
+public:
+    void push(int x);
+    int pop();
+private:
+    ...
+} mystack, *ptr=&amp;mystack;</pre>
+        成員函式指標 <strong>fptr</strong> 定義如下: 
+        <pre>void (IntStack::*<strong>fptr</strong>)(int);</pre>
+        使用時先設定內容 
+        <pre>fptr = <font color="#FF0000">&amp;</font>IntStack::push; // 一定要有取位址符號 <font color="#FF0000"><strong>&amp;</strong></font></pre>
+        透過此指標呼叫函式的方法只有下列兩種: 
+        <pre>(mystack.*fptr)(10);
+((&amp;mystack)-&gt;*fptr)(10); // (ptr-&gt;*fptr)(10);</pre>
+        效果和 
+        <pre>mystack.push(10);</pre>
+        是一樣的。 
+        <p> 如果是樣版類別的成員函式, 語法也是類似的 
+        </p><pre>#include &lt;vector&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+void main()
+{
+    int i, x[] = {1,2,3,4};
+    vector&lt;int&gt; v(x, x+4);
+    vector&lt;int&gt;::size_type (vector&lt;int&gt;::*fptr)(void) const;
+    fptr = &amp;vector&lt;int&gt;::size;
+    cout &lt;&lt; &amp;vector&lt;int&gt;::size &lt;&lt; " " &lt;&lt; fptr&lt;&lt; endl;
+    cout &lt;&lt; v.size() &lt;&lt; " " &lt;&lt; (v.*fptr)() &lt;&lt; endl;
+}</pre>
+        </font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%203-2%20Function%20Pointer_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%203-2%20Function%20Pointer_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Tue Apr 10 2018 13:48:40 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 03/13/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

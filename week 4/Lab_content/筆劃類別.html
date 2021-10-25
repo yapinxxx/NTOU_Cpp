@@ -1,0 +1,364 @@
+<html><head>
+<title>筆劃類別</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/cyan_diffuse.html">
+
+<!---------------------------------------------------------------->
+
+<center>
+  <h1>1052 Quiz#1 筆劃類別 (Stroke)</h1>
+<center>
+    <p><img src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/rainbow.gif">
+</p></center>
+
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <th width="700" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><b><font size="+1" color="#666699">C++ 實習測試: 筆劃 (Stroke) 類別製作</font></b> 
+      </td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td>時間: <strong>80</strong>分鐘 (<strong><font size="+1" color="#FF0000">10:40</font></strong> 
+        上傳時間截止)</td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <th align="center"><font color="white"></font></th>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td bgcolor="#DDEEBB"> <p><font face="微軟正黑體">在這個測試裡, 我們要製作一個「筆劃」的類別, 目的是支援一個「1052Quiz1 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/1052/labtest/test1/1052Quiz1.exe">隨意筆</a>」的繪圖程式來運作, 這個程式執行起來的畫面如下:</font></p>
+        <p align="center"><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1052/labtest/test1/1052Quiz1.exe"><img src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/fig1.jpg" width="357" height="256" border="0"></a></font></p>
+        <p><font face="微軟正黑體">你可以點上面的連結 (或是上面這張圖) 在你的機器上執行 (如果沒有安裝 vc2010, 需要有 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/1052/vc10dll.7z">vc10 redistributable DLLs</a>， 請下載、解壓縮、拷貝 
+          32bit\*.dll 或是 64bit\*.dll 到 c:\windows\system32)</font></p>
+        <p><font face="微軟正黑體">你可以運用滑鼠在視窗裡隨意繪圖, 例如:</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/fig2.jpg" width="357" height="256"></font></p>
+        <p><font face="微軟正黑體">這個程式和 Windows 的小畫家不一樣, 小畫家是一個點陣圖的繪圖程式, 整個視窗是一個畫布, 
+          畫出來的都是獨立的點, 每一筆並不是一個物件, 你不能再用滑鼠去點一個筆劃, 去修改原先的東西; 我們這個程式希望是一個向量化的繪圖程式, 
+          所以我們希望用筆劃為單位來存放資料, 像上圖裡面就只有兩個筆劃。這個程式還沒有完整的功能, 目前可以<strong>開多個視窗</strong>、<strong>分割視窗</strong>、<strong>畫粗線條</strong>、<strong>畫細線條</strong>、<strong>清除畫布</strong>、<strong>存檔</strong>、<strong>讀檔</strong>、<strong>列印</strong>、<strong>預覽列印</strong>等等，複製/貼上、選取筆劃、選取區域中所有筆劃、刪除所選取筆劃、修改所選的筆劃的粗細、修改顏色、移動某一筆劃、放大/縮小、移到最上層、下移一層、上移一層，...都還沒有寫, 
+          別擔心, 不是請你現在寫這些, 只是希望你設計一個<strong>筆劃</strong>的類別來儲存一筆所畫出來的資料, 以便支援這個程式。</font></p>
+        <p><font face="微軟正黑體">這個程式的存檔功能在設計的時候, 存出去的 *.qz1 檔案是<font color="#FF0000">二進位模式</font>的檔案, 
+          在其它文字編輯器裡面讀出來會是亂碼, 不過再由這個程式讀進來的話還是可以顯示的。為了這次考試, 我們額外設計了一個功能是用<font color="#FF0000">文字模式</font>來儲存 
+          *.txt 的文字檔案如下圖:</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/fig3.jpg" width="232" height="191"></font></p>
+        <p align="left"><font face="微軟正黑體">選取上面的選單以後可以看到 Windows 標準的檔案選取對話盒:</font></p>
+        <p align="center"><font face="微軟正黑體"><img src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/fig4.jpg" width="384" height="288"></font></p>
+        <p align="left"><font face="微軟正黑體">填入檔案名稱 (例如 CS)、按下存檔可以把筆劃的資料存在 CS.txt 
+          中</font></p>
+        <p align="center"><img src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/fig5.jpg" width="118" height="127"></p>
+        <p align="left"><font face="微軟正黑體">這個檔案中有上圖中筆劃的資料 (你可以自己產生資料檔案, 也可以下載下面的文字檔案)</font></p>
+        <p align="left"><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/1052/labtest/test1/CS.txt">CS.txt</a></font></p>
+        <p align="left"><font face="微軟正黑體">以這個檔案來說, 裡面主要依序包含兩個筆劃的資料，格式說明如括號中文字:</font></p>
+        <pre><font face="微軟正黑體">2 (本檔案裡筆劃總數)
+64 -45 140 -128 (「含括第一筆的最小長方形邊框」, 左上右下, 請見下圖說明)
+5 (第一筆的粗細)
+205 (第一筆的點數)
+134 -60 (第一筆的第一點的 x 座標與 y 座標)
+133 -60 (第一筆的第二點的 x 座標與 y 座標)
+131 -57  。。。
+。
+。
+。
+126 -103<br>126 -103<br>97 -50 197 -142 (「含括第二筆的最小長方形邊框」, 左上右下, 請見下圖說明)
+2 (第二筆的粗細)
+344 (第二筆的點數)
+180 -52 (第二筆的第一點的 x 座標與 y 座標)
+180 -52 (第二筆的第二點的 x 座標與 y 座標)
+180 -53 。。。
+。
+。
+。
+99 -138
+99 -138</font></pre>
+        <p><font face="微軟正黑體">「含括某一筆劃的最小長方形邊框」所代表的意思如下圖: </font></p>
+        <p align="center"><img src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/fig6.gif" width="497" height="397"></p>
+        <p align="left"><font face="微軟正黑體">是含括那一<strong>筆劃圖形</strong>的<strong>最小長方形 
+          - (left, top, right, bottom)</strong>, 也就是所有這個筆劃的圖形的 x 座標的範圍是 left+width 
+          &#8804; x<sub>i</sub> &lt; right-width, y 座標的範圍是 bottom+width &#8804; y<sub>i</sub> 
+          &lt; top-width, 這裡因為筆劃有寬度 width, 所以我們直接加上筆劃的寬度來簡單近似這個最小長方形, 也就是最小的長方形是覆蓋那些點座標的長方形四周再放大 
+          width 格的那個長方形, 請注意所有的點的 x 座標都<font color="#FF0000">小於</font> right-width, 
+          所有的點的 y 座標都<font color="#FF0000">大於</font> bottom+width。</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#FFFFCC"><p><font face="微軟正黑體">下面是運用 <font color="#FF0000">stdio.h</font> 
+          函式庫來開啟這個檔案並且讀取資料的 <font size="+1"><strong>C</strong></font> 程式, 程式直接把資料讀到一個自己定義的結構 
+          <font color="#FF0000">struct Point</font> 的陣列中</font></p>
+        <pre><font face="微軟正黑體">#include &lt;stdio.h&gt;
+#include &lt;assert.h&gt;
+
+struct Point
+{
+    int x;
+    int y;
+};
+
+struct BoundingRect
+{
+    int left;
+    int top;
+    int right;
+    int bottom;
+};
+
+int isEqual(BoundingRect br1, BoundingRect br2);
+void calcBoundingRect(int length, int width, Point stroke[], BoundingRect *br);
+
+int main()
+{
+    FILE *fp;
+    int i, j, nStrokes;
+    int widths[2];
+    int lengths[2];
+    BoundingRect brs[2], mybrs[2];
+    Point strokes[2][500];
+
+    fp = fopen("CS.txt", "r");
+    if (fp==0)
+    {
+        printf("無法開啟 CS.txt\n");
+        return 1;
+    }
+    fscanf(fp, "%d", &amp;nStrokes);
+    for (i=0; i&lt;nStrokes; i++)
+    {
+        fscanf(fp, "%d%d%d%d", &amp;brs[i].left, &amp;brs[i].top,
+                               &amp;brs[i].right, &amp;brs[i].bottom);
+        fscanf(fp, "%d", &amp;widths[i]);
+        fscanf(fp, "%d", &amp;lengths[i]);
+        for (j=0; j&lt;lengths[i]; j++)
+            fscanf(fp, "%d%d", &amp;strokes[i][j].x, &amp;strokes[i][j].y);
+        calcBoundingRect(lengths[i], widths[i], strokes[i], &amp;mybrs[i]);
+        printf("%d %d %d %d\n", brs[i].left, brs[i].top,
+                                brs[i].right, brs[i].bottom);
+        printf("%d %d %d %d\n", mybrs[i].left, mybrs[i].top,
+                                mybrs[i].right, mybrs[i].bottom);
+        assert(isEqual(brs[i], mybrs[i]));
+    }
+    fclose(fp);
+    return 0;
+}
+
+int isEqual(BoundingRect br1, BoundingRect br2)
+{
+。。。
+}
+
+void calcBoundingRect(int length, int width, Point stroke[], BoundingRect *br)
+{
+    // 含括該<strong>筆劃圖形</strong>所有點的最小長方形, 也就是所有這個筆劃圖形的 x 
+    // 座標的範圍是 left+width &#8804; x<sub>i</sub></font> <font face="微軟正黑體">&lt; right-width, y 座標的範圍是 
+    // bottom+width &#8804; y<sub>i</sub></font> <font face="微軟正黑體">&lt; top-width, 這裡因為筆劃有寬度 width, 
+    // 所以我們直接加上筆劃的寬度來簡單近似這個最小長方形
+}</font>
+</pre> 
+      </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><p><font face="微軟正黑體">請撰寫一個 <font size="+1"><strong>C++</strong></font> 
+          程式, 運用 <font color="#FF0000">iostream</font> 開啟檔案並且讀取資料, 同時設計一個 <strong>Stroke</strong> 
+          類別, 這個類別需要管理一筆劃裡面所有的點, 這個類別以及程式的要求如下：</font></p>
+        <ol>
+          <li><font face="微軟正黑體">在私有資料區請用一個 C++ 標準函式庫中的 vector 型態的資料成員來存放這些點, 
+            每一個點還是用上面的 struct Point 來表示; 請再運用上面的 struct BoundingRect 定義一個 BoundingRect 
+            型態的資料成員記錄「含括某一筆劃的最小長方形邊框」<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請設計一個 Stroke::addPoint(Point point) 的介面來把點依序加入這個 
+            Stroke 類別的物件中, 由於在上面的視窗應用程式中, 滑鼠是由系統控制的物件, 滑鼠物件在左鍵按下時會傳送一個訊息給你的程式, 
+            此時你的程式就可以去產生一個 Stroke 的物件, 其後只要滑鼠左鍵是按下的情況下, 滑鼠每次移動一點點，系統就會傳送一個目前所在位置 
+            point 的訊息給你的應用程式, 你的程式在處理這個訊息的時候就可以呼叫 addPoint(point) 來把這個點加入筆劃中, 
+            這個 Stroke 物件應該要有一個存放輸入狀態的布林變數 inputMode, 如果是 true 代表可以輸入, 直到滑鼠左鍵放開時你才去把這個變數設為 
+            false (等一下我們會設計一個介面來完成這件事), 在這種狀態下 addPoint(point) 會沒有作用, 目前我們還不是寫視窗的程式, 
+            請在 main 中由檔案中讀取筆劃裡面所有的點, 動態配置 (new) 一個 Stroke 物件, 把輸入狀態設為 true, 運用這個 
+            addPoint 介面把讀到的點一筆一筆加入 Stroke 物件中 <br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">因為我們的應用程式需要處理好多筆劃, 個別都是筆劃類別的物件, 所以 main 裡面請再運用一個 
+            vector 來存放所有的筆劃物件<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請替 Stroke 類別設計一個 Stroke::calcBoundingRect() 的輔助函式, 
+            這個函式應該能夠計算出「含括此筆劃的最小長方形邊框」, 並且請設計資料成員來存放邊框的左、上、右、下座標值 (這個邊框在最後應用軟體中有兩個用途: 
+            第一是繪圖系統重繪時可以只繪出需要的部份, 第二是我們以後用滑鼠來選取筆劃時, 可以快速測試是否選取了某一個筆劃)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請設計一個 void Stroke::finish() 的介面, 想像一下上面的視窗應用程式中, 
+            使用者放開滑鼠左鍵時, 視窗系統會傳送一個訊息給你的程式, 這個時候就需要呼叫這個 finish() 介面來結束輸入狀態, 把輸入模式設為 
+            false, 順便呼叫 calcBoundingRect() 來計算最小長方形邊框<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請替 Stroke 類別設計一個 int Stroke::select1(Point pt, 
+            double r) 的介面, 這個介面很快地去比對參數 pt 是不是和筆劃中某一個點的距離小於 r (也就是在以 pt 為圓心, 半徑 
+            r 的圓的範圍內), 請回傳 「pt 最接近筆劃中第幾個點」, 沒有比對到請回傳 -1, 這個介面其實是為了以後我們用滑鼠點選某一筆劃時, 
+            判斷到底哪一筆劃的哪一點被點到了的功能寫的 (vector 類別的物件可以用陣列的方式來使用, 或是用 iterator 來使用)<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">如果你時間夠的話, 請替 Stroke 類別再設計一個 int Stroke::select2(Point 
+            pt, double r) 的介面, 由於我們用最簡單的方式繪製這個筆劃, 也就是直接把相鄰的點連接起來, 如果滑鼠點到兩個點的連接線段, 
+            應該也要算是選到這一個筆劃, 這個介面就是要很快地去比對參數 pt 是不是和筆劃中某兩個點的連線段距離小於 r, 這個功能你需要算一下點到直線的距離, 
+            如果直線方程式表示成 f(x,y) = a x + b y + c = 0 的話, 任意點 (x<sub>0</sub>, y<sub>0</sub>) 
+            到直線的距離是 | f(x<sub>0</sub>, y<sub>0</sub>) | / sqrt(a<sup>2</sup>+b<sup>2</sup>), 
+            請回傳 「pt 最接近的那個線段的兩個端點中的第一個點是筆劃中第幾個點」, 沒有比對成功請回傳 -1<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請替 Stroke 類別設計一個平移筆劃 void Stroke::shift(Point 
+            offset) 的介面, 未來在視窗版的應用程式中, 如果某一筆劃被選到了, 我們希望能夠平移這一筆劃<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請替 Stroke 類別設計一個刪除點 void Stroke::deletePoint(int 
+            i) 的介面, 未來在視窗版的應用程式中, 如果某一筆劃中第 i 個點被選到了, 我們希望能夠刪掉那一個點 (請查詢一下 vector 
+            類別有一個 erase 的成員可以使用)</font><font face="微軟正黑體"><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">main 函式裡主要的動作如下<br>
+            <br>
+            a. 定義一個 Stroke 指標的 vector 來存放所有由檔案中讀到的筆劃<br>
+            <br>
+            b. 開啟檔案串流 (請固定檔案名稱為 CS.txt)<br>
+            <br>
+            c. 由檔案中依序讀出所有筆劃、所有點、動態配置出每一個 Stroke 物件, 每一筆劃讀完以後記得呼叫 finish()<br>
+            <br>
+            d. 運用 assert 確認計算出來的最小長方形邊框和檔案裡讀出來的是不是一致<br>
+            <br>
+            e. 請根據上面 CS.txt 設計資料運用 assert 來測試 select1, select2, shift, deletePoint 
+            是否正確運作<br>
+            <br>
+            f. 解構所有的筆劃 (串流會在自己的解構元中關閉, 所以可以不用特別去關閉它)</font></li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#FFFFCC"><p><font face="微軟正黑體">考試時間: <strong>80</strong>分鐘 
+          (<strong><font size="+2" color="#FF0000">10:40</font></strong> 上傳時間截止)</font></p>
+        <ol>
+          <li><font face="微軟正黑體">請製作一個新的方案, 讓 Visual Studio 替方案建立目錄 (請勾選「為方案建立目錄」), 
+            方案名稱為 Stroke, 設定專案名稱為 <strong>C_Version</strong>, 將上面的 C 程式拷貝進 main.cpp<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">完成上面的 calcBoundingRect() 以及 isEqual() 函式<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">請替目前<strong>方案</strong>新增一個<strong>專案</strong>, 
+            名稱是 <strong>CPP_Version, 請</strong>以右鍵在「方案總管」中點選這個專案, 選擇「設定為起始專案」這個專案設為啟始專案<strong><br>
+            <br>
+            </strong></font></li>
+          <li><font face="微軟正黑體">製作一個 C++ 版本的 Stroke 類別, 類別裡的資料成員和成員函式如上面所規定<br>
+            <br>
+            </font></li>
+          <ul>
+            <li><font face="微軟正黑體">請注意設計資料成員和成員函式的存取權限 private/public<br>
+              <br>
+              </font></li>
+            <li><font face="微軟正黑體">isEqual 和 calcBoundingRect 兩個 C 函式要改為 Stroke 
+              類別的成員函式, 設計時請移除上面 C 函式範例中不需要的參數 (成員函式是一個 Stroke 的物件回應它收到的訊息所執行的函式, 
+              不需要再傳遞我們設計成資料成員的那些東西了)<br>
+              <br>
+              </font></li>
+            <li><font face="微軟正黑體">函式參數或是函式本身可以使用 const 的地方請儘量使用<br>
+              <br>
+              </font></li>
+            <li><font face="微軟正黑體"> 如果使用 參考變數 可以簡化的地方請使用參考變數的語法 (特別注意如果能夠使用 const 
+              參考也一定要使用)<br>
+              <br>
+              </font></li>
+          </ul>
+          <li><font face="微軟正黑體">類別內請加入一個靜態 static 的 unitTest() 函式, 內容包含上述 main.cpp 
+            裡面的所有測試, main() 函式中請呼叫 unitTest() 來測試你設計的 Stroke 類別界面 (測試時請在 「方案總管」或是 
+            「類別檢視」 中選擇 CPP_Version 專案, 建置選單裡才會出現<strong>「</strong>建置 CPP_Version 
+            <strong>」</strong>的選項)</font></li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+      <td bgcolor="#DDEEBB"><font face="微軟正黑體">將所完成的 project (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; <font color="#FF0000">刪除掉 .suo, .sdf, .filters, .users, 
+        debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容</font>) 以 zip/rar/7zip 程式將<font color="#FF0000">整個資料匣</font>壓縮起來, 
+        在「考試作業」繳交區選擇 <font color="#FF0000"><strong>Labtest1</strong></font><a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a> 
+        </font> </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#FFFFCC"><p><strong><font face="微軟正黑體">後續</font></strong><font face="微軟正黑體">:</font></p>
+        <p><font face="微軟正黑體">接下去能做的事情還蠻明顯的, 就是把整個視窗版的程式完成, 不過我們這學期的課程已經塞進去太多東西了, 
+          不太可能在課程或是實習裡面安排時間講這些東西 (期中考後有一次<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Lab9-1.html">實習</a>會讓你配合一個視窗界面來寫程式), 
+          如果有同學有興趣知道更詳細的設計方法, 可以讓我知道, 需要另外安排時間介紹。</font></p></td>
+    </tr>
+  </tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="%E7%AD%86%E5%8A%83%E9%A1%9E%E5%88%A5_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Fri Apr 13 2018 17:05:14 GMT+0800 (Taipei Standard Time)
+
+ <br>
+        製作日期: 03/30/2017 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+
+</body></html>

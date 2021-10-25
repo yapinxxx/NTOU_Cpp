@@ -1,0 +1,303 @@
+<html><head>
+<title>
+Lab 14-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2014-2_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+<h1>
+Lab 14-2: Proper Inheritance
+</h1>
+<center><p><img src="Lab%2014-2_files/rainbow.gif"></p></center>
+
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center">實習目標</th>
+      <td width="580"> 課堂中舉了一個 Shape-Point-Circle-Cylinder 的<strong>不適當繼承</strong>的範例, 
+        請綜合運用 <strong>繼承</strong> (inheritance) 與 <strong>組合</strong> (composition) 
+        來設計較好的程式架構 </td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font color="white">&nbsp;</font></td>
+      <th width="580" align="center"><font color="white"></font></th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟一</th>
+      <td width="580"> 不適當繼承的範例如下: 
+        <pre>    <font color="blue">class Shape</font>
+    {
+    public:
+        virtual float area() const { return 0.0; }
+        virtual float volume() const { return 0.0; }
+    };
+    
+    <font color="blue">class Point: public Shape</font>
+    {
+    public:
+        Point(float x=0, float y=0, float z=0) 
+        { this-&gt;x = x; this-&gt;y = y; this-&gt;z = z; }
+        float getX() const { return x; }
+        float getY() const { return y; }
+        float getZ() const { return z; }
+    private:
+        float x, y, z;
+    };
+    
+    <font color="blue">class Circle: public Point</font>
+    {
+    public:
+        Circle(float r=0., float x=0., float y=0., float z=0.)
+            :Point(x,y,z),radius(r){}
+        float area() const { return 3.141159*radius*radius; }
+        float getRadius() const { return radius; }
+    private:
+        float radius;
+    };
+    
+    <font color="blue">class Cylinder: public Circle</font>
+    {
+    public:
+        Cylinder(float h=0., float r=0., 
+            float x=0., float y=0., float z=0.):
+            Circle(r,x,y,z), height(h) {}
+        float area() const 
+        { return 2*Circle::area()+height*2*3.14159*getRadius(); }
+        float volume() const { return Circle::area()*height; }
+    private:
+        float height;
+    };
+    
+    void <font color="blue">main</font>()
+    {
+        Point point1(1,2,3), point2(4,5,6);
+        Circle circle(5, 2,0,-2);
+        Cylinder cylinder1(5, 3, 0,0,0), cylinder2(4, 2, 1,1,1);
+        Shape *shapes[] = {&amp;point1, &amp;point2, &amp;circle, 
+                           &amp;cylinder1, &amp;cylinder2};
+        
+        int i;
+        for (i=0; i&lt;5; i++)
+        {
+            shapes[i]-&gt;display(cout);
+            cout &lt;&lt; endl;
+            cout &lt;&lt; "   area:" &lt;&lt; shapes[i]-&gt;area();
+            cout &lt;&lt; "   volume:" &lt;&lt; shapes[i]-&gt;volume() &lt;&lt; endl;
+        }
+    }</pre>
+        <p>上面程式碼中類別的階層如下圖: </p>
+        <p align="center"><img src="Lab%2014-2_files/ShapeImproperInheritance.gif" width="106" height="241"> 
+        </p>
+        <center>
+        </center>
+        這樣子的類別階層設計, 最主要的錯誤在於子類別的物件和父類別的物件並沒有 IS-A 的關係, 實務上是用衍生類別的物件能不能取代 (substitute) 
+        基礎類別的物件來判斷 (LSP, Liskov Substitution Principle): 
+        <p>例如考量一個 Cylinder 物件能不能當成一個 Circle 物件? 比方說 Circle 物件在客戶端程式裡也許用來描述一個圓形紙片, 
+          或是根本就描述一個圓柱型物件的上底, 當傳進一個 Cylinder 物件時, 如何把 Cylinder 物件當成是另一個圓柱型物件的上底??? 
+        </p>
+        <p>另外你也可以運用可取代性檢查一個 Cylinder 物件能不能當成一個 Point 物件? 如果 Point 物件在客戶端程式中用來描述一個多邊形的角, 
+          當傳進一個 Cylinder 物件時, 如何把 Cylinder 物件當成多邊形的一個角? </p>
+        <p>在簡單的測試程式中, 你沒有看到這些類別的客戶程式, 也許不會造成什麼錯誤, 但是你用物件導向來設計的時候就是為了程式的規模可以不斷地擴大, 
+          將來如果擴充程式的功能時, 就會因為這種不適當繼承想要重用幾個類別的實作, 而導致各別類別的客戶端發生錯誤, 不適當的 (improper) 
+          繼承一定會因小失大。 </p>
+        <p>所以上面的應用不應該運用繼承的語法來重用相關的程式碼。</p>
+        </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center">步驟二</th>
+      <td width="580"> 我們仔細審查所要製作的這幾個類別: Point, Circle, Cylinder, 希望重新組合這幾個物件的設計, 
+        運用比較多的重用機制來避免程式碼的重複, 但是又不至於錯用繼承的機制。 
+        <p> 我們發現 Circle 物件中應該可以用到一個 Point 物件來表達圓心所在, Cylinder 物件中應該可以用兩個 Circle 
+          物件來表達上底及下底兩個圓。 另外如果希望在程式中以一致的方法來處理和儲存這些圖形物件的話, 我們可以將共通的資料與界面抽出來成為 Shape 
+          抽象類別, 如下圖所示: 
+          </p><center>
+            <img src="Lab%2014-2_files/ShapeComposition.gif" width="322" height="135"> 
+          </center>
+      </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟三</th>
+      <td width="580"> 請修改類別的定義來完成上圖的架構 
+        <p> 首先 Shape 類別的界面除了保留 area() 及 volume() 之外, 再加上 display(), 為了後續可以運用<strong><font color="#FF0000">多型指標</font></strong>或是<font color="#FF0000"><strong>多型參考</strong></font>來操作 
+          Shape 衍生類別的物件, 這些界面函式都宣告為虛擬函式 (virtual function), 同時因為要讓這個類別成為抽象類別 (其中包含共同界面但是不讓它生成物件), 
+          所以這些虛擬函式的後面加上 =0 定義為純粹的虛擬函式 (pure virtual function): 
+        </p><pre>    class Shape
+    {
+    public:
+        virtual float area() const=0; 
+        virtual float volume() const=0;
+        virtual void display(ostream &amp;os) const=0;
+    };</pre>
+        雖然 area() 及 volume() 是純粹虛擬函式, <font color="#FF0000">在 Shape.cpp 中我們還是可以實作 
+        Shape::area() 以及 Shape::volume() 來容納共通的程式碼</font>, 例如: 
+        <pre>    float Shape::area() const 
+    { 
+        return 0.0;
+    }</pre>
+        如果衍生類別需要的話也可以經由 Shape::area() 呼叫這個實作。 </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center">步驟四</th>
+      <td width="580"> 其次我們實作 Point, Circle, 和 Cylinder 三個類別, 由於在 Shape 類別中定義為純粹虛擬函式, 
+        所以衍生類別中需要完整實作 area(), volume() 和 display() 三個函式, 客戶端才能夠產生衍生類別的實體物件。 
+        <p> 各個類別運用其它類別中的一部份程式碼, 並且使用委託的機制來取代步驟一中完全運用繼承的重用方式。 例如: Circle 中定義 Point 
+          物件 m_center, Circle 的建構元函式和 display() 函式如下: 
+        </p><pre>    Circle::Circle(float r, float x, float y, float z)
+        :m_center(x,y,z), m_radius(r)
+    {
+    }
+    
+    void Circle::display(ostream &amp;os) const
+    {
+        os &lt;&lt; "Circle: radius=" &lt;&lt; m_radius &lt;&lt; " center:";
+        m_center.display(os);
+    }</pre></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center">步驟五</th>
+      <td width="580"> 請用下面的異質容器程式碼來測試相關的功能: 
+        <pre>    #include &lt;iostream&gt;
+    using namespace std;
+    
+    #include "Point.h"
+    #include "Circle.h"
+    #include "Cylinder.h"
+    
+    void main()
+    {
+        Point point1(1,2,3), point2(4,5,6);
+        Circle circle(5, 2,0,-2);
+        Cylinder cylinder1(5, 3, 0,0,0), cylinder2(4, 2, 1,1,1);
+        Shape *shapes[] = {&amp;point1, &amp;point2, &amp;circle, &amp;cylinder1, &amp;cylinder2};
+        
+        int i;
+        for (i=0; i&lt;5; i++)
+        {
+            shapes[i]-&gt;display(cout);
+            cout &lt;&lt; endl;
+            cout &lt;&lt; "   area:" &lt;&lt; shapes[i]-&gt;area();
+            cout &lt;&lt; "   volume:" &lt;&lt; shapes[i]-&gt;volume() &lt;&lt; endl;
+        }
+    }</pre>
+        <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab14/TestShapes.exe">範例執行程式</a> <p> 執行結果範例: 
+        </p><pre>Point: [1,2,3]
+   area:0   volume:0
+Point: [4,5,6]
+   area:0   volume:0
+Circle: radius=5 center:Point: [2,0,-2]
+   area:78.529   volume:0
+Cylinder: height=5 topCircle:Circle: radius=3 center:Point: [0,0,0] 
+                   bottomCircle:Circle: radius=3 center:Point: [0,0,5]
+   area:150.789   volume:141.352
+Cylinder: height=4 topCircle:Circle: radius=2 center:Point: [1,1,1] 
+                   bottomCircle:Circle: radius=2 center:Point: [1,1,5]
+   area:75.3947   volume:50.2585</pre></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th align="center">步驟六</th>
+      <td> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, 
+        .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 壓縮起來, 選擇 Lab14-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center">後續</th>
+      <td width="580"> <p>假如你設計的系統中已經有一個如下的 Rectangle 類別描述長方形:</p>
+        <pre>class Rectangle
+{
+public:
+    void setWidth(double w);
+    void setHeight(double h);
+private:
+    double m_width, m_height;
+};</pre>
+        <p>現在需要增加一個 Square 類別來描述正方形, 請問如果讓 Square 類別繼承 Rectangle 類別, 如何維持 Square 
+          類別中長與寬相等的特性, 另外請問這樣的設計有沒有違反 Liskov Substitution Principle, 請舉例說明</p>
+        </td>
+    </tr>
+  </tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center><p><img src="Lab%2014-2_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="Lab%2014-2_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon Jun 04 2018 12:54:33 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 05/31/2004
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

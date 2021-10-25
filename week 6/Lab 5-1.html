@@ -1,0 +1,312 @@
+<html><head>
+<title>
+Lab 5-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%205-1_files/cyan_diffuse.gif">
+
+<!---------------------------------------------------------------->
+
+<center>
+<h1>
+Lab 5-1: Pointer exercises
+</h1>
+<center><p><img src="Lab%205-1_files/rainbow.gif"></p></center>
+
+<a name="step1"></a><a name="step2"></a><a name="step3"></a><a name="step4"></a><a name="step5"></a><table width="700" cellspacing="10" cellpadding="6" border="0">
+
+  <tbody><tr bgcolor="#6633DD" align="center"> 
+    <th width="75" align="center"><font color="white"></font></th>
+    <td width="580" align="center"><font color="white">&nbsp;</font></td>
+  </tr>
+
+  <tr bgcolor="#DDEEBB">
+    <th width="75" align="center">實習目標</th>
+    <td width="580">
+    練習指標宣告
+    </td>
+  </tr>
+
+  <tr bgcolor="#6633DD" align="center"> 
+    <th width="75" align="center"><font color="white"></font></th>
+    <td width="580" align="center"><font color="white">&nbsp;</font></td>
+  </tr>
+
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    
+    <th width="75" align="center">步驟一</th>
+    <td width="580">
+    請寫一個 readMagnitude 函式, 利用 scanf 函式由鍵盤讀取一個整數,
+    求取其絕對值, 並且在函式中直接更改下面主函式中的變數 x
+    <pre>    #include &lt;stdio.h&gt;
+    
+    void main()
+    {
+        int x;
+        <font color="red">readMagnitude(&amp;x)</font>; 
+        printf("magnitude of x is %d\n", x);
+    }</pre>
+    
+    因為要確定你能夠靈活地使用指標變數, 
+    請不要用 iostream 完成上面的函式
+    <p>
+    範例程式 <a href="http://squall.cs.ntou.edu.tw/cpp/93spring/lab05/testPtr1.exe">testPtr1.exe</a>
+    </p></td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    
+    <th width="75" align="center">步驟二</th>
+    <td width="580">
+    請寫一個 reverseStr 函式, 
+    將傳進函式的字元陣列反轉過來, 
+    直接更改傳進來的陣列, 
+    以下面程式為例,
+    x 字元陣列內之資料將變成 "!tset esrever rof si sihT",
+    並且將陣列指標傳回去,
+    在主程式中可以直接利用 printf 列印反轉過的陣列:
+    <pre>    #include &lt;stdio.h&gt;
+    
+    void main()
+    {
+        char x[] = "This is for reverse test!";
+        printf("x=\"%s\"\n", <font color="red">reverseStr(x)</font>);
+    }</pre>
+    <p>
+    範例程式 <a href="http://squall.cs.ntou.edu.tw/cpp/93spring/lab05/testPtr2.exe">testPtr2.exe</a>
+    </p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    
+    <th width="75" align="center">步驟三</th>
+    <td width="580">
+    在下面的程式中, 
+    希望利用上一步驟所完成的 reverseStr 函式將
+    12 個字串都反轉過來, 
+    並且請依照規定的 countChar 
+    函式的參數型態完成一個能夠計算傳進來陣列內有多少字元的函式,
+    請完成下列程式中 ... 的部份
+    <pre>    #include &lt;stdio.h&gt;
+
+    int countChar(<font size="+1" color="red">...</font>)
+    {
+       <font size="+1" color="red">...</font>
+    }
+
+    void main()
+    {
+        int i;
+        char y[12][10] = {"January", "Februrary",
+                          "March", "April",
+                          "May", "June",
+                          "July", "August",
+                          "September", "October",
+                          "November", "December"};
+        for (i=0; i&lt;12; i++)
+            printf("%s %d\n", reverseStr(<font size="+1" color="red">...</font>), countChar(&amp;y[i]));
+    }</pre>
+    為了清楚地了解指標的定義,
+    請不要用強制指標型態轉換,
+    可以用 string.h 裡的函式,
+    例如: strcpy, strlen, strrev 等等
+    <p>
+    範例程式 <a href="http://squall.cs.ntou.edu.tw/cpp/93spring/lab05/testPtr3.exe">testPtr3.exe</a>
+    </p></td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    
+    <th width="75" align="center">步驟四</th>
+    <td width="580">
+    下面這個程式中我們為了 debug 的需求,
+    希望寫一個函式將所傳進來的記憶體指標
+    處指定的位元組 (byte) 個數都以 16 進位方式列印在螢幕上,
+    請完成下面的程式
+    <pre>    #include &lt;stdio.h&gt;
+
+    typedef struct
+    {
+        char   cField;
+        double dField;
+        short  sField[3];
+        char   *ptrField;
+    } DataRecord;
+    
+    void dumpMemory(void *ptr, int size)
+    {
+        <font size="+1" color="red">...</font>
+    }
+
+    void main()
+    {
+        DataRecord data={'0', 1.2345, -1, 1, 32767, "string"};
+        int iDataArray[]={1,2,3,4,5,6};
+        char *bufPtr = "This is a buffer pointer.";
+        char buffer[30] = "This is a character buffer.";
+        char month[12][10] = {"January", "Februrary",
+                              "March", "April",
+                              "May", "June",
+                              "July", "August",
+                              "September", "October",
+                              "November", "December"};
+        dumpMemory(&amp;data, sizeof(data));
+        dumpMemory(iDataArray, sizeof(int)*6); 
+        dumpMemory(&amp;bufPtr, <font size="+1" color="red">...</font>); // 請印出 4 個 bytes
+        dumpMemory(buffer, <font size="+1" color="red">...</font>); // 請印出 30 個 bytes
+        dumpMemory(month, <font size="+1" color="red">...</font>); // 請印出 120 bytes
+        dumpMemory(dumpMemory, sizeof(void (*)(void *, int)));
+    }</pre>
+    上面 main 函式中 dumpMemory 的第二個參數請用 sizeof 完成
+    <p>
+    範例程式 <a href="http://squall.cs.ntou.edu.tw/cpp/93spring/lab05/testPtr4.exe">testPtr4.exe</a>
+        </p><p>
+	執行結果範例
+(這個結果和你自己執行的應該會有相當的差異, 例如下面的紅字和青字的部份, 應該都和你自己執行的結果不同, 為什麼??? 因為<font color="#FF0000"><strong>紅色的部份</strong></font>是 VC6 沒有用到的地方, 這些內容基本上是記憶體裡面原有的東西, 每一台機器在執行 testPrt4.exe 之前做的工作都一定不同, 記憶體裡面的狀態也一定不同; <font color="#00FFFF"><strong>青色的部份</strong></font>則是指標的內容, 當然也是每一個機器都不一樣的)
+        </p><blockquote>
+          <pre>30 <font color="#FF0000">01 00 00 50 72 65 73</font> 8d 97 6e 12 83 c0 f3 3f
+ff ff 01 00 ff 7f <font color="#FF0000">00 00</font> <font color="#00FFFF">4c 90 40 00</font> <font color="#FF0000">20 18 38 00</font>
+
+01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00
+05 00 00 00 06 00 00 00
+
+54 90 40 00
+
+54 68 69 73 20 69 73 20 61 20 63 68 61 72 61 63
+74 65 72 20 62 75 66 66 65 72 2e 00 00 00
+
+4a 61 6e 75 61 72 79 00 00 00 46 65 62 72 75 72
+61 72 79 00 4d 61 72 63 68 00 00 00 00 00 41 70
+72 69 6c 00 00 00 00 00 4d 61 79 00 00 00 00 00
+00 00 4a 75 6e 65 00 00 00 00 00 00 4a 75 6c 79
+00 00 00 00 00 00 41 75 67 75 73 74 00 00 00 00
+53 65 70 74 65 6d 62 65 72 00 4f 63 74 6f 62 65
+72 00 00 00 4e 6f 76 65 6d 62 65 72 00 00 44 65
+63 65 6d 62 65 72 00 00
+
+55 8b ec 51</pre>
+        </blockquote>
+    <font color="#DDEEFF">
+    提示: 在函式裡你必須要將 (void*) 型態指標強制轉換為 (unsigned char *) 
+    型態的指標來取出記憶體裡面的資料
+    <p>
+    如果你用 (char *) 的話會有 sign extension 的問題,
+    因為將一個有正負號, 8 個位元的資料傳入 printf()
+    函式時, C/C++ 會自動將 8 個位元的資料轉換為 32 位元的資料,
+    此時如果你的資料是 0x10 就會轉換為 0x00000010,
+    如果是 0x90 就會轉換為 0xFFFFFF90,
+    這樣子以 2's complement 去解釋時兩個數字是相同的,
+    如果你是 unsigned char, 
+    則在轉換時 0x10 會換成 0x00000010, 
+    0x90 會換成 0x00000090
+    </p><p>
+    請注意 VC 在編譯時為了促進結構裡欄位存取的效率,
+    預設會將每一個欄位都放在 8 位元的記憶體邊界上,
+    所以上面的 DataRecord 雖然只需要 19 個位元組就可以存放所有的資料,
+    但是實際上在記憶體裡佔了 32 個位元組, 
+    其中有 13 個位元組裡的資料是沒有特別意義的,
+    所以你的程式和範例程式的結果比較時, 
+    會發現有 13 個位元組是不可能一樣的,
+    另外記憶體的位址也是不會一樣的。
+    </p></font><p><font color="#DDEEFF">
+    必要的時候你可以在 Project/Setting, C/C++, Category:Code Generation, Struct Member Alignment 的地方更改
+    (在命令列用 /Zp1 /Zp2 /Zp4 /Zp8 來更改)
+    </font>
+    </p></td>
+  </tr>
+
+  <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC">
+    
+    <th width="75" align="center">步驟五</th>
+    <td width="580">
+    請完成下面程式中的 arrayCopy 的定義與內容
+    <pre>    #include &lt;stdio.h&gt;
+    #include &lt;string.h&gt;
+    
+    void arrayCopy(<font size="+1" color="red">...</font>, <font size="+1" color="red">...</font>)
+    {
+        <font size="+1" color="red">...</font>
+    }
+    
+    void main()
+    {
+        int i;
+        char *month[12] = {"January", "Februrary",
+                           "March", "April",
+                           "May", "June",
+                           "July", "August",
+                           "September", "October",
+                           "November", "December"};
+        char newMonth[12][10];
+    
+        arrayCopy(newMonth, month);
+        for (i=0; i&lt;12; i++)
+            printf("%s\n", newMonth[i]);
+    }</pre>
+    請不要用強制指標轉換,
+    可以用 strcpy 函式
+    <p>
+    範例程式 <a href="http://squall.cs.ntou.edu.tw/cpp/93spring/lab05/testPtr5.exe">testPtr5.exe</a>
+    </p></td>
+  </tr>
+  
+  <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+    <th width="75" align="center">步驟六</th>
+    <td width="580">
+    請助教檢查後,
+    將所完成的 project (去掉 debug/ 資料匣下的所有內容) 壓縮起來, 
+    選擇 Lab5-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>,
+    後面的實習課程可能需要使用這裡所完成的程式
+    </td>
+  </tr>
+
+</tbody></table>
+</center>
+
+<!---------------------------------------------------------------->
+<center><p><img src="Lab%205-1_files/rainbow.gif"></p></center>
+<div align="right">
+<p>
+<font size="-1"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+<br>
+<i>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Mar 26 2009 14:17:04 GMT+0800 (Taipei Standard Time)
+<br>
+製作日期: 03/16/2004
+by 丁培毅 (Pei-yih Ting)
+<br>E-mail: <a href="mailto:pyting@cs.ntou.edu.tw">pyting@cs.ntou.edu.tw</a>
+TEL: 02 24622192x6615
+<br><a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a>
+<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a><font color="#0000cc">
+<a href="http://www.cs.ntou.edu.tw/">資訊工程系</a>
+<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a>
+</font></i>
+</i></font></p><font size="-1"><i>
+<img src="Lab%205-1_files/albatros80x100.gif" width="80" height="100">
+</i></font></div><font size="-1"><i>
+
+
+
+tml&gt;</i></font></body></html>

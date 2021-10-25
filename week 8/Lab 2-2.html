@@ -1,0 +1,532 @@
+<html><head>
+<title>
+Lab 2-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%202-2_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Using STL <font color="#0000FF">list<font color="#000000">, 
+    </font><font color="#0000FF">map</font> <font color="#000000">and</font> set</font> 
+    container </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%202-2_files/rainbow.gif"></font>
+  </p></center>
+  <table width="709" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 先前練習過 <strong><font size="+2">vector</font> 
+        類別</strong>的使用, 這裡簡單地以 <strong><font size="+2">list</font> 類別</strong>, 
+        <strong><font size="+2">map</font> 類別</strong> (和 <strong><font size="+2">set</font> 
+        類別</strong>) 為代表, 說明 STL 中<font color="#FF0000"><strong>循序性</strong></font>(sequential)容器以及<font color="#FF0000"><strong>關連性</strong></font>(associative)容器的基本使用方法</font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><p><font face="微軟正黑體">一</font></p></th>
+      <td width="580" bgcolor="#FFFFCC"> <p><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+          的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+          中提供多種方便的 <a href="http://msdn.microsoft.com/en-us/library/1fe2x6kt(v=vs.100).aspx">容器</a> 
+          (<a href="http://www.cplusplus.com/reference/stl/">cplusplus</a>) 類別, 
+          因為物件化的系統中你除了實作很多自己定義的物件之外, 當有方便好用的工具物件提供給你的時候你也要盡量去使用它, 如此才能夠提昇撰寫軟體的效率</font></p>
+        <p><font face="微軟正黑體"><strong>vector</strong> 類別是一個能夠自動管理記憶體的循序性容器, 能夠很有效率地在容器的<strong>尾端</strong>新增和刪除元素, 
+          物件內資料存放在連續的記憶體中, 能夠迅速存取區段中任意元素, 雖然也提供 insert 和 erase 的功能, 能夠在任意地方新增一個元素, 
+          也能夠刪除其中某一元素, 但是效率不會太好</font></p>
+        <p><font face="微軟正黑體"><strong>deque</strong> 類別的功能很像 vector 類別, 但是<u>額外</u>提供一個功能, 
+          可以很有效率地在容器的<strong>最前端</strong>新增和刪除元素, 物件內資料存放在一個一個頁面中</font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">二</font></th>
+      <td width="580" bgcolor="#DDEEBB"> <h2><font face="微軟正黑體">list</font></h2>
+        <p><font face="微軟正黑體">在 <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+          的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+          中, <a href="http://msdn.microsoft.com/en-us/library/802d66bt(v=vs.100).aspx">list</a> 
+          (<a href="http://msdn.microsoft.com/en-us/library/00k1x78a(v=vs.100).aspx">list 
+          members</a>) (<a href="http://www.cplusplus.com/reference/list/">cplusplus</a>) 
+          是一個運用起來很方便的<font color="#FF0000"><strong>循序</strong></font>容器 (Sequential 
+          Container) 類別, 與 vector 和 deque 最大的差別在於可以很有效率地在任意位置新增或是刪除元素, 可以省掉你自己實作一個「串列」資料結構的時間, 
+          因為串列並沒有辦法根據在容器中的位置迅速算出資料存放的記憶體位址, 所以並不像 vector 或是 deque 提供 operator[] 
+          的資料直接存取運算子</font></p>
+        <p><font face="微軟正黑體">list 樣版容器類別的使用方法如下: </font></p>
+        <blockquote> 
+          <p><font face="微軟正黑體"><strong>std::list&lt;data_type&gt; mylist;</strong></font></p>
+          <p><font face="微軟正黑體"><strong>std::list&lt;data_type&gt;::iterator iterator_name;</strong></font></p>
+        </blockquote>
+        <p><font face="微軟正黑體"><strong>例如</strong>:</font></p>
+        <blockquote> 
+          <pre><font face="微軟正黑體">#include &lt;list&gt;<br>#include &lt;algorithm&gt; // find<br><br>    ...<br><br>std::list&lt;int&gt; int_list;
+
+int_list.push_front(1);
+int_list.push_front(2);
+
+int_list.insert(int_list.end(), 3); // insert an element <strong><font color="#FF0000">before</font></strong> the specified iterator
+
+// bad idea
+if (int_list.size() == 0)
+    ...
+// good idea
+if (int_list.empty())
+    ...
+
+int_list.clear(); // guaranteed to be empty now
+
+int_list.reverse();
+
+int_list.push_back(1);
+int_list.push_back(1);
+int_list.push_back(8);
+int_list.push_back(9);
+int_list.push_back(7);
+int_list.push_back(8);
+int_list.push_back(2);
+int_list.push_back(3);
+int_list.push_back(3);
+<br>int_list.remove(8); // remove all elements that is 8
+<br>int_list.sort();
+int_list.unique();<br>
+std::cout &lt;&lt; "The first element of the list is " &lt;&lt; int_list.front() &lt;&lt; endl;
+int_list.pop_front(); // remove the first element in the list.
+std::cout &lt;&lt; "The last element of the list is " &lt;&lt; int_list.back() &lt;&lt; endl;
+int_list.pop_back(); // remove the last element in the list.<br>
+for (std::list&lt;int&gt;::iterator list_iter = int_list.begin(); 
+        list_iter != int_list.end(); list_iter++)
+{
+    std::cout&lt;&lt;*list_iter&lt;&lt;endl;
+    if (*list_iter==2) int_list.erase(list_iter);
+}
+int_list.erase(int_list.begin(), int_list.end());<br>
+// initialization of a sequence container from a C int array<br>int data[] = {9, 2, 8, 11, 35};
+std::list&lt;int&gt; mylist(data, data+5); <br><br>std::list&lt;int&gt;::iterator it = find(mylist.begin(), mylist.end(), 11);
+mylist.insert(it, 10);</font></pre>
+        </blockquote></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th align="center"><font face="微軟正黑體">三</font></th>
+      <td><h2><font face="微軟正黑體">map</font></h2>
+        <p><font face="微軟正黑體">在 <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+          的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+          中, <a href="http://msdn.microsoft.com/en-us/library/kf18ek11(v=vs.100).aspx">map</a> 
+          (<a href="http://msdn.microsoft.com/en-us/library/e91xe174(v=vs.100).aspx">map 
+          Members</a>) 是一個運用起來很方便的<font color="#FF0000">關連性</font>容器 (Associative 
+          Container, Associative Array, Content Addressable Memory) 類別, 如果你需要維護一堆資料, 
+          需要隨時加入資料, 需要隨時取出指定的資料, 而且資料的數量還沒有大到需要運用資料庫來處理的話, 可以考慮使用這種容器。</font></p>
+        <p><font face="微軟正黑體">map 樣板容器類別的基本使用方法如下: </font></p>
+        <p align="center"><font face="微軟正黑體"><strong>std::map &lt;key_type, data_type, 
+          [comparison_function]&gt;</strong></font></p>
+        <blockquote> 
+          <p><font face="微軟正黑體"> key_type 需要定義 less-than operator, 也就是 bool operator&lt;(key_type), 
+            否則就需要提供 comparison_function, 這是一個函式或一個 <strong>functor</strong> (一個有定義 
+            function call operator 的類別的物件, 這種物件使用起來就像是一個函式一樣)</font></p>
+        </blockquote>
+        <p><font face="微軟正黑體">map 容器底層常常是用 binary search tree 來實作的, 每一個節點的資料是一個 
+          pair&lt;key_type, data_type&gt; 的物件:</font></p>
+        <p><font face="微軟正黑體">常常用 <strong>value_type</strong> 來存取 (typedef pair&lt;const 
+          <strong>key_type</strong>, <strong>data_type</strong>&gt; <strong>value_type</strong>;)<br>
+          </font></p>
+        <p><font face="微軟正黑體"><strong>例如</strong>:</font></p>
+        <blockquote> 
+          <pre><font face="微軟正黑體">std::map&lt;string, char&gt; grade_list;
+		  
+grade_list["John"] = 'B';
+...
+grade_list["John"] = 'A'; // John's grade improves
+
+grade_list.erase("John");
+
+std::cout&lt;&lt;"The class is size "&lt;&lt;grade_list.size()&lt;&lt;std::endl;
+
+if (!grade_list.empty()) ...
+
+grade_list.clear(); // remove all records from the grade_list
+
+ // 這是 binary search, 請不要用 algorithm 裡面的 find(), 沒有效率
+if (grade_list.find("Tim") == grade_list.end())
+{
+    std::cout&lt;&lt;"Tim is not in the map!"&lt;&lt;endl;
+}
+
+std::map&lt;string, char&gt;::iterator glIter;
+for (glIter=grade_list.begin(); glIter!=grade_list.end(); glIter++)
+{
+    std::cout&lt;&lt;glIter-&gt;<strong>first</strong>&lt;&lt;endl;  //  "John"
+    std::cout&lt;&lt;glIter-&gt;<strong>second</strong>&lt;&lt;endl; //  'A'
+}</font></pre>
+        </blockquote>
+        <p></p>
+        <p></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">四</font></th>
+      <td bgcolor="#DDEEBB"> <h3><font face="微軟正黑體"><strong>Exercise: </strong> 
+          </font></h3>
+        <h3><font face="微軟正黑體">Find the most frequently occurring substring of 
+          a <em>specified length</em> from a <strong><em>given string</em></strong>.</font></h3>
+        <h3><font face="微軟正黑體">Input</font></h3>
+        <p><font face="微軟正黑體">1 thequickbrownfoxjumpsoverthelazydog<br>
+          3 thequickbrownfoxjumpsoverthelazydog<br>
+          4 testingthecodetofindtheerrortestandtestagain<br>
+          5 thearraycanbetoobigsobecarefulandtherecantberarecasescanbe<br>
+          </font></p>
+        <h3><font face="微軟正黑體"> Output</font></h3>
+        <p><font face="微軟正黑體">o:4<br>
+          the:2<br>
+          test:3<br>
+          canbe:2</font></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th bgcolor="#FFFFCC" align="center"><font face="微軟正黑體">五</font></th>
+      <td bgcolor="#FFFFCC"> <pre><font face="微軟正黑體">#include &lt;cstdio&gt;
+#include &lt;cstring&gt; // strlen()
+#include &lt;string&gt;
+#include &lt;map&gt;
+using namespace std;
+
+char s[1000001];
+
+int main() {
+    int N;
+    map&lt;long long, int&gt; cont;
+    
+    while (scanf("%d%s",&amp;N,s) == 2) <br>    {
+        int L = strlen(s);
+        cont.clear();
+        
+        for (int i=0; i+N&lt;=L; ++i) <br>        {
+            long long aux = 0;
+            
+            for (int j=0; j&lt;N; ++j)
+                aux = aux*26 + (s[i+j]-'a');
+            
+            cont[aux]++;
+        }
+        
+        long long ans_hash;
+        int best = -1;
+        
+        for (map&lt;long long, int&gt;::iterator it=cont.begin(); it!=cont.end(); ++it)
+        {
+            if (it-&gt;second &gt; best) <br>            {
+                ans_hash = it-&gt;first;
+                best = it-&gt;second;
+            }
+        }
+        
+        string ans;
+        
+        for (int i=0; i&lt;N; ++i)
+        {
+            ans = (char)(ans_hash % 26 + 'a') + ans;
+            ans_hash /= 26;
+        }
+        
+        printf("%s:%d\n", ans.c_str(), best);
+    }
+    
+    return 0;
+}</font></pre> 
+        <p><font face="微軟正黑體">這個程式在 N&lt;=13 時才可以得到正確答案, 為什麼?</font></p>
+        <font face="微軟正黑體" color="white"> 這個程式將子字串編碼成一個 64 位元的整數作為 map 的 key, 編碼方法就是把子字串視為一個 
+        26 進位的整數, 問題是 64 位元有號整數只能編碼 13 個字元而已。 map 對於 key 的要求是需要有定義 operator&lt;, 
+        可以用來比較大小, 整數或是浮點數當然滿足需求, 如果是C/C++ 的字元陣列就需要額外提供比對的函式指標, 例如 </font><font color="white">
+        <pre><font face="微軟正黑體">bool mystrcmp(const char* str1, const char* str2)
+{
+    return strcmp(str1, str2)&lt;0;
+}
+map&lt;char*, int, bool (*)(const char*, const char*)&gt; conv1(mystrcmp);</font></pre>
+        <font face="微軟正黑體"> 或是一個 functor 物件, 例如: 
+        <font face="微軟正黑體"><pre>class MyCompare
+{
+public:
+    bool operator()(char *&amp;str1, char *&amp;str2) const 
+    {
+        return (strcmp(str1,str2)&lt;0);
+    }
+};
+map&lt;char*, int, MyCompare&gt; conv2;</pre></font>
+        如果是 string 物件就簡單了, string 物件有定義 operator&lt;, 可以直接比對大小 </font></font> 
+        <p><font face="微軟正黑體">該怎麼修改才能讓程式在 N = 25 時還能夠運作?</font></p>
+        <font color="white">
+        <ul>
+          <font face="微軟正黑體"> 1. map&lt;string, int&gt;<br>
+          <br>
+          2. map&lt;MyCode, int&gt;<br>
+          <br>
+          <ul>
+            struct MyCode<br>
+            {
+            int hash[4]; <br>
+            bool operator&lt;(MyCode rhs) { ... } <br>
+            }; 
+          </ul>
+          </font>
+        </ul>
+        </font></td>
+    </tr>
+    <tr bgcolor="#CCFFCC"> 
+      <th bgcolor="#DDEEBB" align="center"><font face="微軟正黑體">六</font></th>
+      <td bgcolor="#DDEEBB"><h2><font face="微軟正黑體">set</font></h2>
+        <p><font face="微軟正黑體">在 <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+          的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+          中, <a href="http://msdn.microsoft.com/en-us/library/kf18ek11(v=vs.100).aspx">set</a> 
+          (<a href="http://msdn.microsoft.com/en-us/library/e91xe174(v=vs.100).aspx">set 
+          Members</a>) 是一個運用起來很方便的<font color="#FF0000"><strong>關連性</strong></font>容器 
+          (Associative Container) 類別</font></p>
+        <p><font face="微軟正黑體">set 樣板容器類別的定義如下: </font></p>
+        <pre><font face="微軟正黑體">template &lt; class T, // set::key_type/value_type
+                      class Compare = less&lt;T&gt;, // set::key_compare/value_compare
+                      class Alloc = allocator&lt;T&gt; // set::allocator_type
+                  &gt; class set;</font></pre>
+        <p><font face="微軟正黑體">如果類別 T 沒有提供比較的 operator&lt; 函式的話, 就需要提供 Compare 
+          物件或是函式</font></p>
+        <p><font face="微軟正黑體"><strong>例如</strong>:</font></p>
+        <blockquote> 
+          <pre><font face="微軟正黑體">#include &lt;set&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+using namespace std;
+
+class Student
+{
+    friend class Comp;
+public:
+    Student(int num1, string name1):num(num1), name(name1) {}
+    void print(ostream &amp;os) {os &lt;&lt; num &lt;&lt; "\t" &lt;&lt; name &lt;&lt; endl;}
+private:
+    int num;
+    string name;
+};
+
+class Comp
+{
+public:
+    bool operator()(Student s1, Student s2)
+    {
+        if (s1.num &lt; s2.num)
+            return true;
+        else
+            return false;
+    }
+};
+
+int main()
+{
+    set&lt;Student, Comp&gt; myStudents;
+
+    Student a1(10, "Anwar"), a2(5, "Ziale"), a3(17, "Tauman");
+    myStudents.insert(a1);
+    myStudents.insert(a3);
+    myStudents.insert(a2);
+    myStudents.insert(a1); // would merge together
+
+    cout &lt;&lt; "The number of students " &lt;&lt; myStudents.size() &lt;&lt; endl;
+
+    set&lt;Student, Comp&gt;::iterator iter;
+    for (iter=myStudents.begin(); iter != myStudents.end(); iter++)
+        iter-&gt;print(cout);
+
+    iter = myStudents.<font color="#0000FF"><strong>find</strong></font>(Student(17, ""));<br>    if (iter != myStudents.end())<br>        iter-&gt;print(cout);<br>    else<br>        cout &lt;&lt; "Not found!" &lt;&lt; endl;
+    return 0;
+}
+
+/*<br>The number of students 3<br>5       Ziale<br>10      Anwar<br>17      Tauman<br>17      Tauman<br>*/
+</font></pre>
+        </blockquote></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th align="center"><font face="微軟正黑體">七</font></th>
+      <td><font face="微軟正黑體">請完成步驟五中程式功能的修改, 助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 
+        資料匣下的所有內容) 壓縮起來, 選擇 <strong>Lab2-2a</strong> <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a></font></td>
+    </tr>
+    <tr bgcolor="#CCFFCC"> 
+      <th align="center"><font face="微軟正黑體">七</font></th>
+      <td bgcolor="#CCFFCC"> <h2><font face="微軟正黑體">VC2010 STL</font></h2>
+        <h2><font face="微軟正黑體">Sequence Container</font></h2>
+        <p><font face="微軟正黑體">在 <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+          的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+          中包含下列的循序性容器 (Sequence Container) 類別:</font></p>
+        <ol>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/22a9t119(v=vs.100).aspx">deque</a> 
+            (double-ended queue): <a href="http://msdn.microsoft.com/en-us/library/8tk0b6f0(v=vs.100).aspx">members</a><br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/802d66bt(v=vs.100).aspx">list</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/00k1x78a(v=vs.100).aspx">members</a> 
+            <br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/9xd04bzs(v=vs.100).aspx">vector</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/k449z507(v=vs.100).aspx">members</a> 
+            </font></li>
+        </ol>
+        <p><font face="微軟正黑體">Contents of <strong>deque</strong> and <strong>vector</strong> 
+          can be efficiently random accessed.</font></p>
+        <p>&nbsp;</p>
+        <h2><font face="微軟正黑體">Associative Container</font></h2>
+        <p><font face="微軟正黑體">在 <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+          的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+          中包含下列的關連性容器 (Associative Container) 類別:</font></p>
+        <ol>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/s44w4h2s(v=vs.100).aspx">map</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/xdayte4c(v=vs.100).aspx">members</a><br>
+            Each stored element is a pair that has both a data value and a sort 
+            key. The value of the key is <strong>unique</strong> and is used to 
+            automatically sort the data.<br>
+            The value of an element in a map can be changed directly. The key 
+            value is a constant and cannot be changed. Instead, key values associated 
+            with old elements must be deleted, and new key values must be inserted 
+            for new elements.<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/1ka6hya8(v=vs.100).aspx">multimap</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/1y9w8dz4(v=vs.100).aspx">members</a><br>
+            Each element is a pair that has both a data value and a sort key. 
+            The value of the key does <strong>not need to be unique</strong> and 
+            is used to order the data automatically. The value of an element in 
+            a multimap, but not its associated key value, may be changed directly. 
+            Instead, key values associated with old elements must be deleted and 
+            new key values associated with new elements inserted.<br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/0d462wfh(v=vs.100).aspx"> 
+            hash_map</a>: <a href="http://msdn.microsoft.com/en-us/library/h80zf4bx(v=vs.100).aspx">members</a><br>
+            Extension of <strong>map</strong> and is used for storage and <strong>fast 
+            retrieval</strong>l of data from a collection in which each element 
+            is a pair that has a sort key whose value is <strong>unique</strong> 
+            and an associated data value.<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/6ewecebk(v=vs.100).aspx">hash_multimap</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/y32f2f90(v=vs.100).aspx">members</a><br>
+            Extension of <strong>multimap</strong> and is used for the storage 
+            and <strong>fast retrieval</strong> of data from a collection in which 
+            each element is a pair that has a sort key whose value need<strong> 
+            not be unique</strong> and an associated data value.<br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/e8wh7665(v=vs.100).aspx">set</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/y49kh4ha(v=vs.100).aspx">members</a><br>
+            The key values of the elements contained are unique and serve as the 
+            key values according to which the data is automatically ordered. The 
+            value of an element in a set may not be changed directly. Instead, 
+            you must delete old values and insert elements with new values.<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/w5txk7zc(v=vs.100).aspx">multiset</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/hfc4f6h7(v=vs.100).aspx">members</a><br>
+            The key values of the elements contained need not be unique and in 
+            which they serve as the key values according to which the data is 
+            automatically ordered. The key value of an element in a multiset may 
+            not be changed directly. Instead, old values must be deleted and elements 
+            with new values inserted.<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/1t4xas78(v=vs.100).aspx"> 
+            hash_set</a>: <a href="http://msdn.microsoft.com/en-us/library/61d2at0e(v=vs.100).aspx">members</a><br>
+            Extension of <strong>set</strong> and is used for the storage and 
+            fast retrieval of data from a collection in which the values of the 
+            elements contained are unique and serve as the key values.<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/wh3627k8(v=vs.100).aspx">hash_multi_set</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/2695a3d4(v=vs.100).aspx">members</a> 
+            <br>
+            Extension of the <strong>multiset</strong> and is used for the storage 
+            and fast retrieval of data from a collection in which the values of 
+            the elements contained serve as the key values and are not required 
+            to be unique.<br>
+            </font></li>
+        </ol>
+        <h2><font face="微軟正黑體">Container Adapter</font></h2>
+        <p><font face="微軟正黑體">在 <a href="http://msdn.microsoft.com/en-us/library/ct1as7hw(v=vs.100).aspx">C++ 
+          的標準函式庫</a> (<a href="http://msdn.microsoft.com/zh-tw/library/cscc687y(v=vs.100).aspx">tw</a>) 
+          中包含下列的衍生容器 (Container Adapter) 類別:</font></p>
+        <ol>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/4ef4dae9(v=vs.100).aspx">priority 
+            queue</a>: <a href="http://msdn.microsoft.com/en-us/library/e5ybkz42(v=vs.100).aspx">members</a><br>
+            It organized such that the element with the highest value is always 
+            first in the queue.<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/4ef4dae9(v=vs.100).aspx">queue</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/s1b6tszt(v=vs.100).aspx">members</a><br>
+            It follows FIFO (first in, first out) semantics. The first element 
+            inserted (pushed) into the queue is the first to be removed (popped).<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://msdn.microsoft.com/en-us/library/56fa1zk5(v=vs.100).aspx">stack</a>: 
+            <a href="http://msdn.microsoft.com/en-us/library/h9sh48d5(v=vs.100).aspx">members</a><br>
+            It follows LIFO (last in, first out) semantics. The last element to 
+            be inserted (pushed) on the stack is the first element to be removed 
+            (popped).</font></li>
+        </ol></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%202-2_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%202-2_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Tue Apr 17 2018 11:46:20 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 04/06/2014 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

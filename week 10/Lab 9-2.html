@@ -1,0 +1,201 @@
+<html><head>
+<title>
+Lab 9-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%209-2_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 9-2: Complex 的應用與 Mandelbrot 圖形界面 </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%209-2_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 使用實習 3-1, 4-2 中的 Complex 類別 <br>
+        做一個 Mandelbrot 碎形動畫 <br>
+        進一步練習與視窗圖形界面的合作 <br>
+        練習視窗界面程式的 debug </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 這個實習接續 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Lab9-1.html">Lab 9-1</a>, 
+        我們稍微修改一下 Mandelbrot 類別的界面, 讓它能夠支援一個 Mandelbrot <font color="#FF0000">動畫</font>的程式, 
+        範例執行程式 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Mandelbrot03a.exe">Mandelbrot03a</a>, 這個程式會慢慢畫出每計算一次 z = 
+        z * z + c 之後的圖形, 在狀態列會顯示目前已經作了多少次了, 以及每一次有多少個點發散掉了, 程式一直執行到 256 次為止 
+        </font><p><font face="微軟正黑體"> 在任何時候, 你可以 </font>
+        </p><ol>
+          <li><font face="微軟正黑體">用滑鼠左鍵點兩下來 暫停/繼續 動畫, </font></li>
+          <li><font face="微軟正黑體">用選單上的暫停模擬選項來暫停動畫, </font></li>
+          <li><font face="微軟正黑體">按下滑鼠左鍵在視窗中拖曳來指定一個區域, 指定區域中的圖案會在另外一個視窗中放大顯示, </font></li>
+          <li><font face="微軟正黑體">用右鍵點選視窗內任一區域可以更換一組顏色。 </font></li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 請下載圖形界面程式碼 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab09/Mandelbrot03b_vc2010.rar">Mandelbrot03b_vc2010.rar</a>, 
+        解壓縮出來, 請編譯並且執行, 你應該可以看到視窗中是全部空白的, 選單中有 檔案/暫停動畫 的選項, 如同上一個實習, 我們將在這個 project 
+        中應用你先前寫的 Complex 類別來撰寫程式 </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 首先在類別檢視視窗中你可以找到 Mandelbrot 類別, 打開這個類別你可以看到下列類別的定義以及空的成員函式: 
+        <pre>    class Mandelbrot  
+    {
+    public:
+        int updateData(int ** const &amp;data, int currentIteration);
+        void generateData(int ** const &amp;data, int numIterations);
+        Mandelbrot(double centerX, double centerY, 
+                   double range, int windowSize);
+        virtual ~Mandelbrot();
+    
+    private:
+    ...
+    };</pre>
+        </font> <p><font face="微軟正黑體">這個類別和前一個實習裡的 Mandelbrot 類別的運作模型有一些不一樣, <font color="#0000FF">畫面中會顯示動畫的最主要原因就是我們每隔固定時間 
+          (例如 40 毫秒) 就會重新繪製一次畫面, 每次繪製畫面的內容都有一點點差異,所以眼睛就自動把他變成連續的動作了</font>, 所以這個新的 
+          Mandelbrot 類別中主要增加的界面為: </font></p>
+        <pre><font face="微軟正黑體">
+    int updateData(int ** const &amp;data, int currentIteration);</font></pre> <p><font face="微軟正黑體">這個介面就是為了支援動畫的繪製, 
+          為了繪製動畫, Mandelbrot 物件不能用和上次一樣的 generateData() 函式一次把整個圖形都計算完, 而需要這一個 
+          updateData() 的介面來慢慢計算圖形中每一點是否發散, 你可以想像視窗圖形界面函式做的動作變成 </font>
+        </p><pre><font face="微軟正黑體">
+    while (每隔固定時間)
+        mandelbrot.updateData(...);</font></pre> <p><font face="微軟正黑體">每次當 updateData() 
+          被呼叫到的時候, 在 updateData() 裡把還沒有發散的座標點都再計算一次 z = z * z + c, 判斷該點是否發散, 修改對應的 
+          data[i][j] 的數值 </font></p>
+        <p><font face="微軟正黑體"> Mandelbrot 建構元函式會傳進來繪圖中心點的複數平面的座標, 例如 (-0.5, 0), 
+          以及繪圖區域的寬與高 (目前所畫的是一個方形區域), 例如 2.3, 以及視窗顯示區域的點數, 例如 500, 請在 Mandelbrot 
+          類別中設計常數 (const) 資料成員記錄下來, 例如: </font>
+        </p><pre><font face="微軟正黑體">
+    const double m_range;
+    const double m_centerY;
+    const double m_centerX;
+    const int m_windowSize;</font></pre> <p><font face="微軟正黑體">除此之外, <font color="#FF0000">類別內</font>也需要設計一個寬度及高度都是 
+          m_windowSize 的二維<font color="blue">Complex</font>型態的<font color="#FF0000">資料成員</font>陣列 
+          m_z, 主要目的是記錄每一回合計算後 z 的數值, 這個陣列我們為了有彈性地使用記憶體, 還是用下圖動態的方式來配置: </font></p>
+        <center>
+          <font face="微軟正黑體"><img src="Lab%209-2_files/MandelbrotFig05.gif"> </font>
+        </center>
+        <font face="微軟正黑體">建構元中必須負責配置這個二維陣列, 解構元中必須負責釋放這個二維陣列 </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"> <p><font face="微軟正黑體">這個類別也需要用到複數的類別, 請由前一個實習中拷貝進來 </font></p>
+        <p><font face="微軟正黑體">並且在 Complex.cpp 的<strong><font color="#FF0000">第一列</font></strong>加入 
+          #include "stdafx.h" (這個動作是因為圖形化介面是使用 MFC 來製作的, 所以才需要)</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"> <pre><font face="微軟正黑體">
+    void generateData(int ** const &amp;data, int numIterations);</font></pre>
+        <font face="微軟正黑體"> 這個函式和前一個實習中實作的 generateData() 概念相同, 每次被呼叫到時, 代表繪圖界面程式需要知道在 
+        numIterations 回合的限制下有多少點發散掉了; 但是這一次的 generateData() 負責的事情較少, 它<font color="red"><strong>不需要</strong></font>去配置 
+        data 陣列的記憶體也<font color="red">不允許</font>修改 data 指標變數了, 它仍然需要從頭計算 numIterations 
+        個回合, 算出每一個點經過多少回合才會發散, 並且<font color="#CC0000">將結果記錄在 data 陣列中</font>, 
+        <p> 對於所有沒有發散的點, data[i][j] 都必須設定為 0 
+        </p></font><p><font face="微軟正黑體">你依照上面的說明實作的 generateData() 函式, 對於圖形化介面程式有兩個用途 (你可以在 CChildView::OnCreate() 
+          和 CZoomWnd::setMandel() 函式中看到): </font>
+        </p><ol>
+          <li><font face="微軟正黑體">generateData() 第一次被呼叫時, 目的是計算由第一回合到第numIterations回合時, 
+            m_z 二維陣列的內容, 後續可以再呼叫 updateData() 一回合一回合運用 z = z * z + c 計算新的 mandelbrot 
+            圖形, 所以 generateData() 函式中必須把所有沒有發散的點, 在經過numIterations回合之後的 z 值記錄在 
+            m_z 陣列中<br>
+            </font></li>
+          <li><font face="微軟正黑體"> 用來重新產生小視窗裡面放大過的 mandelbrot 圖形 </font></li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"> <pre><font face="微軟正黑體">
+    int updateData(int ** const &amp;data, int currentIteration);</font></pre> <p><font face="微軟正黑體">每次 
+          updateData() 被呼叫到時, 代表界面程式需要下一個時間點的動畫資料 (你可以在 CChildView::OnTimer() 
+          函式中看到), 請根據先前所記錄在 m_z 陣列中的 z 值, 繼續運用 z = z * z + c 計算下一個回合的 data[i][j] 
+          數值並且存放在 data[i][j] 陣列中, z 的資料一樣需要記錄下來。 <br>
+          <br>
+          另外在函式裡只需要對於 data[i][j] 為 0 的點來計算就可以了, data[i][j] 不等於 0 的點在前面的運算中都已經發散了, 
+          不需要再繼續計算下去, 如果在計算的過程中發現某一個點發散掉了, 請將 data[i][j] 設為 currentIteration+1, 
+          這個傳進來的 currentIteration 數值代表目前進行到第幾個回合了 (第一回合 currentIteration == 0)。</font></p>
+        <p><font face="微軟正黑體">updateData() 函式回傳的數值是在這個回合中發散的點數, 圖形界面程式用來在視窗下緣的狀態列中顯示本回合中發散掉的點數。</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 
+        資料匣下的所有內容) 壓縮起來, 選擇 Lab9-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%209-2_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%209-2_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Fri Jun 23 2017 02:00:08 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 04/11/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

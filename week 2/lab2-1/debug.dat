@@ -1,0 +1,25 @@
+==21696== Memcheck, a memory error detector
+==21696== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==21696== Using Valgrind-3.17.0 and LibVEX; rerun with -h for copyright info
+==21696== Command: ./main
+==21696== 
+Input the file name
+==21696== 
+==21696== Process terminating with default action of signal 2 (SIGINT)
+==21696==    at 0x4F6D142: read (read.c:26)
+==21696==    by 0x4EEFD1E: _IO_file_underflow@@GLIBC_2.2.5 (fileops.c:517)
+==21696==    by 0x4EF1105: _IO_default_uflow (genops.c:362)
+==21696==    by 0x4D684B0: __gnu_cxx::stdio_sync_filebuf<char, std::char_traits<char> >::underflow() (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28)
+==21696==    by 0x4D76B22: std::istream::sentry::sentry(std::istream&, bool) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28)
+==21696==    by 0x4D223C6: std::basic_istream<char, std::char_traits<char> >& std::operator>><char, std::char_traits<char> >(std::basic_istream<char, std::char_traits<char> >&, char*) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28)
+==21696==    by 0x109430: readFile(int*, int*) (io.cpp:18)
+==21696==    by 0x109869: main (main.cpp:22)
+==21696== 
+==21696== HEAP SUMMARY:
+==21696==     in use at exit: 0 bytes in 0 blocks
+==21696==   total heap usage: 3 allocs, 3 frees, 77,824 bytes allocated
+==21696== 
+==21696== All heap blocks were freed -- no leaks are possible
+==21696== 
+==21696== For lists of detected and suppressed errors, rerun with: -s
+==21696== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

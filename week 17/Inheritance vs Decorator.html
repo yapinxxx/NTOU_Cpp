@@ -1,0 +1,348 @@
+<html><head>
+<title>Inheritance vs Decorator</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Inheritance%20vs%20Decorator_files/cyan_diffuse.html">
+<font face="微軟正黑體"> 
+<!---------------------------------------------------------------->
+</font> 
+<center>
+  <h1><font face="微軟正黑體">1052 Quiz#4 靜態 vs 動態的物件功能設定</font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Inheritance%20vs%20Decorator_files/rainbow.gif"> </font> 
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <th width="700" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><font size="+1" face="微軟正黑體" color="#000000"><strong>C++ 實習測試: 靜態 vs 
+        動態的物件功能設定 </strong> </font> </td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <td><p><font face="微軟正黑體">時間: <strong>165</strong>分鐘 (<strong>106/06/22</strong> 
+          <strong><font size="+1" color="#FF0000">09:20</font></strong> ~ <strong><font size="+1" color="#FF0000">12:05</font></strong> 
+          上傳時間截止) </font></p>
+        <p><font face="微軟正黑體">你可以看自己手上的資料, 可以查網路上的說明或是範例, 但是請不要和同學討論</font></p></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <th align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="1939" bgcolor="#DDEEBB"> <h3><font face="微軟正黑體">第一部份目標：</font><font size="+1" face="微軟正黑體" color="#0000FF">撰寫一個概念上的字串編碼與加密解密工具程式</font></h3>
+        <p><font face="微軟正黑體">這個程式基本的功能是將一個 std::string 物件裡面的資料編碼與加密、解密，不過不需要你撰寫加密與解密的演算法，只需要把加密動作的概念表達出來就可以了，例如下面的程式輸出，<font color="#FF0000">第一列</font>是最原始放在 
+          std::string 裡面的明文；<font color="#FF0000">第二列</font>我們用 AES(...) 代表經過 
+          AES 加密演算法加密得到的密文；<font color="#FF0000">第三列</font>是把第二列的 AES 密文用十六進位編碼的結果；<font color="#FF0000">第四列</font>是把第三列的十六進位編碼還原回來並且以 
+          AES 解密把還原回來的密文解密出來的結果</font></p>
+        <p><font face="微軟正黑體">Hello, this is the plaintext.<br>
+          AES(Hello, this is the plaintext.)<br>
+          4145532848656C6C6F2C20746869732069732074686520706C61696E746578742E29<font color="#FF0000"><br>
+          Hello, this is the plaintext.</font></font></p>
+        <p><font face="微軟正黑體">這個程式的加密與解密只是概念上的動作，所以程式不至於太複雜, 底下先給你主要的程式碼</font></p>
+        <h3><font face="微軟正黑體">考試要求一</font></h3>
+        <p><font face="微軟正黑體">請你在 VC2010 裡開啟一個新的<font color="#0000FF"><strong>方案 
+          StringEncoding1</strong></font>, 讓 Visual Studio 幫你<font color="#0000FF"><strong>建立方案的目錄</strong></font>, 
+          然後請把下面的程式碼分別拷貝到不同的檔案裡, 測試執行, 應該可以得到前三列(黑字)的結果</font></p>
+        <pre><font face="微軟正黑體">#include &lt;string&gt;
+#include &lt;iostream&gt;
+using namespace std;
+
+class AESEnc
+{
+public:
+    AESEnc(string data);
+    string encrypt(); // assume with fixed key
+private:
+    string m_data;
+};
+
+AESEnc::AESEnc(string data):m_data(data)
+{
+}
+
+string AESEnc::encrypt()
+{
+    return string("AES(") + m_data + ")";
+}
+
+class HexAESEnc: public AESEnc
+{
+public:
+    HexAESEnc(string data);
+    string encrypt();
+};
+
+HexAESEnc::HexAESEnc(string data):AESEnc(data)
+{
+}
+
+string HexAESEnc::encrypt()
+{
+    static const char* digits = "0123456789ABCDEF";
+    string in = AESEnc::encrypt();
+    string out;
+    for (int i=0; i&lt;in.length(); i++)
+    {
+        out.push_back(digits[(in[i]&gt;&gt;4) &amp; 0x0f]);
+        out.push_back(digits[in[i] &amp; 0x0f]);
+    }
+    return out;
+}
+
+int main()
+{
+    string line1("Hello, this is the plaintext.");
+    cout &lt;&lt; line1 &lt;&lt; endl;
+
+    AESEnc aesEncData(line1);
+    string line2 = aesEncData.encrypt();
+    cout &lt;&lt; line2 &lt;&lt; endl;
+
+    HexAESEnc hexAesEncData(line1);
+    string line3 = hexAesEncData.encrypt();
+    cout &lt;&lt; line3 &lt;&lt; endl;
+
+/*
+    HexAESDec hexAESDecData(line3);
+    string line4 = hexAESDecData.decrypt();
+    cout &lt;&lt; line4 &lt;&lt; endl;
+*/
+
+    return 0;
+}</font></pre>
+        <h3><font face="微軟正黑體">考試要求二</font></h3>
+        <p><font face="微軟正黑體">請參考上面的<strong> AESEnc</strong> 與 <strong>HexAESEnc</strong> 
+          類別以及其繼承架構，<font color="#0000FF">撰寫兩個類別 <strong>AESDec</strong> 與 <strong>HexAESDec</strong></font>，其中 
+          <strong>HexAESDec</strong> 類別繼承 <strong>AESDec</strong> 類別，使得上面 main() 
+          裡面註解掉的 3 列程式可以順利執行並且印出紅字的部份</font></p>
+        <p><font face="微軟正黑體"><strong><font color="#0000FF">AESDec</font></strong> 
+          是一個負責 AES 解密的類別，建構元的參數是一個字串，字串裡面是 AES 演算法加密過的密文，建構元裡面把參數的字串拷貝到一個資料成員中，請撰寫一個 
+          string decrypt() 成員函式來解密， 如果資料字串的內容是 AES(XYZ) 的話，就把 AES() 刪除掉傳回 XYZ，如果資料字串的內容只是 
+          XYZ，就傳回 IAES(XYZ) 代表解密出來的字串。</font></p>
+        <p><font face="微軟正黑體"><strong><font color="#0000FF">HexAESDec</font></strong> 
+          需要負責十六進位的解碼以及 AES 密文的解密，請繼承 AESDec 類別得到解密的功能，再加上十六進位解碼的功能<strong>。</strong>請先撰寫一個私有的成員函式 
+          string decode(string &amp;) 把輸入的十六進位編碼字串還原回來；再撰寫一個建構元函式，參數是一個字串，字串裡面是經過十六進位編碼後的 
+          AES 密文，建構元在初始化串列裡用 decode 成員函式的輸出來初始化父類別 AESDec 物件，然後撰寫一個 string decrypt() 
+          成員函式，運用 AESDec::decrypt() 來得到解密出來的明文字串。</font></p>
+        <p><font face="微軟正黑體">目前這個程式的<font color="#0000FF"><strong>類別圖</strong></font>如下：</font></p>
+        <p align="center"><img src="Inheritance%20vs%20Decorator_files/fig1.gif" width="386" height="200"></p>
+        <p><font face="微軟正黑體"><strong><font color="#0000FF">AESEnc</font></strong> 
+          和 <strong><font color="#0000FF">AESDec</font></strong> 類別負責基本的加解密，<font color="#0000FF"><strong>HexAESEnc</strong></font> 
+          和 <strong><font color="#0000FF">HexAESDec</font></strong> 類別則是附加了十六進位的編碼的加密和解密，這樣子的設計是靜態地設定物件的額外功能，所謂<font color="#0000FF"><strong>靜態</strong></font>的意思就是需要在程式裡設計類別 
+          HexAESEnc 或是 HexAESDec，然後重新編譯過，如果今天我們有另外一種加解密方法 DESEnc 和 DESDec，那麼也許就需要 
+          AESDESEnc 這種類別來表示先用 DES 加密再用 AES 加密，可能也需要 HexAESDESEnc 或是 HexDESEnc 
+          或是 HexDESAESEnc 等等的組合，當符合的選項越來越多的時候，<strong><font color="#FF0000">很難靜態地把所有可能需要的組合類別都先設計出來</font></strong>，所以就會有<font color="#0000FF"><strong>動態地</strong></font>設定物件功能的需求。</font></p>
+        <p><font face="微軟正黑體">上面這個設計還有一個地方看起來有一些問題，就是原始資料保存在 AESEnc 和 
+AESDec 類別的 
+          m_data 資料成員裡，如果有其他的加解密方法的類別例如 DESEnc 和 DESDec，它們需要保存原始資料嗎? 
+如果兩個類別都有原始資料，那麼合成起來的類別要把原始資料放在哪一個類別裡呢？如下圖，我們可以修改一下，另外設計專門存放原始資料的類別，這樣子就可
+以任意調整加密和編碼的順序，也可以任意調整兩種加密的順序：</font></p>
+        <p align="center"><img src="Inheritance%20vs%20Decorator_files/fig2.gif" width="378" height="261"></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#FFFFCC"><h3><font face="微軟正黑體"><strong>第二部份目標：</strong></font><strong><font size="+1" face="微軟正黑體" color="#0000FF">運用 
+          decorator 樣板，撰寫一個能夠動態地設定物件功能的字串編碼與加密解密工具程式</font></strong></h3>
+        <p><font face="微軟正黑體">想要能夠動態地組合基本物件提供的功能，就不能用上面繼承的方法來合併不同的功能，需要運用委託的機制來達成這個需求，例如下圖所示：</font></p>
+        <p align="center"><img src="Inheritance%20vs%20Decorator_files/fig3.gif" width="345" height="50"></p>
+        <p align="center"><font face="微軟正黑體">或是</font></p>
+        <p align="center"><img src="Inheritance%20vs%20Decorator_files/fig4.gif" width="495" height="59"></p>
+        <p align="left"><font face="微軟正黑體">因為在這種資料處理的過程中，一定是一個階段一個階段分別完成的，不會混在一起先加密一部份資料、</font><font face="微軟正黑體">另外一部份先做 
+          Hex 編碼，所以兩張圖裡面的委託機制都形成一個串列。</font></p>
+        <p align="left"><font face="微軟正黑體">物件 <u>:AESEnc</u> 連接到物件 <u>:PlainData</u>，代表的意義是加密的資料由 
+          <u>:PlainData</u> 物件提供，物件 <u>:HexEnc</u> 連接到物件 <u>:AESEnc</u> 代表的意義是編碼的資料來自 
+          AES 加密過後的資料；因為連接的目標物件有兩種，所以如下圖我們定義一個共通的界面 IData，<u>:PlainData</u> 只會是最終端的物件，其它加密、編碼、解密、解碼的功能物件都在串列的中間，我們把它抽象化為 
+          Filter 界面，如上圖這樣子串起來的架構可以用下圖右側的聚合關係來表示</font></p>
+        <p align="center"><img src="Inheritance%20vs%20Decorator_files/fig5.gif" width="413" height="185"></p>
+        <p><font face="微軟正黑體">上圖裡面 Filter::ctor(IData&amp;) 主要是在建立物件之間的關聯性，參數是提供資料的物件，需要把這個關聯性記錄在 
+          m_source 資料成員裡面</font></p>
+        <p><font face="微軟正黑體">各種 Filter 的衍生類別一起畫出來可以得到下圖</font></p>
+        <p align="center"><img src="Inheritance%20vs%20Decorator_files/fig6.gif" width="570" height="389"></p>
+        <p align="left"><font face="微軟正黑體">這樣子的類別設計，在運用的時候基本上會用物件的建構元把物件之間的關聯性建立好，然後在主要的 
+          pumpData() 界面裡，沿著串列將資料一層一層的處理好資料，所有的關聯性都是客戶端程式動態組合出來的，不需要另外定義類別，主要的使用方法如同下面這個 
+          main 函式所顯示</font></p>
+        <pre><font face="微軟正黑體">int main()
+{
+    PlainData data("Hello, this is the plaintext.");
+    cout &lt;&lt; data.pumpData() &lt;&lt; endl;
+
+    AESEnc aesEncData(data);
+    cout &lt;&lt; aesEncData.pumpData() &lt;&lt; endl;
+
+    DESEnc *pDesEncData = new DESEnc(aesEncData);
+    cout &lt;&lt; pDesEncData-&gt;pumpData() &lt;&lt; endl;
+
+    AESDec aesDecData(aesEncData);
+    cout &lt;&lt; aesDecData.pumpData() &lt;&lt; endl;
+
+    DESDec desDecData(*pDesEncData);
+    cout &lt;&lt; desDecData.pumpData() &lt;&lt; endl;
+
+    HexEnc hexEncData(aesEncData);
+    cout &lt;&lt; hexEncData.pumpData() &lt;&lt; endl;
+    
+    HexDec hexDecData(hexEncData);
+    cout &lt;&lt; hexDecData.pumpData() &lt;&lt; endl;
+
+    delete pDesEncData;    
+    return 0;
+}</font></pre>
+        <font face="微軟正黑體">執行的結果如下 </font> 
+        <pre><font face="微軟正黑體">Hello, this is the plaintext.
+AES(Hello, this is the plaintext.)
+DES(AES(Hello, this is the plaintext.))
+Hello, this is the plaintext.
+AES(Hello, this is the plaintext.)
+4145532848656C6C6F2C20746869732069732074686520706C61696E746578742E29
+AES(Hello, this is the plaintext.)</font></pre></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB">
+      <td height="28" bgcolor="#DDEEBB"><h3><font face="微軟正黑體">考試要求三</font></h3>
+        <p><font face="微軟正黑體">請在前面的方案中加入一個<font color="#0000FF"><strong>新的專案 StringEncoding2</strong><font color="#000000">, 
+          並且完成下面的類別來支援前面這個 main() 函式裡的測試</font></font></font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#FFFFCC"> <h3><strong><font face="微軟正黑體">請完成 IData 
+          抽象類別的設計</font></strong></h3>
+        <ol>
+          <li><font face="微軟正黑體">這個類別裡只有 virtual 的解構元以及 virtual 的 string pumpData() 
+            界面</font> <br>
+            <br>
+          </li>
+          <li> <font face="微軟正黑體">需要把這 pumpData() 定義為純粹的虛擬函式</font></li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#DDEEBB">
+<h3><strong><font face="微軟正黑體">請完成 PlainData 類別的設計</font></strong></h3>
+        <ol>
+          <li><font face="微軟正黑體">建構元參數是一個 string 的物件，請把這個 string 物件的內容拷貝下來，這是最原始的資料<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">這個類別的 pumpData() 其實等於是一個 accessor, 就直接把 m_data 
+            裡面紀錄的資料拷貝出去</font></li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#FFFFCC"> <h3><strong><font face="微軟正黑體">請完成 Filter 
+          抽象類別的設計</font></strong></h3>
+        <ol>
+          <li><font face="微軟正黑體">這是 AESEnc, AESDec, HexEnc, HexDec 的共通界面，主要功能是維護物件的關聯性，並且完成委託機制的實作<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">製作建構元，建構元參數是 IData 的參考，代表資料的來源，把它紀錄在 m_source 
+            參考變數裡面<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">委託機制是在 pumpData() 成員函式裡面實作的，這個函式裡面需要要求前一級的 Filter 
+            物件把資料準備好，也就是 return m_source.pumpData();</font></li>
+        </ol></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <td height="28" bgcolor="#DDEEBB"> <h3><strong><font face="微軟正黑體">請完成 AESEnc、AESDec、HexEnc、HexDec 
+          類別的設計</font></strong></h3>
+        <ol>
+          <li><font face="微軟正黑體">以 AESEnc 類別為例，主要需要完成 string pumpData() 界面以及 void 
+            encrypt(string &amp;in, string &amp;out) 輔助函式<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">string pumpData() 裡面首先需要呼叫 Filter::pumpData() 
+            來請前一級的物件準備好需要處理的資料，然後呼叫 encrypt() 輔助函式來處理資料，最後回傳處理好的字串<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">void encrypt(string &amp;in, string &amp;out); 
+            基本上把前一級準備好的資料當作第一個參數，定義一個新的 string 物件當作第二個參數，加密完的資料放在第二個參數裡面。<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">其它幾個類別的設計都類似</font></li>
+        </ol>
+        </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td height="80" bgcolor="#FFFFCC"> <h3><strong><font face="微軟正黑體">請以前面的 
+          main() 函式測試</font></strong></h3>
+        </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td bgcolor="#DDEEBB"><h3><font face="微軟正黑體">考試時間: <strong>165</strong>分鐘 
+          (<strong><font size="+1" color="#FF0000">09:20</font></strong> ~ <strong><font size="+1" color="#FF0000">12:05</font></strong><font color="#000000"> 
+          上傳時間截止)</font></font></h3>
+        <font face="微軟正黑體">將所完成的 project (只需保留 .cpp, .h, .sln 以及 .vcxproj 檔案即可; 
+        <font color="#FF0000">刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 
+        ipch\ 資料匣下的所有內容</font>) 以 zip/rar/7zip 程式將<font color="#FF0000">整個資料匣</font>壓縮起來, 
+        在「考試作業」繳交區選擇 <font color="#FF0000"><strong>Labtest4 </strong></font><a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a> 
+        </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <td height="63" bgcolor="#FFFFCC"> <p><font face="微軟正黑體"><strong>後續</strong>:</font></p>
+        <ol>
+          <li><font face="微軟正黑體">在電子商務的應用裡面，常常需要把加密過的資料透過 email 來傳遞給遠方，此時需要做 Base64 
+            的編碼與解碼，可以設計新的 Filter 衍生類別 Base64Enc 和 Bae64Dec 來完成這個功能<br>
+            <br>
+            </font></li>
+          <li><font face="微軟正黑體">基本的 Decorator 樣板如下圖所示，大家常常用視窗、捲動軸、工具列、選單列、狀態列的組合當例子，也常常用咖啡店咖啡的組合或是飲料店裡飲料的組合、比薩店比薩的口味組合來作為解釋</font><font face="微軟正黑體">範例</font></li>
+        </ol>
+        <p align="center"><img src="Inheritance%20vs%20Decorator_files/fig7.gif" width="546" height="327"></p></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體"> 
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+</font> 
+<center>
+  <p><font face="微軟正黑體"><img src="Inheritance%20vs%20Decorator_files/rainbow.gif"> </font> 
+</p></center>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Inheritance%20vs%20Decorator_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Thu Jun 22 2017 11:59:07 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 06/21/2017 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+
+</body></html>

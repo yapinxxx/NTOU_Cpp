@@ -1,0 +1,438 @@
+<html><head>
+<title>
+Lab 3-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%203-1_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 3-1: Complex number: class declaration <br>
+    practice (data member / member function) </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%203-1_files/rainbow.gif"> </font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 1. 練習如何運用 Visual Studio 2010 界面宣告類別 
+        (<a href="http://squall.cs.ntou.edu.tw/cpp/100spring/lab03/Lab3-1.html">2005/2008</a>, 
+        <a href="http://squall.cs.ntou.edu.tw/cpp/96spring/lab03/Lab3-1.html">VC6</a>) 
+        <br>
+        2. 練習如何使用 private 與 public access specifier (了解 C++ 如何控制存取權限) <br>
+        3. 練習如何定義成員函式 (member function), 在成員函式中如何存取類別資料 <br>
+        4. 了解浮點數的比對相關問題 <br>
+        5. 如何拷貝一個簡單類別的物件 <br>
+        6. 建立單元測試 (Unit Test) 程式碼 </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 我們曉得 C/C++ 的基本資料型態裡並沒有複數 (complex number) 
+        這樣的東西, 所以我們在這個單元裡要透過 C++ 類別的語法定義一個新的資料型態來存放複數: 
+        <p> 直覺的想法應該會覺得這件事情有點簡單, 複數包含實數部份 (real part) 和虛數部份 (imaginary part), 似乎只要用 
+          C 裡頭的 struct 語法就可以定義一個新的資料型態了。 
+        </p></font><p><font face="微軟正黑體"> 不過我們的要求還稍微多一點, 每一個抽象的資料型態 (abstract data type) 除了包含所存放的資料以外, 還必須要定義它們所支援的<font color="red">運算</font>, 
+          這樣才能精確地描述這個資料型態, 在這個實習中我們考慮下列的運算: </font>
+        </p><ul>
+          <li><font face="微軟正黑體"> 加法 (a + b <font color="#0000FF">i</font>) + 
+            (c + d <font color="#0000FF">i</font>) = (a+c) + (b+d) <font color="#0000FF">i</font></font> 
+            <font face="微軟正黑體"><br>
+            </font>
+          </li><li><font face="微軟正黑體"> 減法 (a + b <font color="#0000FF">i</font>) - 
+            (c + d <font color="#0000FF">i</font>) = (a-c) + (b-d) <font color="#0000FF">i</font></font> 
+            <font face="微軟正黑體"><br>
+            </font>
+          </li><li><font face="微軟正黑體"> 乘法 (a + b <font color="#0000FF">i</font>) * 
+            (c + d <font color="#0000FF">i</font>) = (ac-bd) + (ad+bc) <font color="#0000FF">i</font></font> 
+            <font face="微軟正黑體"><br>
+            </font>
+          </li><li><font face="微軟正黑體"> 除法 (a + b <font color="#0000FF">i</font>) / 
+            (c + d <font color="#0000FF">i</font>) = (ac+bd)/(c*c+d*d) + (-ad+bc)/(c*c+d*d) 
+            <font color="#0000FF">i</font></font> <font face="微軟正黑體"><br>
+            </font>
+          </li><li><font face="微軟正黑體"> 大小 (複數平面上向量的長度) | a + b <font color="#0000FF">i</font> 
+            | = (a*a+b*b)<sup>0.5</sup> <br>
+            </font>
+          </li><li><font face="微軟正黑體"> 相等</font></li></ul></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 請利用 Visual Studio 2010 界面 檔案/新增/專案, 
+        選擇一般 , 空專案, <font color="red">不要</font>勾選 "為方案建立目錄", 選取位置資料夾, 
+        輸入專案名稱 Lab31, 按下確定 
+        <p>在<font color="#FF0000"> 方案總管</font> 中, 使用滑鼠右鍵選剛才建立的專案名稱 Lab31, 加入, 
+          新增項目, 選 程式碼, 選 C++ 檔案, 填寫檔案名稱 testComplex.cpp, 請在檔案內加入一個空的 main() 函式: 
+        </p><pre>#include &lt;cstdlib&gt;
+
+int main()
+{
+    system("pause");
+    return 0;
+}</pre>
+        建置/建置方案</font></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"> <ol>
+          <li><font face="微軟正黑體">請使用滑鼠右鍵在<font color="#FF0000"> 類別檢視 </font>窗格中點選剛才建立的專案名稱 
+            Lab31, </font></li>
+          <li><font face="微軟正黑體">選擇加入, 類別, 已安裝的範本:C++, 點選 新增 按鈕, </font></li>
+          <li><font face="微軟正黑體">在 類別名稱 欄位填入 Complex 作為新的類別名稱, 勾選 虛擬解構函式 點選 完成 
+            按鈕</font></li>
+        </ol>
+        <p><font face="微軟正黑體">此時你可以檢查 <font color="#FF0000">類別檢視</font>, 看到新增了一個 
+          Complex 類別, 在 <font color="#FF0000"> 方案總管</font> 中你會看到 Complex.cpp 和 
+          Complex.h, 請在 <font color="#FF0000">類別檢視</font> 中以滑鼠左鍵雙擊 Complex 來查看 
+          Complex.h 檔案內類別的宣告 (declaration), </font></p>
+        <pre><font face="微軟正黑體">    #pragma once
+    class Complex  
+    {
+    public:
+        Complex(void);
+        virtual ~Complex(void);
+    };</font></pre>
+        <font face="微軟正黑體"> 這是 Visual Studio 2010 界面自動幫你作出來的類別定義, 這兩個函式一個叫做 "建構元 
+        (constructor)", 一個叫做 "解構元 (destructor)", 在定義一個類別時有特殊的用途, 
+        將來我們會仔細談它們的用法, <font color="#FF0000">目前</font>對你沒有影響, 你也<font color="#FF0000">不需要去修改它們</font>。 
+        至於檔案中 <font color="#FF0000">#pragma once</font> 敘述, 和我們先前介紹的 #if !defined(...), 
+        #ifndef, #define, #endif 一樣, 是 為了避免重複引入 .h 定義檔 而設計的, 這是所有多檔案 C/C++ 程式都需要有的定義, 
+        如果 Visual Studio 界面不幫你做好, 你也一樣要自己做, #ifndef #if #define #endif 是所有編譯器都確定可以用的, 
+        #pragma once 不是標準的前處理器指令, 但是目前常用的編譯器都有支援, Visual Studio 是可以使用的, 其他的編譯器請參考 
+        <a href="http://en.wikipedia.org/wiki/Pragma_once">wiki</a>。 
+        <p> 請在<font color="#FF0000"> 類別檢視 </font>中點 Complex 類別, 在下面窗格中你可以看到 Visual 
+          Studio 界面幫你定義的兩個成員函式, 所有的函式定義 (definition) 都應該在 .cpp 檔案中, 請點選任何一個函式打開 
+          Complex.cpp 來檢視這兩個函式的定義。 
+        </p></font><p><font face="微軟正黑體">注意: 先前你運用 Visual Studio 寫 C 程式的時候, 主要在 <font color="#FF0000">方案總管</font> 
+          窗格中檢視所有的檔案, 不太需要用到 <font color="#FF0000"> 類別檢視</font>窗格, 但是你在寫 C++ 程式時, 
+          如果不使用類別檢視的話, 你會花費很多很多的時間在許多檔案裡尋找你自己寫的程式碼</font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 現在我們應該來定義 Complex 類別內儲存資料的欄位 (資料成員)了, 
+        我們知道複數平面上每個點需要有兩個實數座標, 請務必替它們取適當的名字, 我們把它們取為 m_real 和 m_imaginary, 再來必須要決定它們是 
+        private 還是 public, 目前這個決定很簡單, 就是 private, 除了很小很小部份的資料需要是 public 之外, 幾乎所有類別裡的 
+        資料成員都需要是 private, 如果你要讓它是 public 的話, 你最好要有很充分的理由。 
+        </font><p><font face="微軟正黑體"> 現在你有兩種選擇來增加這兩個資料成員 (data member), </font>
+        </p><ol>
+          <li><font face="微軟正黑體"> 直接編輯 Complex.h 檔案: 在 class 定義裡加入 private: 以及兩個資料成員變數的宣告 
+            <br>
+            </font>
+            <pre><font face="微軟正黑體" color="#CCFFCC">private:
+    double m_real;
+    double m_imaginary;</font></pre>
+          </li>
+          <li><font face="微軟正黑體"> 透過 Visual Studio 的介面來做: 在 <font color="#FF0000"> 
+            類別檢視 </font> 裡找到 Complex 類別, 以右鍵選擇 <font color="#FF0000">加入/加入變數</font>, 
+            出現一個對話視窗, 在 <font color="#FF0000">存取</font> 欄位中選擇 private, 在 <font color="#FF0000">變數型別</font> 
+            欄位中填入可以存放實數座標的型態, 在 <font color="#FF0000">變數名稱</font> 欄位中填入剛才取好的變數名稱。 
+            注意在 <font color="#FF0000">類別檢視</font> 中你應該立刻可以看到這個資料成員變數, 你也應該可以看到一個鎖頭的圖示出現在變數前面, 
+            知道它代表什麼意思嗎? (如果沒有看到這個鎖頭就錯了)</font></li>
+        </ol></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"> <p><font face="微軟正黑體">因為類別外面的程式沒有辦法直接存取剛才製作的兩個資料成員, 為了要能夠有設定 
+          Complex 物件內容(狀態)的界面函式, 我們替這個類別增加一個 setValue(double, double); 的 public 
+          成員函式, 如此就可以初始化物件的內容了 </font></p>
+        <p><font face="微軟正黑體">增加一個成員函式也和增加資料成員一樣有兩種作法, 可以自己在 complex.h 以及 complex.cpp 
+          檔案中加入成員函式的宣告和定義, 也可以在 <font color="#FF0000">類別檢視</font> 中用右鍵選擇 <font color="#FF0000">加入/加入函式</font>, 
+          在 <font color="#FF0000">傳回型別</font> 欄位填入函式的回傳值型態, 例如 void, 在 <font color="#FF0000">函式名稱</font> 
+          欄位中填入函式的名稱 (例如: setValue), 在 <font color="#FF0000">參數型別</font> 欄位中填入參數的型態定義 
+          (例如: double), 在 <font color="#FF0000">參數名稱</font> 欄位中填入參數的名稱 (例如: real), 
+          點選<font color="#FF0000">加入</font>按鈕, 重複以上兩個步驟再增加第二個參數, 在 <font color="#FF0000">存取</font> 
+          欄位中選擇 public, 代表是公開的界面函式, Static, Virtual, Pure 和 Inline 目前都不要選, 最後按下 
+          <font color="#FF0000">完成</font> 按鈕。 </font></p>
+        <p><font face="微軟正黑體">函式的內容基本上就是 </font>
+        </p><pre><font face="微軟正黑體">m_real = real;
+m_imaginary = imaginary;</font></pre>
+        <font face="微軟正黑體"> 呼叫的方法類似於 
+        <pre>Complex x;
+x.setValue(13,25); // 13 + 25 <font color="#0000FF">i</font></pre>
+        </font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" height="1047" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 現在我們應該來定義 Complex 類別的 +, -, *, / 運算了: 
+        </font><p><font face="微軟正黑體"> 首先應該先決定這些運算的名稱, 決定這些運算所需要傳入的參數, 所需要傳回的數值型態, 然後決定這些運算是 public 還是 private。 
+        </font>
+        </p><p> 
+        </p><ul>
+          <li><font face="微軟正黑體"> 我們用 add, subtract, multiply, divide 作為運算的名稱 
+            </font>
+          </li><li><font face="微軟正黑體"> 由於這四個運算都需要兩個運算元參與(例如: a + b), 每一個成員函式被呼叫時基本上是表示有第二個複數要和<font color="red">自己</font>這個複數來運算, 
+            例如: 
+            <pre>Complex x, y;
+...
+x.add(y); // 代表希望把  y 加在 x 這個物件上</pre>
+            </font> 
+          </li><li><font face="微軟正黑體">因此每一個運算應該都需要傳入另外一個 Complex 類別的物件(或是物件指標或是參考)作為參數, 
+            這樣才能計算自己這個複數和傳入的複數的和, 差, 乘積, 以及商, 並把運算的結果存放在自己這個物件裡<br>
+            </font>
+          </li><li><font face="微軟正黑體"> 這四個運算中除了除法外只會更改自己這個物件的資料, 不需要傳回任何數值, 除法則可能因為除數是 
+            0 而失敗, 所以我們選擇傳回一 bool 型態的結果來表示成功或是失敗 (等學到例外 exception 的機制以後就會有更容易的方法來處理這種狀況)<br>
+            </font>
+          </li><li><font face="微軟正黑體">這四個函式不完全是獨立的, 例如 subtract 應該可以運用 add 完成, divide 
+            應該可以運用 multiply 以及額外的 double 除法完成 (如果你把它看成是獨立的功能, 你的程式裡面就有一些重複的片段, 
+            有重複就很容易造成維護的問題)<br>
+            </font>
+          </li><li><font face="微軟正黑體"> 最後, 這幾個運算都是提供給 Complex 模組以外的程式裡用來操作 Complex 
+            類別物件的方法, 所以應該是 public 的 </font>
+        </li></ul>
+        <p><font face="微軟正黑體"> 做好上面的選擇後, 你還是有兩種方法來增加這些成員函式 (member function), 
+          </font>
+        </p><ol>
+          <li><font face="微軟正黑體"> 直接編輯 Complex.h 檔案在 public 區段加入這四個函式的宣告 <br>
+            </font>
+          </li><li><font face="微軟正黑體"> 在 <font color="#FF0000">類別檢視</font> 中用右鍵選擇 <font color="#FF0000">加入/加入函式</font>, 
+            在 <font color="#FF0000">傳回型別</font> 欄位填入函式的回傳值型態, 例如 void, 在 <font color="#FF0000">函式名稱</font> 
+            欄位中填入函式的名稱 (例如: setValue), 在 <font color="#FF0000">參數型別</font> 欄位中填入參數的型態定義 
+            (例如: double), 在 <font color="#FF0000">參數名稱</font> 欄位中填入參數的名稱 (例如: 
+            real), 點選<font color="#FF0000">加入</font>按鈕, 在 <font color="#FF0000">存取</font> 
+            欄位中選擇 public, 代表是公開的界面函式, Static, Virtual, Pure 和 Inline 目前都不要選, 最後按下 
+            <font color="#FF0000">完成</font> 按鈕 (將來會解釋它們的用途)。 </font>
+        </li></ol>
+        <font face="微軟正黑體">有了 add, subtract, multiply, divide 這幾個函式的空殼後, 我們應該在 
+        main() 函式裡運用 assert() 函式先增加 "<strong><font color="#FF0000">單元測試</font></strong>" 
+        的程式碼, 例如對於除法所要執行的測試如下: 
+        <pre>    Complex x1, x2, x3;
+    x1.setValue(7, 3);
+    x2.setValue(1, 1);
+    x3.setValue(5, -2); // (7+3i)/(1+i) = (5-2i)
+    assert(x1.divide(x2));
+    assert(x1.equal(x3, 1e-10)); // C/C++ 常數 1e-10 代表 1x10<sup>-10</sup>
+    x2.setValue(0, 0);
+    assert(!x1.divide(x2));</pre>
+        接下來你應該將前面 add, subtract, multiply, divide 的函式內容寫完, 並且對每一個函式所設計的功能都設計好單元測試的資料, 
+        如此<font color="#FF0000">萬一以後修改程式時 (更換演算法或是更換資料表達的方法), 所有原先設計的功能 (很多也許你在修改時都已經忘掉了的功能) 
+        都自動化地測試一遍</font> (這是所謂 Test Driven Design (TDD) 的程式發展方法, 很多工程領域或是製造業裡都有這種<strong>品管</strong>的機制, 
+        軟體製作時也有這種需求, 尤其是物件導向的程式常常需要進行 "新增功能" 或是 "架構調整 (refactoring)", 
+        這種自動驗證的機制一定要建立好。) 
+        <p> 在撰寫上面的函式內容時請注意<font color="#FF0000"> C++ 的存取權限控制是針對<strong><font color="#0000FF">類別</font></strong></font>來做的, 
+          不是針對<font color="#0000FF"><strong>物件</strong></font>來做的, 也就是說別的類別的物件不能存取 
+          Complex 類別物件的 private 資料成員, 但是一個 Complex 類別的物件可以存取另外一個 Complex 類別的物件內的 
+          private 資料成員 (Java, Objective-C 和 C++ 一樣, Smalltalk 和 Ruby 則是用<font color="#0000FF"><strong>物件</strong></font>來控制存取權限的)。
+        </p></font><p><font face="微軟正黑體">用<strong><font color="#0000FF">類別</font></strong>來控制存取權限有兩種原因： </font>
+        </p><ol>
+          <li><font face="微軟正黑體">是因為成員函式是同一個類別的所有物件共享的, 如果編譯器讓成員函式可以存取類別裡所有的私有資料成員的話, 
+            那麼就沒有辦法區分接受訊息的物件或是其它的物件, 程式設計者可以寫出 a.add(b) 的程式, 也可以寫出 a.add(a) 的程式, 
+            或者說實現「靜態型別(static type)系統」的程式語言是只能用類別來控制存取權限的。<br>
+            </font></li>
+          <li><font face="微軟正黑體">第二個原因是存取權限是用來實作封裝的機制, 封裝一個類別的物件是為了避免其它類別的物件 (或是其它程式模組) 
+            暴力直接修改這個類別物件的私有資料或是狀態, 從這個角度看的話，用類別來控制就足夠了, 不需要用物件來控制存取權限, 撰寫程式時是用類別來分工的, 
+            某一個人負責某幾個類別, 而不是某一個人負責幾個物件。以物件來限制存取權限, 比較偏向資訊安全的考量, 而不是軟體工程的考量。</font></li>
+        </ol>
+        <p><font face="微軟正黑體"> 學長姊們的痛苦經驗 <a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/ComplexError.html#error1">1</a>, 
+          <a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/ComplexError.html#error2">2</a> </font></p></td>
+    </tr>
+    <tr bgcolor="FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 現在你應該要自己做 equal (相等) 的成員函式了, 函式比對傳入的 
+        Complex 物件是不是和自己這個物件有相同的實數和虛數部份, 函式<font color="#FF0000">傳回 bool 型態</font>的比對結果 
+        <p>直覺上覺得應該很簡單, 不過你在這裡有可能會遭遇問題, 主要原因是 double 或是 float 這種浮點數不適合用預設的運算子 == 
+          精確地比對, 由於浮點數在進行運算以及表達數字時是有相對誤差的 (你想像一下實數線上有無窮多個點, double 型態用 64 個位元最多只能表達 
+          2<sup>64</sup> 個不同的數字, 一定有數字沒有辦法無誤差地表示出來, 只能用最接近的數值來表示, 更何況 double 型態浮點數要表達的數字含括 
+          -10<sup>308</sup> - 10<sup>308</sup> 的範圍, 相對誤差大約維持在 +/-10<sup>-15</sup>, 
+          也就是說對於一個 10<sup>100</sup> 的數字來說, 絕對誤差值大概是 +/-10<sup>85</sup> ), 兩個浮點數之間運用 
+          == 來比對時預設是比對每一個位元, 通通相同才是 true, 否則是 false; 在有表達和運算誤差時, 要求每一個位元都相等是沒有太大意義的, 
+          例如下面程式: </p>
+        <pre>    double x = 3.1, y = .03;
+    ...
+    if (x+y == 3.13)
+        cout &lt;&lt; "x+y == 3.13\n";
+    ...</pre>
+        你有可能在某些機器上發現不會列印出 "x+y==3.13" 或是 
+        <pre>    double x = 3.09;
+    x = x/2.0 + 1.51;
+    if (x == 3.055)
+        cout &lt;&lt; "x == 3.055\n";</pre>
+        </font> <p><font face="微軟正黑體"> 你覺得螢幕上會列印任何東西嗎? 如果不會的話, 原因是什麼? 你可以列印一下 
+          x 的內容, 又會發現看起來上面這個 x == 3.055 好像應該是對的, 那麼為什麼沒有印出東西來呢? 真的不是機器不好, 這和上面所說浮點數的表示方法有密切關係 
+          :) </font>
+        </p><p><font face="微軟正黑體">再多看一個程式 <a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/floatingComparison.cpp">floatingComparison.cpp</a> 
+          </font>
+        </p><p><font face="微軟正黑體">接下來寫一個簡單的測試程式讓你看一下兩個 double 變數 (各 8 個位元組) 的實際內容:<a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/CompareDouble.rar"> 
+          範例程式專案</a>, 你可以注意到 a 和 b 兩個變數的內容其實只有差最後一個位元 (7<font color="#FF0000">0</font> 
+          vs. 7<font color="#FF0000">1</font>), 另外也請你注意一個位元組一個位元組比較的結果和直接 a == 
+          b 的結果是一樣的 </font>
+        </p><p><font face="微軟正黑體"> 在我們的程式中, <font color="#FF0000">你可以用 subtract() 
+          和 magnitude() 來檢查</font></font> <font face="微軟正黑體">"你的答案" 
+          和 "你預期的答案" 的差異是不是小於一個很小的誤差值, 例如 1e-7 (這個數字就是 0.0000001); 第二種方法是直接檢查兩個數字的實數部份的誤差以及虛數部份的誤差是不是都小於 
+          1e-7 (嚴格來說對於浮點數來說, 相對誤差會比絕對誤差要有意義) </font>
+        </p><p><font face="微軟正黑體"> 所以你的 equal() 函式應該要接受兩個參數, 第一個參數是要比較的數字, 第二個參數則是可以容忍的誤差值</font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td width="580"> <p><font face="微軟正黑體">現在你應該要完成計算複數大小的成員函式了, 叫它 magnitude 
+          吧, 函式應該要傳回一 double 的結果 </font></p>
+        <p><font face="微軟正黑體">在製作這個函式時你可能需要 C 標準函式庫中的 <a href="http://msdn.microsoft.com/en-us/library/f1xa99e6(v=vs.90).aspx">sqrt()</a> 
+          函式, 記得 #include &lt;cmath&gt;</font></p></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟九</font></th>
+      <td width="580"> <p><font face="微軟正黑體">接下來我們為了能夠在螢幕上顯示一個 Complex 物件的內容, 
+          需要替這個類別加上一個 print() 的 public 成員函式, 任何時候只要呼叫 print() 就可以在螢幕 (cout) 上印出 
+          a + b <font color="#0000FF">i</font> 格式的資料 </font></p>
+        <p><font face="微軟正黑體">請注意我們想要列印一個複數, 可是選擇<strong>不要</strong>替 Complex 
+          類別加上 getReal() 和 getImaginary() 的 accessor, 而是加上 print() 介面, 理由是在設計物件化的程式時我們需要 
+          "盡力去維護類別的封裝", 通常 accessor 是偷懶的設計, 給了accessor 之後, 任意其他類別都可以直接看到這個物件裡私有的資料, 
+          顯然不只可以完成列印的功能, 還可以完成很多很多其他的功能, 雖然比起直接把資料成員設為 public 好, 但是這樣的封裝是有名無實的, 
+          比較起來算是失敗的</font></p>
+        <p><font face="微軟正黑體">如果你考量到也許有些程式裡需要把 Complex 物件輸出到檔案串流裡, 你也可以把介面設計成 
+          print(ostream&amp; out), 測試時就把全域的螢幕串流物件 cout 傳遞進去</font></p>
+        <p><font face="微軟正黑體">請注意: 簡單的列印程式碼在印虛數部份時會出現 1 + -2 i, 2 - 0 i, 3 + 1 
+          i 這樣的情況, 要印得比較漂亮需要增加一些額外的處理, 不過我們重點不在這裡就不特別要求了; 另外列印時對於浮點數來說 setprecision(5) 
+          並不是小數以後 5 位數, 而是由最高為開始有 5 位有效數字, 所以想要印到小數點右邊第五位, 需要設為定點小數 fixed, 用欄位的寬度來控制..., 
+          其實運用 iostream 時我不知道有沒有很簡單的方式可以作出和 stdio 的 %10.5f 一樣的效果, 目前我只會在 print() 
+          裡面把資料乘以 100000, 四捨五入, 自己印整數部份、小數部份和小數點, 否則 0.000123456 和 123.456789 
+          好像沒辦法很簡單地都印成 0.00012 和 123.45679 (這也許要怪 stdio 怎麼會設計出像是 %10.5f 這種比較偏向絕對精確度的格式的呢?)</font></p></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟十</font></th>
+      <td width="580"> <p><font face="微軟正黑體"><a name="unittest"></a>此時我們可以把前面放在 
+          main() 中的所有的類別功能測試的程式碼, 集合起來到一個 <font color="#FF0000">unitTest()</font> 
+          的成員函式內, 這樣子的函式是物件導向程式作 "架構調整 (refactoring)" 時很重要的憑據, 有了 unitTest() 
+          之後你才可以放心地修改你自己的程式, 不用擔心把原先已經測試過的程式改成錯的了, 這也是你寫的程式模組的品質管理的最基本方法。</font></p>
+        <p><font face="微軟正黑體">然後你可以在 main() 中呼叫這個 unitTest() 的函式來執行單元測試</font></p>
+        <p><font face="微軟正黑體">可是這個時後如果我們把 unitTest() 定義為一個成員函式, 你會發現在 main() 函式中你需要寫</font></p>
+        <pre><font face="微軟正黑體">Complex dummy;
+dummy.unitTest();</font></pre> <p><font face="微軟正黑體">才能夠呼叫 unitTest() 
+          這個成員函式, 可是呼叫 unitTest 時並不是想要傳遞什麼訊息給 dummy 物件, 上面這樣子用起來不太合理; 如果你使用 <strong><font color="#FF0000">static</font></strong> 
+          保留字來宣告 unitTest(), 也就是用下列的語法來宣告:</font></p>
+        <pre><font face="微軟正黑體">class Complex 
+{
+...
+public:
+   <strong> <font color="red">static</font></strong> void unitTest();
+...
+}; </font></pre>
+        <font face="微軟正黑體"> 如此宣告出來的成員函式稱為<strong>類別成員函式</strong> <strong>class 
+        method</strong>, 不屬於任何一個物件, 所以在呼叫的時候不需要透過物件來呼叫它: 直接寫 <strong>Complex::unitTest();</strong> 
+        就可以呼叫它了, 這也是你剛才在運用<font color="#FF0000">加入/加入函式</font> 功能時勾選那個 Static 
+        的選項的意義 
+        <p>請注意一個 static 的成員函式裡面並沒有一般成員函式裡面那個隱藏的 this 指標, 也沒有辦法像一般的成員函式一樣, 寫 m_real/m_imaginary 
+          就代表那個接受訊息的物件的兩個資料成員</p>
+        <p>上面這種用 static 成員函式來寫 "單元測試" 的方法其實是有點太過簡化的, 主要是因為大家才剛開始學習 C++, 我們先用最簡單的方法來讓大家感覺到單元測試的用途, 
+          等到大家更熟悉一些以後, 可以參考一些實作上常常使用的 "單元測試" 框架, 例如 CppUnit 是 <a href="http://junit.org/">JUnit</a> 
+          的 C++ 版本, 微軟在 Visual C++ 2012 中也基於 <a href="http://www.nunit.org/">NUnit</a> 
+          開發 <a href="https://msdn.microsoft.com/en-us/library/hh598953.aspx">CppUnitTestFramework</a>, 
+          Google 也有一套基於 <a href="http://en.wikipedia.org/wiki/XUnit">xUnit</a> 
+          (<a href="http://www.xprogramming.com/testfram.htm">Kent Beck original 
+          paper</a>) 開發的 <a href="https://code.google.com/p/googletest/">Google 
+          C++ Testing Framework (Google Test</a>)</p>
+        </font></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟十一</font></th>
+      <td width="580"> <p><font face="微軟正黑體">現在我們應該要在 main() 函式裡寫一個比較實際的應用程式, 
+          請由鍵盤輸入一個二元一次方程式 a x<sup>2</sup> + b x + c = 0 的實數係數 a, b, c, 請利用公式:<br>
+          x<sub>1</sub>=(-b+sqrt(b<sup>2</sup>-4ac))/(2a), x<sub>2</sub>=(-b-sqrt(b<sup>2</sup>-4ac))/(2a), 
+          求出 x 的兩個根 (可能是實數也可能是複數), 並且列印出來, 接著請計算 </font>
+        </p><ul>
+          <font face="微軟正黑體"> ((x<sub>1</sub>)<sup>5</sup> + (x<sub>2</sub>)<sup>5</sup>) 
+          / ((x<sub>2</sub>)<sup>10</sup> - (x<sub>1</sub>)<sup>7</sup>)</font>
+        </ul>
+        <font face="微軟正黑體">並且將它的大小計算出來, 輸出在螢幕上。 請下載並執行<a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/testComplex.exe">範例測試程式</a>。 <p></p> 
+        <p> 請注意: 對於我們今天寫的 Complex 類別來說, 你可以用下面兩種<font color="#FF0000">不同</font>的敘述來拷貝一個 
+          Complex 物件 x 到另外一個 Complex 物件 y 或是 z 去 
+        </p><pre>        Complex x;
+        x.setValue(10, 20);
+        <font color="#FF0000">Complex y = x;</font>   // copy constructor 拷貝建構元
+        Complex z;
+        <font color="#FF0000">z = x</font>;            // assignment operator 設定運算子</pre>
+        我們在以後的課程裡會介紹這兩種寫法的不同, 也會解釋為什麼像 Complex 這樣子單純的類別可以使用 C++ 編譯器預設的運算, 很多我們自己設計的類別是不能用編譯器提供的預設方法來拷貝資料的</font></td>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟十二</font></th>
+      <td width="580"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 
+        以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 
+        資料匣下的所有內容) 壓縮起來, 選擇 <strong>Lab3-1</strong> <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程需要使用這裡所完成的程式 </font></td>
+    </tr>
+    <tr bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">後續</font></th>
+      <td width="580"> <ol>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/UsingCppUnit.html">運用 CppUnit 範例與說明</a> 
+            </font></li>
+          <li><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/104spring/lab03/UsingGoogleTest.html">運用 Google C++ 
+            Testing Framework (Google Test) 範例與說明</a></font></li>
+          <li><font face="微軟正黑體">運用微軟 CppUnitTestFramework 範例與說明</font></li>
+          <li><font face="微軟正黑體"><a href="http://www.cplusplus.com/reference/complex/">C++ 
+            標準函式庫 complex 類別</a></font></li>
+        </ol></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%203-1_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%203-1_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Wed Mar 21 2018 19:28:48 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 03/13/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+正黑體"&gt;<p></p> 
+
+
+
+</body></html>

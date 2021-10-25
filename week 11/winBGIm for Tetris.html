@@ -1,0 +1,414 @@
+<html><head>
+<title>winBGIm for Tetris</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<link rel="stylesheet" type="text/css" href="winBGIm%20for%20Tetris_files/style.html">
+<!--link rel="stylesheet" href="../../../template/1/1/course.css" type="text/css"-->
+</head>
+
+<body background="winBGIm%20for%20Tetris_files/cyan_diffuse.gif">
+<!---------------------------------------------------------------->
+<center>
+  <h1> 使用 WinBGIm 來製作俄羅斯方塊 (Tetris)</h1>
+</center>
+<center>
+  <img src="winBGIm%20for%20Tetris_files/rainbow.gif">
+</center>
+<!---------------------------------------------------------------->
+<p align="center"><img src="winBGIm%20for%20Tetris_files/Tetris.jpg" width="639" height="487"> 
+</p><h3>如果你完成了上面這個<a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris.utilwin32.gcc492.exe">文字版的俄羅斯方塊</a>, 覺得這樣子的介面不夠炫, 
+  想要看看下一步能做什麼, 可以嘗試用 WinBGIm 函式庫來改進它的介面, 只有輸出的函式改變了, 運用 WinBGIm 函式庫來寫的時候, 基本模型和文字版沒有差異, 
+  如果你前面物件化做得好的話, 修改的地方應該蠻有限的 (當我們換到 Java 或是 MFC 這種事件驅動的視窗介面時, 就會有一些基本模型的改變)</h3>
+<h3>目標是寫出 <a href="http://squall.cs.ntou.edu.tw/cpp/exe/Tetris.BGIm.vc2010dll.exe">WinBGIm 版本的俄羅斯方塊</a></h3>
+<h3 align="center"><img src="winBGIm%20for%20Tetris_files/TetrisBGIm.jpg" width="712" height="519"></h3>
+<h2>BGI</h2>
+<blockquote> 
+  <p><strong>BGI</strong> 是 <strong>B</strong>orland <strong>G</strong>raphic 
+    <strong>I</strong>nterface 繪圖函式庫的縮寫, 在標準的 C 語言中, 是沒有繪圖函數的, 早年 (~1985) Borland 
+    公司為 Turbo C/C++ 系統寫的繪圖函式庫, 那個年代 PC 是只有文字介面的 (24列80行), 640x480 的解析度就叫做高解析度圖形介面了XD。視窗系統在 
+    1990 年代出現以後, 當然 BGI 也早就進入歷史了... Borland C/C++ 是 Turbo C/C++ 的後續版本, 不過在 1997 
+    年也走入歷史, 最後的版本是 Borland C/C++ 5.02。Borland 公司在 1997 開發一套快速化程式開發 (RAD, Rapid 
+    Application Development) 的整合開發環境 (IDE, Integrated Development Environment) 
+    C++ Builder (<strong>BCB</strong>) 接續 Borland C++, 在 2008 年這個產品以及整個軟體部門 CodeGear 
+    賣給了 Embarcadero Technologies。 </p>
+  <p><strong>簡史</strong>: <a href="https://en.wikipedia.org/wiki/Turbo_C%2B%2B">Turbo 
+    C++</a> → <a href="https://en.wikipedia.org/wiki/Borland_C%2B%2B">Borland 
+    C++</a> → Borland C++Builder → CodeGear C++Builder → Embarcadero <a href="https://en.wikipedia.org/wiki/C%2B%2BBuilder">C++Builder</a> 
+  </p><p>聽起來就是很有歷史的感覺, 我們還用這個嗎? 老實說, 不太用了, 不過要上手實在簡單, 和文字介面的程式<strong>運作模型是一致的</strong>, 
+    大家應該可以很快開始, 門檻很低, 畫出來的效果其實也還不錯... 還有環境也很簡單, 不論你是用 gcc/g++ 或是 visual C/C++, 
+    都只要下載一個 graphics.h 檔案, 一個 libbgi.lib 檔案就 OK 了, 準備好開始了, 不小心我們就介紹完了</p>
+</blockquote>
+<h2>WinBGIm</h2>
+<blockquote>
+  <p><strong>BGI</strong> 是過去的東西了, 可是這麼容易使用的東西, 還是很好的<strong>練習工具</strong>, 我在 
+    <a href="https://www.cs.colorado.edu/%7Emain/bgi/dev-c%2B%2B/">Dept. CS of 
+    Univ. Colorado</a> 網站上找到這個 WinBGIm, 用 Win32 API 重新實作了所有的函式, 是給 Dev-C/C++ 4.9.9.2 
+    的, 不過我在 Dev-C/C++ 5.7.1, 5.11, MinGW 4.8.1, VC6, VC2008, VC2010 中編譯都只要修改非常少數的東西</p>
+</blockquote>
+<ol>
+  <li> <a href="http://squall.cs.ntou.edu.tw/cprog/materials/graphics.h">graphics.h</a></li>
+  <li>libbgi.lib or libbig.a<br>
+    <table border="1">
+      <tbody><tr> 
+        <td>VC6</td>
+        <td><a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/vc6/libbgi.lib">libbgi.lib</a></td>
+      </tr>
+      <tr> 
+        <td>VC08</td>
+        <td><a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/vc2008/libbgi.lib">libbgi.lib</a></td>
+      </tr>
+      <tr> 
+        <td>VC10</td>
+        <td><a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/vc2010/libbgi.lib">libbgi.lib</a>, 
+          <a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/vc2010/libbgi_d.lib">libbgi_d.lib </a> 
+        </td>
+      </tr>
+      <tr> 
+        <td>DevC++4.9.9.2</td>
+        <td><a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/devcpp4992/libbgi.a">libbgi.a</a></td>
+      </tr>
+      <tr> 
+        <td>MinGW g++4.8.1(32bit)</td>
+        <td><a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/MinGW_GCC4814_32bit/libbgi.a">libbgi.a</a></td>
+      </tr>
+      <tr> 
+        <td>MinGW g++4.8.1(64bit)</td>
+        <td><a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/devcpp571/libbgi.a">libbgi.a</a></td>
+      </tr>
+      <tr> 
+        <td>DevC++5.7.1(64bit)</td>
+        <td><a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/devcpp571/libbgi.a">libbgi.a</a></td>
+      </tr>
+      <tr> 
+        <td>DevC++5.11(64bit)</td>
+        <td><a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/devcpp511/libbgi.a">libbgi.a</a></td>
+      </tr>
+    </tbody></table>
+  </li>
+  <li>基本測試程式 <a href="http://squall.cs.ntou.edu.tw/cprog/materials/libbgi/testBGIm.cpp">testBGIm.cpp</a></li>
+  <li>編譯器/連結器參數<br>
+    <table border="1">
+      <tbody><tr> 
+        <td width="215">VC/C++ 6</td>
+        <td width="752"><p> 命令列<br>
+            cl -GX <strong>testBGIm.cpp libbgi.lib</strong> gdi32.lib comdlg32.lib 
+            uuid.lib oleaut32.lib ole32.lib user32.lib</p>
+          </td>
+      </tr>
+      <tr> 
+        <td>VC/C++ 2008</td>
+        <td> 命令列<br>
+          cl -EHsc <strong>testBGIm.cpp libbgi.lib</strong> gdi32.lib comdlg32.lib 
+          uuid.lib oleaut32.lib ole32.lib user32.lib</td>
+      </tr>
+      <tr> 
+        <td>VC/C++ 2010</td>
+        <td>IDE整合環境<br>
+          <br>
+          檔案/新增/專案, 空專案, testBGIm<br>
+          拷貝 testBGIm.cpp 到 testBGIm 資料匣<br>
+          方案總管/右鍵點 testBGIm/加入現有項目, 選擇 testBGIm.cpp<br>
+          專案/屬性/組態屬性/連結器/命令列/其他選項:<strong> /NODEFAULTLIB:LIBCMT</strong> <p><font color="#999999"> 
+            建置/組態管理員/使用中的方案組態: <strong>Debug </strong>(預設是 Debug 版本)</font> <br>
+            專案/屬性/組態屬性/連結器/輸入/其他相依性:加入 <strong>libbgi_d.lib;<br>
+            <br>
+            </strong><font color="#999999">建置/組態管理員/使用中的方案組態: <strong>Release</strong> 
+            (如果你需要建置 Release 版本)<br>
+            專案/屬性/組態屬性/連結器/輸入/其他相依性:加入 <strong>libbgi.lib;<br>
+            </strong></font><br>
+            命令列<br>
+            cl -EHsc <strong>testBGIm.cpp libbgi.lib</strong> gdi32.lib comdlg32.lib 
+            uuid.lib oleaut32.lib ole32.lib user32.lib</p>
+          </td>
+      </tr>
+      <tr> 
+        <td>DevC++ 4.9.9.2</td>
+        <td><p>工具/編譯器選項/在連結器命令列中加入以下的命令<br>
+            Tools/Compiler Options/Add these commands to the linker command line<br>
+            -lbgi -lgdi32 -lcomdlg32 -luuid -loleaut32 -lole32</p></td>
+      </tr>
+      <tr> 
+        <td>MinGW g++ 4.8.1(32bit)</td>
+        <td>g++<strong> testBGIm.cpp</strong> -o testBGIm.exe <strong>-lbgi</strong> 
+          <strong>-L.</strong> -lgdi32 -lcomdlg32 -luuid -loleaut32 -lole32</td>
+      </tr>
+      <tr> 
+        <td>MinGW g++ 4.8.1(64bit)</td>
+        <td>g++ <strong>testBGIm.cpp</strong> -o testBGIm.exe <strong>-lbgi</strong> 
+          <strong>-L.</strong> -lgdi32 -lcomdlg32 -luuid -loleaut32 -lole32 -Wno-write-strings</td>
+      </tr>
+      <tr> 
+        <td>DevC++ 5.7.1(64bit)</td>
+        <td><p>工具/編譯器選項/在連結器命令列中加入以下的命令<br>
+            <strong>-L.</strong> <strong>-lbgi</strong> -lgdi32 -lcomdlg32 -luuid 
+            -loleaut32 -lole32</p></td>
+      </tr>
+      <tr> 
+        <td>DevC++ 5.11(64bit)</td>
+        <td>工具/編譯器選項/在連結器命令列中加入以下的命令<br> <strong>-L.</strong> <strong>-lbgi</strong> 
+          -lgdi32 -lcomdlg32 -luuid -loleaut32 -lole32</td>
+      </tr>
+    </tbody></table>
+  </li>
+  <li>說明文件 <a href="http://squall.cs.ntou.edu.tw/cprog/materials/BGI.chm">bgi.chm</a> 
+    (Windows 中如果看不到內容的話, 請以滑鼠右鍵點選檔案 bgi.chm /內容/取消封鎖) (<a href="http://www.cs.colorado.edu/%7Emain/bgi/doc/">線上版本</a>)</li>
+  <li>主要範例 <a href="http://squall.cs.ntou.edu.tw/cprog/materials/BGIm/bgidemo.exe">bgidemo.exe</a>, 
+    <a href="http://squall.cs.ntou.edu.tw/cprog/materials/BGIDemo.zip">BGIDemo.zip</a></li>
+</ol>
+
+<h2>BGIm 基本功能說明： </h2>
+<h3>程式中如何 <font color="#0000FF">進入</font> 及 <font color="#0000FF">結束</font> 繪圖模式?</h3>
+<blockquote>
+  <p>initwindow(640, 480, "First Sample"); // graphics.h 進入繪圖模式, 開啟 
+    640 x 480 大小的繪圖視窗<br>
+    ...<br>
+    繪圖動作<br>
+    ...<br>
+    closegraph(); // graphics.h 中結束繪圖模式, 這一列請放在 system("pause") 之後</p>
+</blockquote>
+
+<h3>程式如何知道螢幕寬度及高度各有幾點呢?</h3>
+
+<p><br>
+  程式在執行的時候可以藉由 graphics.h 中定義的函式 getmaxx() 及 getmaxy() 來得到螢幕的寬度及高度，例如：</p>
+<blockquote>
+  <p>int maxX, maxY;<br>
+    maxX = getmaxx(); // graphics.h<br>
+    maxY = getmaxy();</p>
+</blockquote>
+<p>螢幕上可以在 x 軸(正向朝右) 0 到 maxX 以及 y 軸(正向朝下) 0 到 maxY 的範圍中作畫。<br>
+</p>
+<h3>如何在螢幕上畫線呢?<br>
+</h3>
+<p>請運用 graphics.h 函式庫中</p>
+<ol>
+  <li>void line(int x1, int y1, int x2, int y2);</li>
+  <li> void lineto(int x2, int y2);</li>
+  <li> void moveto(int x2, int y2);</li>
+</ol>
+<p>三個函式在螢幕上畫線, line() 這個函式可以指定起始點座標 (x1, y1) 及終點座標 (x2, y2), 在這之間畫一條直線。 moveto() 
+  及 lineto() 這一組函式配合<strong>目前的游標位置 CP</strong> 也可以用來畫直線, 例如：</p>
+<blockquote> 
+  <p> moveto(200, 20); // CP 移到 (200,20)<br>
+    lineto(200, 80); // 畫直線到 (200,80)<br>
+    lineto(300, 80); // 畫直線到 (300,80)</p>
+</blockquote>
+<p> 與</p>
+<blockquote>
+  <p>line(200, 20, 200, 80);<br>
+    line(200, 80, 300, 80);</p>
+</blockquote>
+<p> 的效果完全一樣, moveto(200, 20) 將游標位置 CP 移動到 (200, 20) 的地方, lineto(200, 80) 則由 CP 
+  的位置畫直線到 (200, 80), 並設定 CP 為 (200, 80)。</p>
+<p>使用 lineto() 函式畫連續線段比起 line() 函式最大的好處就是程式中不需要記錄上一點的座標, 而由繪圖系統中的 CP 來記住。</p>
+<p><strong>注意：</strong></p>
+<p>如果你希望設定線段的顏色, 請以 void setcolor(int color); 函式來改變, 其中 color 的數值可以是 graphics.h 
+  中定義的 BLACK(0), BLUE(1), GREEN(2), CYAN(3), RED(4), MAGENTA(5), BROWN(6), LIGHTGRAY(7), 
+  DARKGRAY(8), LIGHTBLUE(9), LIGHTGREEN(10), LIGHTCYAN(11), LIGHTRED(12), LIGHTMAGENTA(13), 
+  YELLOW(14), WHITE(15) 等等常數之一, 例如：</p>
+<blockquote>
+  <p><br>
+    setcolor(LIGHTGREEN);<br>
+    line(320, 0, 320, 479);<br>
+    outtextxy(100, 200, "hello");<br>
+    setcolor(LIGHTRED);<br>
+    outtextxy(120, 200, "world");</p>
+</blockquote>
+<p><br>
+  就會 畫出一條亮綠色的直線, 亮綠色的文字 hello 以及亮紅色的文字 world</p>
+<h3><br>
+  如何畫 sine 函式</h3>
+<p>一個 sine 函式圖形是一個二維平面上的圖形, x 軸範圍在 -π 到 π 之間, y 軸範圍在 -1 到 1 之間, 因為這是一個連續函數, 所以不論 
+  x 軸或是 y 軸, 我們都知道其上應該有無窮多個點。 </p>
+<p> 但是在電腦螢幕上要顯示這樣子的圖形, 不可能也不需要使用無窮多個點, 
+</p><p> <font color="red">不可能</font>的原因是螢幕的解析度有限, 在文字 模式視窗只能顯示 80 個字元寬、24 個字元高, 每一個方格裡你只能顯示一個字元或是不顯示, 
+  沒有太多的選擇。 在簡單的 BGIm 圖形模式視窗中允許你在<font color="#0000FF">指定的 寬度及高度</font> 的視窗中作圖, 
+  每一個點除了允許你畫點或是不畫點之外, 也容許你用 16 個顏色來畫點。 
+</p><p> <font color="red">不需要</font>使用無窮多點的原因是： 你的眼睛不夠好, 根本無法在螢幕上分辨距離太近的點 
+</p><p>下圖在 BGIm 繪圖模式視窗中繪製的 sine 函數： </p>
+<p> 
+  </p><center>
+    <img src="winBGIm%20for%20Tetris_files/PlotSineWaveFig3.gif"> 
+  </center>
+<p> 由於解析度比文字模式提高很多, 在上面視窗中繪製的曲線, 你已經慢慢感覺不出來它是折線了。 
+</p><p> 座標軸繪製如下：</p>
+<blockquote>
+  <p> line(0, 240, 640, 240);<br>
+    line(320, 0, 320, 480);</p>
+</blockquote>
+<p> 以線段來畫出 sine 函式, 程式如下：</p>
+<pre>    ix = (int) ((x = -PI) / PI * 319 + 320 + 0.5);
+    iy = (int) (-sin(x) * 239 + 240 + 0.5);
+    moveto(ix, iy);
+    for (i=-318; i&lt;=319; i++)
+    {
+        x = PI / 319 * i;
+        y = sin(x);
+        ix = i + 320;
+        iy = (int) (-y * 239 + 240 + 0.5);
+        lineto(ix, iy);
+    }
+</pre>
+<p>
+</p>
+<p><strong>座標轉換公式:</strong> </p>
+<p>繪製 sine 函數圖形在寬 640, 高 480 的視窗中, 需要設計座標點的轉換公式如下： </p>
+<center>
+  <table border="2">
+    <tbody><tr> 
+      <th width="99"> 實數平面<br>
+        寬:2π 高:2 </th>
+      <th width="132"> 繪圖模式視窗<br>
+        寬:640 高:480</th>
+    </tr>
+    <tr> 
+      <th>(x,y)</th>
+      <th>(x2,y2)</th>
+    </tr>
+    <tr> 
+      <th> (0, 0) </th>
+      <th> (320, 240) </th>
+    </tr>
+    <tr> 
+      <th> (π, 0) </th>
+      <th> (639, 240) </th>
+    </tr>
+    <tr> 
+      <th> (-π, 0) </th>
+      <th> (1, 240) </th>
+    </tr>
+    <tr> 
+      <th> (0, 1) </th>
+      <th> (320, 1) </th>
+    </tr>
+    <tr> 
+      <th> (0, -1) </th>
+      <th> (320, 479) </th>
+    </tr>
+  </tbody></table>
+</center>
+<p>
+一般化的公式應該是
+</p><center>
+  <table border="2">
+    <tbody><tr> 
+      <th> 實數平面<br>
+        寬:2π 高:2 </th>
+      <th width="208"> 繪圖模式視窗<br>
+        寬:640 高:480</th>
+    </tr>
+    <tr> 
+      <th> x <br>
+        y </th>
+      <th> x2 = x / π * 319 + 320<br>
+        y2 = -y * 239 + 240</th>
+    </tr>
+  </tbody></table>
+</center>
+<p>
+<font color="red">請注意</font>：
+</p><ol>
+  <p>
+  </p><li> 由於 x, y 是實數, 上列公式算出的 x1, y1, x2, y2 也是實數, 而我們知道不管在 文字模式視窗或是繪圖模式視窗下, 都只能將螢幕畫面切割為整數個點, 
+    其座標也需要是整數, 所以我們計算出來的 x1, y1, x2, y2 要經過四捨五入來找到最接近的整數座標值。 
+    <p>
+  </p></li><li> 如何將一個浮點變數內的浮點數四捨五入為一個整數變數內的整數資料呢? 
+    <ul>
+      <pre><font size="4">double x = 2.6, y = 2.4; 
+int ix, iy; 
+ix = (int) (x + 0.5); 
+iy = (int) (y + 0.5);</font> </pre> 
+    </ul>
+    則整數變數 i 內的數值為 3, j 內的數值為 2。 
+</li></ol>
+
+<center>
+  <p>&nbsp;
+</p></center>
+<p align="center"><img src="winBGIm%20for%20Tetris_files/PlotSineWaveFig4.gif" width="646" height="516"></p>
+<h3 align="left">如何在視窗中畫出有顏色的矩形方塊?</h3>
+<blockquote>
+  <p align="left">setfillstyle(SOLID_FILL, RED); // 紅色<br>
+    bar(100, 150, 300, 250); // left, top, right, bottom</p>
+</blockquote>
+<p align="left">如果想要加畫邊框, </p>
+<blockquote> 
+  <p align="left">setcolor(WHITE); // 白色<br>
+    rectangle(100, 150, 300, 250); // left, top, right, bottom</p>
+  </blockquote>
+<p> 
+</p><h3 align="center"> <img src="winBGIm%20for%20Tetris_files/rainbow.gif"></h3>
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+
+<div align="right">
+<p>
+<table boder="0">
+<tbody><tr>
+<td width="120">
+<img onclick="toggleSquallSirius();" src="winBGIm%20for%20Tetris_files/albatros80x100.gif" width="80" height="100">
+</td>
+
+<td align="right">
+<font size="2"><i>
+回
+<a href="http://squall.cs.ntou.edu.tw/cpp/index.html">
+C++ 物件導向程式設計課程
+</a>
+首頁
+
+<br>
+<script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Mon Apr 30 2018 10:41:05 GMT+0800 (Taipei Standard Time)
+
+ <br>
+ 製作日期: 05/01/2016
+ by 丁培毅 (Pei-yih Ting)
+
+ <br>E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a>
+ TEL: 02 24622192x6615
+
+ <br>
+    <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> 
+	<a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+    <a href="http://www.cs.ntou.edu.tw/">資訊工程學系</a> 
+	<a href="http://squall.cs.ntou.edu.tw/">Lagoon</a> 
+</i>
+</font>
+</td>
+</tr></tbody></table>
+
+</p>
+</div>
+
+
+
+</body></html>

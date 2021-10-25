@@ -1,0 +1,383 @@
+<html><head>
+<title>
+Lab 13-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2013-1_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 13-1: 異質容器, 虛擬函式, 與多型 </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%2013-1_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 練習設計並且運用異質容器 <br>
+        設計簡單的繼承架構 <br>
+        配合異質容器練習發揮 C++ 多型的特性 <br>
+        <br>
+        練習運用類似 Strategy 設計樣板 (Design Pattern) 的繼承架構來實現 Open-Closed Principle (OCP)</font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 在這次的實習中, 我們要繼續擴充 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab10/Lab10-1.html">StudentList 
+        實習</a>, <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab10/Lab10-2.html">StudentListIterator 
+        實習</a>, 以及 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab11/Lab11-1.html">LoggedStudentList 
+        實習</a>, 希望在很少量的程式更動下, 擴充上面三個類別儲存 Student 物件的功能, 讓它們也可以儲存 UndergraduateStudent 
+        型態的物件, GraduateStudent 型態的物件, 以及 ForeignGraduateStudent 型態的物件。 </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 首先, 先回憶一下 Student 類別的定義 
+        <pre>    class Student
+    {
+    public:
+        Student(const char *name, const char *ID, 
+                const char *phone, const char *department);
+        ~Student();
+        void display(ostream &amp;os) const;
+        bool IDEquals(const char *id) const;
+        bool ofTheSameDepartment(Student &amp;student2) const;
+    private:
+        char *m_name;
+        char *m_ID;
+        char *m_phone;
+        char *m_department;
+    };</pre>
+        這個類別有一個建構元, 一個解構元, 三個成員函式: display(), IDEquals() 以及 ofTheSameDepartment(), 
+        以及一些基本的學生資料 
+        <p> 在嘗試對 Student 類別進行修改, 以及設計繼承的架構之前, 我們可以先來看一下預期的使用方法 
+        </p><pre>    #include &lt;iostream&gt;
+    #include &lt;fstream&gt;
+    using namespace std;
+    
+    #include "UndergraduateStudent.h"
+    #include "GraduateStudent.h"
+    #include "ForeignGraduateStudent.h"
+    #include "LoggedStudentList.h"
+    #include "StudentListIterator.h"
+    
+    void main()
+    {
+        ofstream logfile("main2.log");
+        LoggedStudentList sList(logfile);
+        sList.appendEntry(new <font color="red">UndergraduateStudent</font>("Mary Chen", "111111111", 
+                                      "0933111111", 
+                                      "Business",
+                                      <font color="red">"John Viega"</font>));
+        sList.appendEntry(new <font color="red">UndergraduateStudent</font>("John Wang", "222222222", 
+                                      "0928222222", 
+                                      "Computer Science",
+                                      <font color="red">"Dan Smart"</font>));
+        sList.appendEntry(new <font color="red">GraduateStudent</font>("Mel Lee", "333333333", 
+                                      "0968333333", 
+                                      "Mechanical Engineering",
+                                      <font color="red">"Ron Rivest"</font>));
+        sList.appendEntry(new <font color="red">GraduateStudent</font>("Bob Tsai", "444444444", 
+                                      "0930444444", 
+                                      "Electrical Engineering",
+                                      <font color="red">"Alan Laub"</font>));
+        sList.appendEntry(new <font color="red">ForeignGraduateStudent</font>("Ron Yang", "555555555", 
+                                      "0918555555", 
+                                      "Computer Science",
+                                      <font color="red">"Allen Gersho",
+                                      "Singapore"</font>));
+    
+        int i;
+        StudentListIterator iter1(sList), iter2(sList);
+        for (i=0, iter1.reset(); 
+             iter1.hasMoreData(); iter1.next(), i++)
+        {
+            cout &lt;&lt; i &lt;&lt; ":";
+            iter1-&gt;<font color="blue"><strong>display(cout)</strong></font>;
+            cout &lt;&lt; endl;
+        }
+    
+        sList.find("222222222")-&gt;<font color="blue"><strong>display(cout)</strong></font>; cout &lt;&lt; " found!!" &lt;&lt; endl;
+    
+        if (sList.deleteEntry("444444444"))
+            cout &lt;&lt; "Bob Tsai's entry deleted successfully!\n";
+        else
+            cout &lt;&lt; "Bob Tsai's entry deletion failed!\n";
+    
+        if (sList.find("444444444") == 0)
+            cout &lt;&lt; "Can not find Bob Tsai's entry!\n";
+    
+    
+        cout &lt;&lt; endl;
+        for (iter1.reset(); iter1.hasMoreData(); iter1.next())
+        {
+            for (iter2=iter1, iter2.next(); 
+                 iter2.hasMoreData(); iter2.next())
+            {
+                if (iter1-&gt;ofTheSameDepartment(*iter2))
+                {
+                    cout &lt;&lt; "The following two students"
+                            " are of the same department:\n";
+                    iter1-&gt;<font color="blue"><strong>display(cout)</strong></font>;
+                    cout &lt;&lt; endl;
+                    iter2-&gt;<font color="blue"><strong>display(cout)</strong></font>;
+                    cout &lt;&lt; endl;
+                }
+            }
+        }
+    
+        cout &lt;&lt; endl;
+        for (iter1.reset(); iter1.hasMoreData(); iter1.next())
+            if (iter1-&gt;IDEquals("333333333"))
+                sList.insertEntry(iter1, 
+                    new <font color="red">UndergraduateStudent</font>("Carol Chen", "333331111", 
+                                          "0933333111", "Business",
+                                         <font color="red"> "John Fowler"</font>));
+        for (i=0; i&lt;sList.size(); i++)
+        {
+            sList[i]-&gt;<font color="blue"><strong>display(cout)</strong></font>;
+            cout &lt;&lt; endl;
+        }
+    
+        sList.dump();
+    }</pre>
+        上面程式除了<font color="red">紅字</font>部份之外, 和<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab11/Lab11-1.html">實習 
+        11-1</a> 的步驟三的程式幾乎是相同的, 我們該如何修改 Student 類別, 並且設計 UndergraduateStudent, 
+        GraduateStudent 以及 ForeignGraduateStudent 這三個類別來符合上面這一段程式的要求? 
+        </font><p><font face="微軟正黑體"> 請注意, 上面程式中<font color="blue"><strong>藍字</strong></font>部份的程式並沒有修改, 標示為藍色的意思是提醒你這些函式的呼叫會產生動態繫結 
+          (dynamic binding) 的需求, 執行到的函式需要看容器裡的多型指標指向哪一個型態的物件而定。 </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 由上面的測試程式中分析一下程式的需求如下: </font> <ol>
+          <p> 
+          </p><li><font face="微軟正黑體"> 在 LoggedStudentList 或是 StudentList 中運用 appendEntry() 
+            除了可以加入 Student 類別的物件之外, 需要可以加入 UndergraduateStudent, GraduateStudent 
+            以及 ForeignGraduateStudent 的物件, StudentListIterator 也需要能夠正常運作 </font> 
+            <p> 
+          </p></li><li><font face="微軟正黑體"> display() 界面需要能夠透過多型指標來操作 </font> 
+            <p> 
+          </p></li><li><font face="微軟正黑體"> 解構元 dtor 需要能夠透過多型指標來操作 </font> 
+        </li></ol>
+        <font face="微軟正黑體">一種最直接的方式是定義三個獨立的類別: UndergraduateStudent, GraduateStudent, 
+        ForeignGraduateStudent, 然後替 StudentList 類別定義一組 overloaded appendEntry() 
+        和 insertEntry() 的界面函式, 例如: 
+        <pre>    void appendEntry(UndergraduateStudent *student);
+    void insertEntry(StudentListIterator iter, UndergraduateStudent *student);
+    void appendEntry(GraduateStudent *student);
+    void insertEntry(StudentListIterator iter, GraduateStudent *student);
+    void appendEntry(ForeignGraduateStudent *student);
+    void insertEntry(StudentListIterator iter, ForeignGraduateStudent *student);</pre>
+        但是這樣子還是沒有完全解決問題, 在 StudentList::Node 類別內我們原先運用 Student *m_data 來記錄每一個物件, 
+        如此只能記錄 Student 類別的物件, 其它三種類別的物件必須另外想辦法處理 
+        </font><p><font face="微軟正黑體"> 還好在這個實習中我們需要處理的三種額外的類別的本質其實都是學生, 所以我們可以<strong>運用繼承的語法</strong>來設計適當的類別階層, 
+          並且讓 StudentList 以及 LoggedStudentList 成為一個異質的陣列 </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 首先根據上面運用方法推敲以及對於 UndergraduateStudent, 
+        GraduateStudent, ForeignGraduateGraduate 的基本認識, 這三個類別除了應該要有原來 Student 
+        類別的基本屬性外, 主要需要增加的屬性如下: </font> <ul>
+          <li><font face="微軟正黑體"> UndergraduateStudent: m_academicAdvisor (指導老師) 
+            </font> 
+          </li><li><font face="微軟正黑體"> GraduateStudent: m_advisor (論文指導老師) </font> 
+          </li><li><font face="微軟正黑體"> ForeignGraduateStudent: m_advisor (論文指導老師), 
+            m_nationality (國籍) </font> 
+        </li></ul>
+        <font face="微軟正黑體">我們可以運用 C++ 中繼承的語法實作下面的類別階層 </font> <center>
+          <font face="微軟正黑體"><img src="Lab%2013-1_files/StudentHierarchy.gif"> </font> 
+        </center>
+        <font face="微軟正黑體">以 UndergraduateStudent 類別為例: 類別的宣告如下: 
+        <pre>    class <font color="red"><strong>UndergraduateStudent</strong></font>: public <font color="blue"><strong>Student</strong></font>
+    {
+    public:
+        UndergraduateStudent(const char *name, const char *ID, 
+                             const char *phone, const char *department,
+                             const char *academicAdvisor);
+        ~UndergraduateStudent();
+        void <font color="#FF0000"><strong>display</strong></font>(ostream &amp;os) const;
+    private:
+        char *m_academicAdvisor;
+    };</pre>
+        建構元中必須初始化 m_academicAdvisor 資料成員, 同時因為需要配置記憶體給 m_academicAdvisor, 所以也就需要在解構元中釋放記憶體 
+        <p> 建構元也需要在初始化串列中運用父類別的建構元函式初始化父類別物件 
+        </p><p>這個類別裡需要重新定義 void display(ostream &amp;os) 函式, 除了基本資料之外, 額外列印 m_academicAdvisor 
+        </p><p> 因為 UndergraduateStudent 類別的物件需要放進 StudentList 中, 同時 GraduateStudent 
+          和 ForeignGraduateStudent 類別的物件也需要能夠放進 StudentList 中, 所以需要在 StudentList::Node 
+          中改成運用 <font color="red"><strong>Student</strong></font> <strong><font color="#FF0000">*m_data</font></strong> 
+          這樣子的<strong>多型指標</strong>來記錄 (對於物件導向的設計來說, 所有衍生類別的物件都可以看成是一個父類別的物件來使用, 
+          所以這個父類別的指標可以指到 UndergraduateStudent 類別的物件, 也可以指到 GraduateStudent 或是 
+          ForeignGraduateStudent 類別的物件), 如果 Student 類別裡讓 display 界面定義為<strong><font color="#0000FF">虛擬函式</font></strong>(在 
+          void Student::display(ostream&amp;) 函式前面加上 <strong><font color="#0000FF">virtual</font></strong> 
+          關鍵字), 運用 <strong><font color="#FF0000">m_data-&gt;display(os)</font></strong> 
+          來執行到的 display 函式是 m_data 指到的那個物件的類別所定義的 display 函式, 也就是說如果 m_data 指向一個 
+          Undergraduate 類別的物件, m_data-&gt;display(os) 執行到的就是 Undergraduate::display(ostream&amp; 
+          os) 函式。由於 StudentList 的解構元裡面用一個迴圈刪除所有由 m_data 指向的物件, 所以 Student 類別的解構元也需要定義為虛擬函式, 
+          <strong> <font color="#0000FF">virtual</font></strong> ~Student()。 
+        </p><p> 做到這裡你可以先修改一下步驟二中的 main() 函式, 暫時先不使用 GraduateStudent 和 ForeignGraduateStudent 
+          類別, 先用 StudentList 而不用 LoggedStudentList, 測試結果如下 
+        </p><pre>0:[Mary Chen, 111111111, 0933111111, Business] <font color="blue">[AcademicAdvisor:John Viega]</font>
+1:[John Wang, 222222222, 0928222222, Computer Science] <font color="blue">[AcademicAdvisor:Dan Smart]</font> 
+2:[Mel Lee, 333333333, 0968333333, Mechanical Engineering] <font color="blue">[AcademicAdvisor:Ron Rivest]</font> 
+3:[Bob Tsai, 444444444, 0930444444, Electrical Engineering] <font color="blue">[AcademicAdvisor:Alan Laub]</font> 
+4:[Ron Yang, 555555555, 0918555555, Computer Science] <font color="blue">[AcademicAdvisor:Allen Gersho]</font> 
+[John Wang, 222222222, 0928222222, Computer Science] <font color="blue">[AcademicAdvisor:Dan Smart]</font> found!!
+Bob Tsai's entry deleted successfully!
+Can not find Bob Tsai's entry!
+...</pre>
+        </font> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab13/main0.exe">範例執行程式</a> </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體"> 接下來請依照上一步驟中的類別圖, 製作 <strong><font color="#0000FF">GraduateStudent</font></strong> 
+        類別和 <font color="#0000FF"><strong>ForeignGraduateStudent</strong></font> 
+        類別 
+        <p> 使用步驟二中的 main() 函式, 先用 StudentList 取代 LoggedStudentList 測試一下, 結果如下: 
+        </p><pre>0:[Mary Chen, 111111111, 0933111111, Business] <font color="red">[AcademicAdvisor:John Viega]</font>
+1:[John Wang, 222222222, 0928222222, Computer Science] <font color="red">[AcademicAdvisor:Dan Smart]</font>
+2:[Mel Lee, 333333333, 0968333333, Mechanical Engineering] <font color="red">[Advisor:Ron Rivest]</font>
+3:[Bob Tsai, 444444444, 0930444444, Electrical Engineering] <font color="red">[Advisor:Alan Laub]</font>
+4:[Ron Yang, 555555555, 0918555555, Computer Science] <font color="red">[Advisor:Allen Gersho] 
+                                          [Nationality:Singapore]</font>
+[John Wang, 222222222, 0928222222, Computer Science] <font color="red">[AcademicAdvisor:Dan Smart]</font> found!!    
+Bob Tsai's entry deleted successfully!
+Can not find Bob Tsai's entry!
+...</pre>
+        </font> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab13/main1.exe">範例執行程式</a> </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 接下來我們應該要測試 LoggedStudentList, 看看它和 Student, 
+        UndergraduateStudent, GraduateStudent 和 ForeignGraduateStudent 這幾個類別合作的狀況如何 
+        <p> 使用步驟二中的 main() 函式測試一下, 螢幕顯示結果如下: 
+        </p><pre>0:[Mary Chen, 111111111, 0933111111, Business] <font color="red">[AcademicAdvisor:John Viega]</font>
+1:[John Wang, 222222222, 0928222222, Computer Science] <font color="red">[AcademicAdvisor:Dan Smart]</font>
+2:[Mel Lee, 333333333, 0968333333, Mechanical Engineering] <font color="red">[Advisor:Ron Rivest]</font>
+3:[Bob Tsai, 444444444, 0930444444, Electrical Engineering] <font color="red">[Advisor:Alan Laub]</font>
+4:[Ron Yang, 555555555, 0918555555, Computer Science] <font color="red">[Advisor:Allen Gersho] 
+                                          [Nationality:Singapore]</font>
+[John Wang, 222222222, 0928222222, Computer Science] <font color="red">[AcademicAdvisor:Dan Smart]</font> found!!    
+Bob Tsai's entry deleted successfully!
+Can not find Bob Tsai's entry!
+...</pre>
+        </font> <font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab13/main2.exe">範例執行程式</a> 
+        <p> 請檢查所產生的 main2.log 檔案內的記錄資料 
+        </p><pre>LoggedStudentList::appendEntry()
+   [Mary Chen, 111111111, 0933111111, Business] [AcademicAdvisor:John Viega]
+LoggedStudentList::appendEntry()
+   [John Wang, 222222222, 0928222222, Computer Science] [AcademicAdvisor:Dan Smart]
+LoggedStudentList::appendEntry()
+   [Mel Lee, 333333333, 0968333333, Mechanical Engineering] [Advisor:Ron Rivest]
+LoggedStudentList::appendEntry()
+   [Bob Tsai, 444444444, 0930444444, Electrical Engineering] [Advisor:Alan Laub]
+...</pre>
+        </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580" bgcolor="#FFFFCC"><font face="微軟正黑體"> 如果希望將 Student 類別設計成一個 
+        Abstract Base Class, 不讓使用者在程式中產生 Student 類別的物件, 我們應該在 Student 類別中挑選至少一個函式作為純粹虛擬函式, 
+        例如 Student::display(ostream&amp;): 
+        <pre>    virtual void display(std::ostream &amp;os) const=0;</pre>
+        同時需要將原來程式中使用 Student 物件的地方以其它衍生類別的物件取代 , 如果你先前有使用 Student 類別的 dummy 物件的話, 
+        也需要用衍生類別的物件取代, 例如 UndergraduateStudent。</font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, .sln 以及 .vcxproj 
+        檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 以及 ipch\ 資料匣下的所有內容) 
+        壓縮起來, 選擇 Lab13-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#FFFFCC"> 
+      <th align="center">&nbsp;</th>
+      <td bgcolor="#FFFFCC"><font face="微軟正黑體"><strong>繼承</strong>與<strong>多型</strong>可以使你的設計非常簡練，有很好的擴充性，過去二十多年來有許多經典的設計，我們通稱為 
+        <a href="http://sourcemaking.com/design_patterns">設計樣板 (Design Pattern)</a>，熟悉這些東西以後，你會有想像不到的軟體設計功力，下圖是常用的 
+        Strategy 設計樣板 (或是稱為 Policy 設計樣板)，其中 Player 類別以及 Strategy 介面就是我們希望能夠維持擴充性卻又在擴充的時候不需要更改的類別, 
+        所有擴充的功能都寫在 Strategy 的衍生類別中。 
+        <p align="center"><img src="Lab%2013-1_files/Strategy.gif" width="540" height="273"> </p>
+        <p>在這個實習中所完成的異質容器物件架構，雖然不是這個 Strategy 樣板，但是 StudentList - Student/UndergraduateStudent/GraduateStudent 
+          的架構及基本設計精神和這個 Strategy 設計樣板是一致的，最主要是<font color="#FF0000">運用 Strategy 
+          這個抽象界面來分隔 (Decouple) Player 類別以及 WinningStrategy 或是 RandomStrategy 類別</font>，在設計的過程中主要滿足了 
+          <a href="http://teddy-chen-tw.blogspot.tw/2012/01/5dependency-inversion-principle.html">Dependency-Inversion 
+          Principle</a>，設計出來的結果也滿足了 <a href="http://teddy-chen-tw.blogspot.tw/2011/12/2.html">Open-Closed 
+          Principle</a>，其中 Student 抽象基礎類別以及運用這個類別的 main() 函式是 open for extension 
+          但是 closed for modification 的，需要增加的功能完全寫在由 Student 類別衍生出來的子類別中。 </p>
+        </font> <p></p>
+        <div align="center"></div></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#FFFFCC">
+      <th align="center">&nbsp;</th>
+      <td bgcolor="#FFFFCC">&nbsp;</td>
+    </tr>
+  </tbody></table>
+</center>
+<p align="center"><font face="微軟正黑體"><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab13/PolymorphicPtr.cpp">多型呼叫語法測試</a></font></p>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%2013-1_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%2013-1_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Wed Jun 20 2018 12:02:47 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 05/25/2004 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

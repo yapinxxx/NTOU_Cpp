@@ -1,0 +1,375 @@
+<html><head>
+<title>
+Lab 8-1
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%208-1_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 8-1: Copy ctor (拷貝建構元) </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%208-1_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> 瞭解拷貝建構元 copy ctor 的用途 <br>
+        <br>
+        瞭解什麼時候該定義 copy ctor, 曉得該定義時卻沒有去定義的後果 <br>
+        <br>
+        練習定義拷貝建構元 </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"><font face="微軟正黑體"> 並不是每一個你製作的類別都需要定義 copy ctor, 例如下面這個類別你就不需要定義 
+        copy ctor: 
+        <pre>    class MyClass
+    {
+    public:
+        MyClass(double x, int size, char cdata, float fdata);
+        void print();
+    private:
+        double m_data1;
+        int m_data2;
+        char m_data3[100];
+        vector&lt;float&gt; m_data4;
+    };
+    
+    MyClass::MyClass(double x, int size, 
+                     char cdata, float fdata)
+        : m_data1(x),
+          m_data2(size)
+    {
+        int i;
+        for (i=0; i&lt;m_data2; i++)
+        {
+            m_data3[i] = cdata;
+            m_data4.push_back(fdata);
+        }
+    }
+    
+    void MyClass::print()
+    {
+        int i;
+        cout &lt;&lt; endl;
+        cout &lt;&lt; "m_data1=" &lt;&lt; m_data1 &lt;&lt; endl;
+        cout &lt;&lt; "m_data2=" &lt;&lt; m_data2 &lt;&lt; endl;
+        for (i=0; i&lt;m_data2; i++)
+            cout &lt;&lt; "m_data3["&lt;&lt;i&lt;&lt; "]=" &lt;&lt; m_data3[i] &lt;&lt; endl;
+        for (i=0; i&lt;m_data2; i++)
+            cout &lt;&lt; "m_data4["&lt;&lt;i&lt;&lt; "]=" &lt;&lt; m_data4[i] &lt;&lt; endl;
+    }</pre>
+        如果你定義一個 copy ctor 如下, 
+        <pre>    MyClass::MyClass(MyClass &amp;src)
+        : m_data1(src.m_data1),
+          m_data2(src.m_data2),
+          m_data4(src.m_data4)
+    {
+        int i;
+        cout &lt;&lt; "entering copy ctor\n"; // 確定一下真的有呼叫
+        for (i=0; i&lt;100; i++)
+            m_data3[i] = src.m_data3[i];
+    }</pre>
+        你所做的其實和 compiler 自動幫你做的一模一樣, 可以不需要做, 不相信的話你可以寫一小段程式測試看看, 例如: 
+        <pre>    void main()
+    {
+        MyClass x1(1.234, 3, 'a', 12.3);
+        MyClass x2(x1);
+        x1.print();
+        x2.print();
+    }</pre>
+        竟然在作白工, compiler 到底還有幫忙做了些什麼事呢? 還是有什麼特殊情況要求一定要自己定義 copy ctor 呢? </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"><font face="微軟正黑體"> 請下載 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab08/ctor/testCtor1.cpp">testCtor1.cpp</a> 
+        編譯並且執行 
+        <p> 這個程式裡主要定義一個 Vector 類別封裝一個整數陣列 
+        </p><pre>    class Vector
+    {
+    public:
+        Vector(int size);
+        ~Vector();
+        int &amp;operator[](int index);
+        void print();
+    private:
+        int *m_data;
+        int m_size;
+    };</pre>
+        main() 函式裡主要內容如下: 
+        <pre>    // 產生一個 dataHolder 物件可以放 20 個整數
+    // 設定 20 個數值, 並且列印
+    Vector dataHolder(20);
+    for (i=0; i&lt;20; i++)
+        dataHolder[i] = 2*i;
+    dataHolder.print();
+
+    // 將 dataHolder 傳入函式 doSomething() 中
+    <font color="blue">doSomething(dataHolder);</font>
+
+    // 在此函式中作一些和 dataHolder 物件沒有關係的事
+    <font color="blue">doIrrelevantThings();</font>
+
+    // 再把 dataHolder 物件內的資料印一遍
+    dataHolder.print();</pre>
+        doSomething() 和 doIrrelevantThings() 兩個函式內容如下: 
+        <pre>    void <font color="blue">doSomething</font>(Vector data)
+    {
+        cout &lt;&lt; "entering function doSomething()...\n";
+        data.print();
+        cout &lt;&lt; "leaving function doSomething()\n\n";
+    }
+    
+    void <font color="blue">doIrrelevantThings</font>()
+    {
+        int i;
+        cout &lt;&lt; "entering function doIrrelevantThings()...\n";
+        int *ptr=new int[20];
+        for (i=0; i&lt;20; i++)
+            ptr[i] = 1000 + i;
+        delete[] ptr;
+        cout &lt;&lt; "leaving function doIrrelevantThings()\n\n";
+    }</pre>
+        在我的機器上 (<font color="#FF0000">Visual Studio 2010, XP sp3</font>) 執行結果如下: 
+        <pre>    C:\&gt;testctor1
+        ============================
+       m_size=20
+         0     2     4     6     8    10    12    14
+        16    18    20    22    24    26    28    30
+        32    34    36    38
+    entering function doSomething()...
+        ============================
+       m_size=20
+         0     2     4     6     8    10    12    14
+        16    18    20    22    24    26    28    30
+        32    34    36    38
+    leaving function doSomething()
+    
+    entering function doIrrelevantThings()...
+    leaving function doIrrelevantThings()
+    
+        ============================
+       <font color="red">m_size=20
+                  0  1001  1002  1003  1004  1005  1006  1007<br>            1008  1009  1010  1011  1012  1013  1014  1015<br>            1016  1017  1018  1019</font></pre>
+        這個結果和你預期的相同嗎? 怎麼會這樣? (實際結果和你執行的平台, 編譯器相關) </font>
+        <p><font face="微軟正黑體"> 請再看一下 doSomething() 和 doIrrelevantThings() 兩個函式, 
+          看得出來為什麼執行完這兩個函式後 dataHolder 物件的內容會變更嗎??? <font color="red">這是一個很嚴重的 bug, 
+          到底發生了什麼事? 該怎麼去除這個 bug?</font></font> 
+        </p><p><font face="微軟正黑體"> 請花一點時間看一下原始程式碼吧? 這個程式裡有一點點 C++ exception 的用法 try-throw-catch, 
+          你可以先忽略它 </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"><font face="微軟正黑體"> 請下載 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab08/ctor/testCtor2.cpp">testCtor2.cpp</a> 
+        編譯並且執行, 看到那個很討厭的視窗了嗎? 
+        <p> 這個程式很短, 內容如下: 
+        </p><pre>    #include &lt;fstream&gt;
+    #include &lt;iostream&gt;
+    using namespace std;
+    
+    void printMessage(ofstream os)
+    {
+        cout &lt;&lt; "entering function printMessage()..." &lt;&lt; endl;
+        os &lt;&lt; "entering function printMessage()..." &lt;&lt; endl;
+        cout &lt;&lt; "leaving function printMessage()" &lt;&lt; endl;
+        os &lt;&lt; "leaving function printMessage()" &lt;&lt; endl;
+    }
+    
+    void main()
+    {
+        ofstream outfile("out.txt");
+        cout &lt;&lt; "entering function main()..." &lt;&lt; endl;
+        outfile &lt;&lt; "entering function main()..." &lt;&lt; endl;
+        printMessage(outfile);
+        cout &lt;&lt; "leaving function main()" &lt;&lt; endl;
+        outfile &lt;&lt; "leaving function main()" &lt;&lt; endl;
+    }</pre>
+        主要是利用 ofstream 開啟一個檔案, 把一些資料寫入檔案中, 並且呼叫一個 printMessage() 函式, 將檔案串流傳入函式內, 
+        函式內也是將一些資料寫入檔案中而已 </font>
+        <p><font face="微軟正黑體"> 這麼簡單的幾列程式, 為什麼竟然在 VC 2010 有編譯時候的錯誤? (VC 2008 以前更慘, 
+          這會是執行時的錯誤) 該不會是<font color="white">VC 壞了吧! 還是系統壞了? 重灌吧? 不! 不! 不! 資訊系的不要隨便下這樣的結論, 
+          Visual Studio 或是 Windows 也不過是一支一支程式組合起來的而已, 要有信心!?!</font></font> </p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 上面這兩個程式的錯誤都和 copy ctor 有關, 在第一個程式中, 
+        <pre>    void doSomething(Vector data)
+    {
+        ...
+    }
+    ...
+    doSomething(dataHolder);</pre>
+        dataHolder 物件是以 call-by-value 的方式傳入 doSomething 函式中, 此時 compiler 會呼叫 copy 
+        ctor 來把 dataHolder 物件複製一遍, 產生一個新的 data 物件, 由於 Vector 物件沒有定義 copy ctor, 
+        compiler 就用預設的 bitwise-copy ctor 來完成這個拷貝的動作, 因此 dataHolder 內的 m_data 指標會被複製一遍, 
+        但是並沒有重新配置一個可以放 20 個整數的陣列, 記憶體內產生下圖的結構: </font>
+        <center>
+          <font face="微軟正黑體"><img src="Lab%208-1_files/ctorFig1.gif"> </font>
+        </center>
+        <font face="微軟正黑體">到這一步驟都沒有問題, 所以在 doSomething() 函式內呼叫 data.print() 也會輸出正確的結果 
+        <p> 不幸的事情發生在離開 doSomething() 函式的那一刻, 由於 data 物件是 doSomething() 函式內區域性的變數, 
+          所以在離開時會解構掉, 根據 Vector 類別的解構元 
+        </p><pre>    Vector::~Vector()
+    {
+        delete[] m_data;
+    }</pre>
+        CPU 會將 data.m_data 所指到的記憶體刪除, 也就產生如下圖的 dangling pointer (dataHolder.m_data) 
+        </font>
+        <center>
+          <font face="微軟正黑體"><img src="Lab%208-1_files/ctorFig2.gif"> </font>
+        </center>
+        <font face="微軟正黑體">雖然在 dataHolder.m_data 指標變數裡還記著一個記憶體位址, 可是其實所配置的記憶體已經還給系統, 
+        系統並沒有保留給 dataHolder 使用 
+        <p> 在 doIrrelevantThings() 函式裡, 我們雖然沒有再去使用到 dataHolder 這個物件, 但是我們又向系統要了一些記憶體來存放資料, 
+          很不幸的是系統就把原本配置給 dataHolder 的那一塊記憶體拿給你使用, 所以你會以為系統很神奇地改變了 dataHolder 內的資料??!!?? 
+        </p><p> 修改的方式有兩種, 第一種方式比較簡單, 就是在這種狀況下不要用 call-by-value, 把 doSomething() 函式的參數改為 
+        </p><pre>    void doSomething(Vector <font color="red">&amp;</font>data)
+    {
+        ...
+    }</pre>
+        如此在開始執行時不會呼叫拷貝建構元, 離開時也不會呼叫解構元, 就不會發生不幸的事情了, (請測試一下), <font color="blue">不過如果你不希望 
+        doSomething() 函式有 side effects</font>, 也就是你希望就算在函式內修改 data 物件的內容也不要動到 
+        main() 函式內的 dataHolder 物件的話, 這種方法就不行了 </font>
+        <p><font face="微軟正黑體"> 第二種方法是替 Vector 類別定義一個 copy ctor, 理想的 Vector 類別物件的拷貝應該如下圖所示: 
+          </font>
+          </p><center>
+            <font face="微軟正黑體"><img src="Lab%208-1_files/ctorFig3.gif"> </font>
+          </center>
+          <font face="微軟正黑體">請替 Vector 類別定義拷貝建構元 </font>
+        <pre><font face="微軟正黑體" color="#DDEEDD">
+    Vector::Vector(Vector &amp;src)
+    {
+        // 內容當然就是拷貝 src.m_size, 
+        // 配置足夠大的記憶體, 
+        // 寫一個迴圈拷貝 src.m_data[0] ... src.m_data[m_size-1]
+    }</font></pre>
+        <font face="微軟正黑體"> 請記得使用初始化串列</font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體"> 第二個程式的錯誤還是和拷貝建構元與解構元有關, 只是這次是 fstream 
+        函式庫中的 ofstream 類別, 你能夠嘗試解釋編譯的錯誤訊息嗎? </font>
+        <p> <font face="微軟正黑體" color="white"> 你仔細看錯誤的訊息會發現是一個合成拷貝建構元的錯誤, VC2010 
+          的 ofstream 類別, 不允許你合成拷貝建構元, 也就是說 ofstream 的串流物件是不允許你在程式裡拷貝好幾份的, 你也許在第一份 
+          ofstream 串流物件裡由第 10 個位元組開始寫進去 10 個位元組, 但是在第二份 ofstream 串流物件裡由第 3 個位元組開始寫進去 
+          7 個位元組, 一個檔案串流的寫入不能有兩個讀寫位置,另外在解構拷貝的 os 物件時會將相對應的檔案關閉, 也會造成透過另外一個 ofstream 
+          串流物件讀寫時的錯誤, 所以在合成拷貝建構元的時候會失敗, 合成出來的程式碼沒有辦法編譯!! </font> 
+        </p><p><font face="微軟正黑體"> 解決的辦法和上一個程式的第一種方法相同, 第二種方法則不行, 主要的原因有二, 第一是 ofstream 
+          是 fstream 函式庫中的類別, 你沒有辦法替它定義一個新的拷貝建構元 (請參考 <a href="http://www.cplusplus.com/reference/ios/basic_ios/basic_ios/">cpluscplus</a>:The 
+          copy constructor (3) is explicitly deleted (as well as the copy assignment 
+          overload of operator=).), 那麼為什麼製作 fstream 函式庫的人不替它定義一個安全一點的 copy ctor 
+          呢? 因為就算你能夠替它定義一個拷貝建構元, 幫這個串流物件重新開啟一個檔案, 拷貝原來檔案的內容過來似乎不是一個經濟的作法。 </font>
+        </p><p><font face="微軟正黑體">在 VC2010 中編譯的錯誤訊息如下: </font>
+        </p><blockquote> 
+          <p><font face="微軟正黑體">error C2248: 'std::basic_ios&lt;_Elem,_Traits&gt;::basic_ios' 
+            : 無法存取 private 成員</font></p>
+          <p><font face="微軟正黑體">這項診斷發生在編譯器產生的(拷貝元)函式'std::basic_ofstream&lt;_Elem,_Traits&gt;:: 
+            basic_ofstream(const std::basic_ofstream&lt;_Elem,_Traits&gt; &amp;)' 
+            中</font></p>
+        </blockquote>
+        <p><font face="微軟正黑體"> 請修改程式, 更正它的錯誤, 另外你能夠用指標 ofstream * 來完成上面的修改嗎? </font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580" bgcolor="#DDEEBB"><font face="微軟正黑體"> 請助教檢查後, 將所完成的 專案 (只需保留 
+        .cpp, .h, .sln 以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 
+        資料匣, 以及 ipch\ 資料匣下的所有內容) 壓縮起來, 選擇 Lab8-1 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+        後面的實習課程可能需要使用這裡所完成的程式 </font></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th align="center"></th>
+      <td><font face="微軟正黑體">如果你的<font color="red">類別裡自行配置記憶體來存放資料, 或是你運用到其它自行配置記憶體的類別物件當作成員</font>, 
+        那麼你應該要自己寫 copy ctor, 否則使用這個類別的程式只要用到 call-by-value 時就會發生意外, 例如 ofstream 
+        類別就是這樣, 如果你所設計的類別不希望客戶程式在無意間使用 call-by-value 的話, 也可以把一個空的 copy ctor 宣告成 
+        private 的, 例如: 
+        <pre>    class Vector
+    {
+        ...
+    private:
+        Vector(Vector &amp;src) {}
+    };</pre>
+        如此客戶程式碼要用到 call-by-value 時, compiler 會告訴它 "無法使用 copy ctor", 強迫它用 call-by-reference, 
+        不過用這種方法時, 如果是類別裡自己使用 call-by-value 的話, compiler 就不會幫你偵測出來了。 
+        </font><p><font face="微軟正黑體"> 你可以告訴我為什麼 copy ctor X(X&amp;) 的參數需要用 "參考 X&amp;" 嗎? 為什麼不用 call-by-value? </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" bgcolor="#DDEEBB" align="center"></th>
+      <td width="580" bgcolor="#DDEEBB"><font face="微軟正黑體"> 請下載下列程式專案, 編譯, 在 VC2010, 
+        VC2008 裡是有編譯錯誤的, 想一想原因, 試看看你能不能找到正確的解釋, 修改看看 
+        <p><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab08/CopyCtorError1.rar">專案 1</a> (提示: X(X&amp;) 和 X(const X&amp;) 是兩個不同的拷貝建構元)</p>
+        <p><a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab08/CopyCtorError2.rar">專案 2</a></p>
+        </font></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%208-1_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%208-1_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Fri Mar 31 2017 21:35:32 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 03/13/2013 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>

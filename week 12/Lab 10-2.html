@@ -1,0 +1,375 @@
+<html><head>
+<title>
+Lab 10-2
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<meta http-equiv="Expires" content="Mon, 15 Apr 2002 00:00:00 GMT">
+</head>
+
+<body bgcolor="#C8F4F4" background="Lab%2010-2_files/cyan_diffuse.gif">
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+</font>
+<center>
+  <h1><font face="微軟正黑體"> Lab 10-2: 串列 (List) 的 Iterator 與 operator[] </font></h1>
+  <center>
+    <p><font face="微軟正黑體"><img src="Lab%2010-2_files/rainbow.gif"></font>
+  </p></center>
+  <table width="700" cellspacing="10" cellpadding="6" border="0">
+    <tbody><tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">實習目標</font></th>
+      <td width="580"><font face="微軟正黑體"> operator overloading: operator-&gt;, 
+        operator*, operator[] <br>
+        friend and Iterator <br>
+        static member variable </font></td>
+    </tr>
+    <tr bgcolor="#6633DD" align="center"> 
+      <td width="75" align="center"><font face="微軟正黑體" color="white">&nbsp;</font></td>
+      <th width="580" align="center">&nbsp;</th>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟一</font></th>
+      <td width="580"> <font face="微軟正黑體"><br>
+        在<a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab10/Lab10-1.html">上一個實習</a>中我們製作了 Student 類別, StudentList 類別, StudentList::Node 
+        類別, 這三個類別主要提供的功能包括將 Student 物件記錄在 StudentList 中, 將具有某一 id 的 Student 物件找到或是刪除。 
+        </font><p><font face="微軟正黑體"> 還缺的功能包括 </font>
+        </p><ol>
+          <p> 
+          </p><li><font face="微軟正黑體"> 順序將記錄在 StudentList 中的 Student 物件取出來 (這個功能我們將嘗試以兩種方式來達到: 
+            <strong>a.</strong> iterator<strong> b.</strong> operator[]) </font>
+            <p> 
+          </p></li><li><font face="微軟正黑體"> insert(): 在串列中某一個 Student 物件之後加入新的一個 Student 
+            物件 </font></li></ol></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟二</font></th>
+      <td width="580"> <font face="微軟正黑體"><br>
+        我們先來看看測試程式, 了解希望加入的功能到底需要配合什麼應用程式: </font>
+        <pre><font face="微軟正黑體">
+    void main()
+    {
+        StudentList sList;
+        sList.appendEntry(new Student("Mary Chen", "111111111", 
+                                      "0933111111", 
+                                      "Business"));
+        sList.appendEntry(new Student("John Wang", "222222222", 
+                                      "0928222222", 
+                                      "Computer Science"));
+        sList.appendEntry(new Student("Mel Lee", "333333333", 
+                                      "0968333333", 
+                                      "Mechanical Engineering"));
+        sList.appendEntry(new Student("Bob Tsai", "444444444", 
+                                      "0930444444", 
+                                      "Electrical Engineering"));
+        sList.appendEntry(new Student("Ron Yang", "555555555", 
+                                      "0918555555", 
+                                      "Computer Science"));
+
+        // 列印串列中所有的 Student 物件
+        int i;
+        <font color="blue">Iterator</font> iter<font color="blue">(sList)</font>;
+        for (i=0, iter.<font color="blue">reset()</font>; iter.<font color="blue">hasMoreData()</font>; iter.<font color="blue">next()</font>, i++)
+        {
+            cout &lt;&lt; i &lt;&lt; ":";
+            iter<font color="red">-&gt;</font>display(cout);
+            cout &lt;&lt; endl;
+        }
+        cout &lt;&lt; endl;
+
+        // 檢查是否串列中有兩個學生是在同一個系所的           
+        <font color="blue">Iterator</font> iter1<font color="blue">(sList)</font>, iter2<font color="blue">(sList)</font>;
+        for (iter1.<font color="blue">reset()</font>; iter1.<font color="blue">hasMoreData()</font>; iter1.<font color="blue">next()</font>)
+        {
+            for (iter2<font color="blue">=</font>iter1, iter2.<font color="blue">next()</font>; 
+                 iter2.<font color="blue">hasMoreData()</font>; iter2.<font color="blue">next()</font>)
+            {
+                if (iter1<font color="red">-&gt;</font></font><font face="微軟正黑體" color="blue">ofTheSameDepartment(</font><font face="微軟正黑體" color="red">*iter2</font><font face="微軟正黑體" color="blue">)</font><font face="微軟正黑體">)
+                {
+                    cout &lt;&lt; "The following two students are "
+                             "of the same department:\n";
+                    iter1<font color="red">-&gt;</font>display(cout);
+                    cout &lt;&lt; endl;
+                    iter2<font color="red">-&gt;</font>display(cout);
+                    cout &lt;&lt; endl;
+                }
+            }
+        }
+
+        // 在 id="333333333" 的學生之後再加入一個學生
+        for (iter1.<font color="blue">reset()</font>; iter1.<font color="blue">hasMoreData()</font>; iter1.<font color="blue">next()</font>)
+            if (iter1<font color="red">-&gt;</font>IDEquals("333333333"))
+                sList.<font color="blue">insertEntry(iter1, 
+                                  new Student("Carol Chen", "333331111", 
+                                              "0933333111", "Business"))</font>;
+        for (i=0; i&lt;sList.<font color="blue">size()</font>; i++)
+            sList<font color="blue">[i]</font></font><font face="微軟正黑體" color="red">-&gt;</font><font face="微軟正黑體">display(cout);
+    }</font></pre> 
+      </td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟三</font></th>
+      <td width="580"> <font face="微軟正黑體"><br>
+        我們需要定義 Iterator 類別 
+        <p> 這個類別依照上述的用法來看至少應該要有下列功能 
+        </p><pre>    class Iterator
+    {
+    public:
+        Iterator(StudentList &amp;list);
+        void reset();
+        void next();
+        Student &amp;operator*() const;
+        Student *operator-&gt;() const;
+        bool hasMoreData() const;
+    private:
+        StudentList::Node *m_iterator;
+        StudentList *m_list;
+    };</pre>
+        這個類別和 StudentList 有很密切的關連, 所以值得用 friend 功能來實作, 它需要存取 StudentList 內的資料成員, 
+        所以需要在 StudentList 內將 Iterator 設為其 friend 類別 
+        <p> 建構元 Iterator(StudentList &amp;list) 最主要需要建構出這個 Iterator 物件和 StudentList 
+          之間的關係, 同時將 m_iterator 這個 Node 指標清為 0 
+        </p><p> reset() 及 next() 為移動目前的指標 m_iterator 位置的基本函式 
+        </p><p> hasMoreData() 界面函式可以測試是不是已經移到串列最尾端 
+        </p></font><p><font face="微軟正黑體"> operator-&gt;() 是 <font color="#0000FF"><strong>member access operator</strong></font>, 
+          這是讓一個物件使用起來像是指標的關鍵, 在實作 iterator 或是 Smart pointer 時都需要定義這個成員函式, 在這裡我們設計成讓它傳回目前 
+          m_iterator 所指到的節點所紀錄的 Student 物件指標, 例如: </font>
+        </p><pre><font face="微軟正黑體" color="white">    Student *Iterator::operator-&gt;() const
+    {
+        if (m_iterator)
+            return m_iterator-&gt;m_data;
+        else
+            return 0; // 這個地方請測試並且思考一下回傳 0 會不會造成<br>
+    }                     //  member access 的錯誤, 有沒有其它方法? (參考下面說明) </font></pre> <p><font face="微軟正黑體"> 
+          operator*() 是 dereferencing operator, 它應該要傳回目前指標 m_iterator 所指到的 Student 
+          物件的參考, 例如: </font>
+        </p><pre><font face="微軟正黑體" color="white">
+    Student &amp;Iterator::operator*() const
+    {
+        if (m_iterator)
+            return *(m_iterator-&gt;m_data);
+        else
+            return m_dummy;
+    }</font></pre>
+        <font face="微軟正黑體"> m_dummy 是一個額外宣告在類別裡的 static Student 物件, 目的是在 m_iterator 
+        內容不正確時仍然可以傳回一個 Student 物件的參考, 但是這個物件裡其實沒有什麼重要的東西, 所以也不需要每一個物件裡都宣告一份, 所以把它設計為類別的靜態成員, 
+        所有這個類別的物件都共同使用, 不過這只是目前暫時的處理方法, 以後我們學到 "例外 (exception) 處理" 時, 就可以不需要這樣子做了 
+        <pre>    class Iterator
+    {
+        ...
+    private:
+        static Student m_dummy;
+    };
+    
+    記得要在 iterator.cpp 中定義
+
+    Student Iterator::m_dummy;</pre>
+        </font> </td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟四</font></th>
+      <td width="580"><font face="微軟正黑體"> 定義 int StudentList::size() const; 成員函式 
+        </font><p><font face="微軟正黑體"> 傳回目前 StudentList 內 Student 物件的總個數, 這個函式內可以當場去算一遍到底 List 內有幾個節點, 也可以在 
+          StudentList 內實作一個變數來記錄目前總共有幾筆資料, 在 appendEntry() 或是 insertEntry() 時加一, 
+          deleteEntry() 時減一 </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟五</font></th>
+      <td width="580"><font face="微軟正黑體"> 定義 Student *&amp;StudentList::operator[](int 
+        slot); 成員函式 
+        </font><p><font face="微軟正黑體"> 將 StudentList 中第 slot 個節點所記錄的 Student 物件的指標成員的參考傳回, 方便使用這個 StudentList 
+          的模組可以直接修改, 例如: </font>
+        </p><pre><font face="微軟正黑體">for (i=0; i&lt;sList.size(); i++)
+    if (sList<font color="blue">[i]</font></font><font face="微軟正黑體" color="red">-&gt;</font><font face="微軟正黑體">IDEquals("333333333"))
+    {
+        delete sList[i];
+        sList<font color="blue">[i]</font> = new Student("Melany Lee", "333333334", 
+                               "0968333333", 
+                               "Mechanical Engineering");
+        break;
+    }</font></pre>
+        <font face="微軟正黑體"> operator[] 一般來說只對於能夠支援 random access 的容器來定義, 對於這個 
+        StudentList 容器定義 operator[] 是比較不好的應用; 在這裡因為回傳節點裡面欄位 m_data 的參考, 其實對於 StudentList 
+        的封裝是很大的破壞, 上面需要執行 delete sList[i] 其實就是等於連所紀錄 Student 物件的管理權都交出去了, 所以要定義這個 
+        operator[] 的時候需要有更仔細的考量; 另外請注意一個函式千萬不要回傳區域物件或是區域變數的參考 </font></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟六</font></th>
+      <td width="580"><font face="微軟正黑體"> 定義 void StudentList::insertEntry(Iterator 
+        iter, Student *student); 成員函式 
+        <p> 上面這個函式把 Iterator 物件作為第一個參數, 請評估是否需要定義 Iterator 類別的拷貝建構元 
+        </p><p>要將一個 Student 物件加入目前 iter 所指向的節點之後, Iterator 類別需要定義界面把它目前所指向的節點 m_iterator 
+          傳出來, 或是 StudentList 可以將這個 insertEntry 的動作交給 Iterator 類別來完成 
+        </p><p>請注意由於 Iterator 類別定義時需要先定義 StudentList 類別, 因此在 Iterator.h 裡必須先 #include 
+          "StudentList.h"。但是此步驟中加入的成員函式使得定義 StudentList 時必須知道 Iterator 
+          類別, 否則 compiler 會發出 "不認得 Iterator" 的錯誤訊息, 此時很直覺地就會希望在 StudentList.h 
+          中加入 #include "Iterator.h" 的敘述, 以便在定義 StudentList 類別之前先定義 Iterator 
+          類別, 可是<font color="#FF0000">這樣子做解決不了問題</font>--你發現定義 StudentList 類別時希望先定義 
+          Iterator 類別, 然後在定義 Iterator 類別時先定義 StudentList 類別 這兩個要求是矛盾的。 像這樣 StudentList.h 
+          引入 Iterator.h 同時 Iterator.h 又引入 StudentList.h 的情況我們說這兩個模組中間有「循環依賴」 (Circular 
+          Dependency)，這是編譯器不允的，實際上 StudentList 類別和 Iterator 類別中間存在「循環關聯性」(Circular 
+          Relationship) 但是並不應該存在循環依賴。 
+        </p><p>解決這個問題的方法是用 forward declaration (預先宣告) 
+        </p><pre>----------------- Iterator.h --------------------
+#include "StudentList.h"
+class Iterator
+{
+...
+};
+---------------- Iterator.cpp -------------------
+#include "Iterator.h"
+...
+--------------- StudentList.h ------------------<strong>
+<font color="#FF0000">class Iterator;</font></strong>
+class StudentList
+{
+...
+};
+-------------- StudentList.cpp -----------------
+#include "StudentList.h"
+<font color="#FF0000">#include "Iterator.h"</font>
+...</pre>
+        </font> 
+        <p><font face="微軟正黑體">請注意</font></p>
+        <ul>
+          <li><font face="微軟正黑體">什麼時候可以用 forward declaration 呢? 什麼時候一定要 #include 
+            呢?<br>
+            Ans: 如果你只需要用 Iterator 來定義一個指標或是參考資料成員, 或是你只是用 Iterator 定義一個函式的參數 (指標/參考/物件)</font><font face="微軟正黑體"> 
+            , 你就可以用 forward declatation, 否則需要使用 #include, 另外在 .cpp 中也一定是使用 #include</font></li>
+          <li><font face="微軟正黑體">上面各個 include 的順序代表的意義不太一樣, 如果先 #include "Iterator.h" 
+            再 #include "StudentList.h" 則第二個 #include 是沒有做任何事情的, 因為 Iterator.h 
+            裡面已經有 #include "StudentList.h" 了</font></li>
+          <li><font face="微軟正黑體">如果你在 class StudentList 中已經有 friend class Iterator; 
+            的敘述, 就可以省掉 前面的 class Iterator; 敘述.</font></li>
+          <li><font face="微軟正黑體"> 請參考 <a href="http://squall.cs.ntou.edu.tw/cpp/102spring/lab10/CPP-1052%20Circular%20Dependency%20and%20Forward%20Declaration_splitted.pdf">循環依賴與預先宣告</a></font></li>
+        </ul>
+        <p>&nbsp;</p>
+        <p><font face="微軟正黑體">理論上另外一種可能的作法如下, 但是由於 <font color="#FF6600"><strong>class 
+          StudentList::Node;</strong></font> 是一個編譯器在 StudentList 為預先宣告類別時無法接受的敘述, 
+          所以下面這個方式是不成功的</font></p>
+        <pre><font face="微軟正黑體">----------------- Iterator.h --------------------
+<font color="#FF0000">class StudentList;
+<strong><font color="#FF6600">class StudentList::Node;</font></strong></font>
+
+class Iterator
+{
+...
+};
+---------------- Iterator.cpp -------------------
+#include "Iterator.h"
+<font color="#FF0000">#include "StudentList.h"</font>
+...
+--------------- StudentList.h ------------------
+<font color="#000000">#include "Iterator.h"</font>
+class StudentList
+{
+...
+};
+-------------- StudentList.cpp -----------------
+#include "StudentList.h"
+...</font></pre> 
+        <p><font face="微軟正黑體">請注意一下一般來說 myClass.h 檔案內到底應該放些什麼東西? </font></p>
+        <ol>
+          <li><font face="微軟正黑體">因為 myClass.h 檔案最主要的功能是給<strong> "其它模組" 
+            </strong>(例如 main.cpp) 引入 class myClass 的定義的, 所以在思考的時候要從其它模組的角度來想</font></li>
+          <li><font face="微軟正黑體">當然 myClass.h 裡最主要的東西是 class myClass 的定義</font></li>
+          <li><font face="微軟正黑體">有的時候也會因為 myClass 和某些其他類別密切結合, 所以會引入那個類別的定義, 例如上述 
+            StudentList.h 可能就會引入 Student.h</font></li>
+          <li><font face="微軟正黑體">很多同學常常會以為 myClass.h 主要是給 myClass.cpp 引入的, 所以把 
+            myClass.cpp 裡面所有需要引入的宣告檔案都引入進來, 例如 myClass.cpp 裡需要 iostream, string, 
+            vector, string.h, 所以就在 myClass.h 裡面引入上述, 這是<strong>不對的</strong></font></li>
+          <li><font face="微軟正黑體">原則上, myClass.h 檔案裡引入的定義檔案<strong>越少越好</strong>, 
+            別的模組 xxx.cpp 在引入 myClass.h 時才不會發生意想不到的狀況, 例如 xxx.cpp 明明需要使用 vector, 
+            但是卻看不到 #include &lt;vector&gt; 的敘述, 除了讓編譯器節省一點時間之外, 更重要的原因是減少模組的 依存性 
+            (dependency), 增加模組的<strong>可重用性</strong>。 </font></li>
+          <li><font face="微軟正黑體">myClass.h 裡千萬不要放全域變數的定義, 會造成變數的多重定義 (multiple 
+            definitions)</font></li>
+        </ol>
+        <p><font face="微軟正黑體">最後在編譯你的程式時, 可以先點選個別 .cpp 檔案, 然後使用 建置/編譯 (Ctrl-F7) 
+          來一個一個檔案確定語法以及所引入的檔案是否正確, 如果你使用 建置/建置方案 來編譯你的程式, 常常因為一次編譯多個檔案, 你弄不清楚到底是在編譯哪一個檔案時發生錯誤, 
+          而且如果編譯錯誤發生在引入的檔案中, 因為你的程式裡可能有很多地方都引入相同的檔案, 不容易直接看出來到底是哪裡的語法出錯, 容易誤導你的判斷</font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟七</font></th>
+      <td width="580"><font face="微軟正黑體"> 定義 bool Student::ofTheSameDepartment(Student 
+        &amp;student2); 成員函式 
+        </font><p><font face="微軟正黑體"> 檢查兩個學生是不是同一個系所</font></p></td>
+    </tr>
+    <tr bggcolor="#FFFFCC" bgcolor="#DDEEBB"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟八</font></th>
+      <td width="580"><font face="微軟正黑體"> 請評估是否需要定義 assignment operator Iterator::operator=() 
+        ? 
+        </font><p><font face="微軟正黑體"> 請注意 Iterator 類別獨立於 StudentList 之外, 在使用時會有點奇怪, 這個 Iterator 類別只能和 StudentList 
+          類別一起用, 也許叫做 StudentListIterator 比較恰當, 或者根本應該宣告在 StudentList 裡面作為一個 public 
+          inner class!! </font></p></td>
+    </tr>
+    <tr bggcolor="#DDEEBB" bgcolor="#FFFFCC"> 
+      <th width="75" align="center"><font face="微軟正黑體">步驟九</font></th>
+      <td width="580"> <p><font face="微軟正黑體">請助教檢查後, 將所完成的 專案 (只需保留 .cpp, .h, 
+          .sln 以及 .vcxproj 檔案即可; 刪除掉 .suo, .sdf, .filters, .users, debug\ 資料匣, 
+          以及 ipch\ 資料匣下的所有內容) 壓縮起來, 選擇 Lab10-2 <a href="http://sirius.cs.ntou.edu.tw/cppBB/index_cpp.php">上傳</a>, 
+          後面的實習課程可能需要使用這裡所完成的程式 </font></p></td>
+    </tr>
+  </tbody></table>
+</center>
+<font face="微軟正黑體">
+<!---------------------------------------------------------------->
+<script type="text/javascript">
+function toggleSquallSirius() {
+var currentPageUrlIs = "";
+var nextPageUrl = "";
+if (typeof this.href != "undefined") {
+       currentPageUrlIs = this.href.toString(); 
+}else{ 
+       currentPageUrlIs = document.location.toString();
+}
+if (currentPageUrlIs.match("squall")) {
+    nextPageUrl =  currentPageUrlIs.replace("squall", "sirius");
+}else{
+    nextPageUrl = currentPageUrlIs.replace("sirius","squall");
+}
+//alert(currentPageUrlIs + nextPageUrl);
+window.location.href = nextPageUrl;
+}
+</script>
+<center>
+  <p><img src="Lab%2010-2_files/rainbow.gif">
+</p></center>
+</font>
+<div align="right"> 
+  <p> 
+  <table boder="0">
+    <tbody><tr> 
+      <td width="120"> <font face="微軟正黑體"><img onclick="toggleSquallSirius();" src="Lab%2010-2_files/albatros80x100.gif" width="80" height="100"> 
+        </font></td>
+      <td align="right"> <font size="2" face="微軟正黑體"><i> 回 <a href="http://squall.cs.ntou.edu.tw/cpp/index.html"> 
+        C++ 物件導向程式設計課程 </a> 首頁 <br>
+        <script language="JavaScript">
+<!--
+lastDate = new Date(document.lastModified);
+if (document.all) // IE
+{
+    if (lastDate.getYear() < 1000)
+    {
+        lastDate.setYear(lastDate.getYear()+2000);
+        lastDate.setTime(lastDate.getTime()-lastDate.getTimezoneOffset()*60000);
+    }
+}
+document.write("最近更新日期: "+lastDate)
+//-->
+</script>最近更新日期: Fri May 25 2018 20:57:27 GMT+0800 (Taipei Standard Time)
+        <br>
+        製作日期: 05/04/2004 by 丁培毅 (Pei-yih Ting) <br>
+        E-mail: <a href="mailto:pyting@mail.ntou.edu.tw">pyting@mail.ntou.edu.tw</a> 
+        TEL: 02 24622192x6615 <br>
+        <a href="http://www.ntou.edu.tw/"><font color="#0000aa">海洋大學</font></a> <a href="http://www.ntou.edu.tw/eecs/index.htm"><font color="#0000cc">電機資訊學院</font></a> 
+        資訊工程學系 Lagoon </i> </font> </td>
+  </tr></tbody></table>
+  <font face="微軟正黑體"></font></p><font face="微軟正黑體"> </font></div>
+
+
+
+</body></html>
