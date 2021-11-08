@@ -110,6 +110,12 @@ void Complex::print(void)
     std::cout << magnitude() << std::endl;
 }
 
+
+void Complex::assert_test(void)
+{
+    
+}
+
 void Complex::unitTest(void)
 {
     Complex x, y, z;
@@ -171,10 +177,11 @@ void Complex::unitTest(void)
     // std::cout << "End divide()" << "\n" << std::endl;
     std::cout << "unitTest success" << std::endl;
 
-
     
     //cin.get();
 }
+
+
 
 Complex::~Complex(void)
 {

@@ -12,8 +12,10 @@ class Complex
         bool divide(Complex input);
         bool equal(Complex input, double precision);
         double magnitude(void);
+        void assert_test(void);
         void print(void);
         static void unitTest(void);
+        
     private:
         double m_real;
         double m_imaginary;
